@@ -1,0 +1,23 @@
+{
+  "git.ignoreLimitWarning": true,
+
+  // Biome handles formatting, linting and import sorting for this project.
+  // Formatting on save is safe. Import fixes are deliberately NOT run on save:
+  // "quickfix.biome" deletes imports it considers unused, which silently breaks
+  // a file that is mid-edit. Run them on demand with `bun run check` instead.
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "biomejs.biome",
+  "[javascript]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[javascriptreact]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[typescript]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[typescriptreact]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[json]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[jsonc]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[css]": { "editor.defaultFormatter": "biomejs.biome" },
+
+  // LF everywhere, matching .gitattributes and biome.jsonc.
+  "files.eol": "\n",
+
+  // Use the workspace TypeScript so editor errors match `bun run build`.
+  "typescript.tsdk": "node_modules/typescript/lib"
+}

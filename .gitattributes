@@ -1,0 +1,18 @@
+# Normalise line endings to LF in the repo and on checkout.
+# Keeps Git and Biome (formatter lineEnding: "lf") in agreement on Windows,
+# where core.autocrlf=true would otherwise flip files back to CRLF.
+* text=auto eol=lf
+
+# Binary assets: never touch.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+
+# Lockfile: generated, collapse it in diffs and reviews.
+bun.lock linguist-generated=true

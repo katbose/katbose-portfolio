@@ -1,0 +1,57 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.13/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": true,
+    // `!dir/**/*` is the form that both excludes the contents and satisfies
+    // biome's own useBiomeIgnoreFolder rule (`!dir/` does not actually exclude).
+    "includes": ["**", "!public/**/*", "!bun.lock", "!.next/**/*"]
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "lineEnding": "lf"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "suspicious": {
+        // Every list in this project is rendered from the static `portfolio.json`
+        // content file, in file order. Nothing reorders, filters, or mutates at
+        // runtime, which is the case React itself sanctions index keys for.
+        // Content-derived keys would collide on repeated prose (the essays contain
+        // one-line paragraphs), so the index is the safer key here.
+        "noArrayIndexKey": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "jsxQuoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all",
+      "arrowParentheses": "always"
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  }
+}
