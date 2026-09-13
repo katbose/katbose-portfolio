@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# Never cut two releases at once: a second push while a release PR is being
+# reconciled would race on the same manifest and tag.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+# Wider than CI on purpose, and the reason releases live in their own workflow
+# rather than as a job in ci.yml.
+permissions:
+  # Commit the version bump and changelog, and create the tag and GitHub release.
+  contents: write
+  # Open and update the release pull request.
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: Prepare release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # googleapis/release-please-action v5.0.0, pinned by SHA so a moved tag
+      # cannot change what runs with `contents: write`.
+      #
+      # There is one version for the entire repository. release-please owns:
+      #   - the `version` field in the root package.json (release-type: node)
+      #   - apps/docs/changelog.mdx
+      #   - the tag, which is exactly vX.Y.Z (include-component-in-tag: false)
+      #
+      # The workspaces under apps/ and packages/ deliberately declare no
+      # `version` field, so there is nothing there for this to drift against.
+      #
+      # NOTE: this runs with the default GITHUB_TOKEN. GitHub does not trigger
+      # workflows from events raised by that token, so CI does not run on the
+      # release pull request itself. That is acceptable here because the PR only
+      # touches package.json and the changelog, and CI has already passed on the
+      # commits being released. Swap in a PAT as `token:` if CI on the release PR
+      # is ever wanted.
+      - name: Run release-please
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
