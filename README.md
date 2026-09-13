@@ -1,184 +1,195 @@
-# Hackyfolio ~ Portfolio for Devs 🚀
+<div align="center">
+  <a href="https://katbose.dev" aria-label="Visit katbose.dev">
+    <img src=".github/assets/katbose-banner.png" alt="katbose.dev — the personal portfolio of Katabathuni Bose" width="920">
+  </a>
 
-A clean, fast personal portfolio built with Next.js. Edit one JSON file, get a full website. 🚀
+  <h1>Katabathuni Bose · Portfolio Platform</h1>
 
-<p align="center">
-  <img width="700" alt="Portfolio screenshot" src="https://github.com/user-attachments/assets/67dfde3b-577e-4fcb-9f84-aa4824341ece" />
-</p>
+  <p>
+    <strong>A modern digital home for engineering, product thinking, and writing.</strong><br>
+    Content-driven, agent-readable, and built as a production-grade monorepo.
+  </p>
 
-The whole site is driven by a single data file: [`app/data/portfolio.json`](app/data/portfolio.json). You write your content there, and the page renders it for you. You should not need to touch any code to make this your own.
+  <p>
+    <a href="https://katbose.dev"><strong>katbose.dev</strong></a>
+    ·
+    <a href="https://github.com/katbose">GitHub</a>
+    ·
+    <a href="https://www.linkedin.com/in/katbose/">LinkedIn</a>
+    ·
+    <a href="https://x.com/katbose_x">X</a>
+    ·
+    <a href="mailto:im@katbose.dev">Email</a>
+    ·
+    <a href="https://cal.com/katbose/meet">Book a call</a>
+  </p>
+</div>
 
-It also has two views, toggled with a switch in the bottom bar:
+---
 
-- **Human mode**: the normal, good-looking website.
-- **Agent mode**: the same content as plain Markdown text, friendly for AI agents and scrapers. This is generated from the same JSON, so it can never go out of sync.
+## More than a portfolio page
 
-## How it works (the one idea)
+I'm **Katabathuni Bose**, a full-stack developer and product builder based in
+Bengaluru, India. `katbose.dev` is where I present my experience, experiments,
+and writing—and where I explore how a personal site can be engineered like a
+real product rather than maintained as a collection of hard-coded pages.
 
-Think of your portfolio as a stack of **sections**: a hero, an experience list, a project, a contact card, and so on.
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>Content as data</h3>
+      <p>One structured JSON document controls the homepage, section order, essays, metadata, and social links. Content changes do not require component rewrites.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>Human + agent interfaces</h3>
+      <p>Essays render as polished web pages for people and deterministic Markdown for agents, tools, and text-first readers—from the same source.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>Platform, not a single app</h3>
+      <p>The portfolio, documentation, future CMS, dashboard, and shared configuration live in a Bun workspace with clear ownership boundaries.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>Production discipline</h3>
+      <p>Exact dependency versions, layered quality gates, conventional commits, automated releases, and repository-wide standards keep the platform reproducible.</p>
+    </td>
+  </tr>
+</table>
 
-- Each section is one entry in the `sections` list inside `portfolio.json`.
-- Each entry has a `type` (which kind of section it is) and `data` (what goes in it).
-- For every `type`, there is a matching component that knows how to draw it.
+> [!TIP]
+> For the implementation deep dive—content schema, routing, dual-view rendering,
+> tests, and operational gotchas—read the **[web engineering guide](apps/web/README.md)**.
 
-So the flow is simple:
+## Monorepo
 
-```
-portfolio.json  ->  picks a component by "type"  ->  shows your data on the page
-```
+<pre>
+katbose-portfolio/
+├── apps/
+│   ├── <a href="apps/web">web/</a>                Portfolio, essays, metadata &amp; Markdown views
+│   ├── <a href="apps/docs">docs/</a>               Architecture &amp; operating documentation
+│   ├── <a href="apps/cms">cms/</a>                Reserved for content management
+│   └── <a href="apps/dash">dash/</a>               Reserved for private tooling
+└── packages/
+    └── <a href="packages/typescript-config">typescript-config/</a>  Shared strict TypeScript configuration
+</pre>
 
-To reorder sections, move them up or down in the JSON. To remove one, delete its block. To change wording, edit its text. That is it.
+<sub>One repository · one release version.</sub>
 
-## Quick start
+## Technology
 
-This fork uses [Bun](https://bun.sh) as the package manager and runtime, with
-[Biome](https://biomejs.dev) for linting and formatting.
+<div align="center">
+  <img src="https://img.shields.io/badge/Next.js_16-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js 16">
+  <img src="https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React 19">
+  <img src="https://img.shields.io/badge/TypeScript_5.9-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript 5.9">
+  <img src="https://img.shields.io/badge/Tailwind_CSS_4-0F172A?style=flat-square&logo=tailwindcss&logoColor=38BDF8" alt="Tailwind CSS 4">
+  <img src="https://img.shields.io/badge/Bun_1.4-14151A?style=flat-square&logo=bun&logoColor=FBF0DF" alt="Bun 1.4">
+  <img src="https://img.shields.io/badge/Turborepo-0B0B0B?style=flat-square&logo=turborepo&logoColor=EF4444" alt="Turborepo">
+  <img src="https://img.shields.io/badge/Biome-24272F?style=flat-square&logo=biome&logoColor=60A5FA" alt="Biome">
+  <img src="https://img.shields.io/badge/Playwright-2EAD33?style=flat-square&logo=playwright&logoColor=white" alt="Playwright">
+  <img src="https://img.shields.io/badge/Mintlify-0D9373?style=flat-square&logo=mintlify&logoColor=white" alt="Mintlify">
+</div>
 
-```bash
-# 1. install dependencies (also installs the git hooks)
+## Local development
+
+### Prerequisites
+
+- **Bun `1.4.2`**—pinned by the root `packageManager` field
+- **Node.js `>= 20.17`**—required by the Mintlify CLI
+
+```powershell
+# Clone and enter the repository
+git clone https://github.com/katbose/katbose-portfolio.git
+Set-Location katbose-portfolio
+
+# Install every workspace and the repository hooks
 bun install
 
-# 2. run the local dev server
+# Start all workspaces that expose a dev script
 bun run dev
 ```
 
-Now open [http://localhost:3000](http://localhost:3000) in your browser. As you edit files, the page updates on its own.
+Run one surface independently:
 
-To build the production version locally:
-
-```bash
-bun run build
-bun run start
+```powershell
+bun --filter @katbose/web dev
+bun --filter @katbose/docs dev
 ```
 
-### Code quality
+## Engineering workflow
 
-| Command | What it does |
-|---------|--------------|
-| `bun run check` | Biome lint + format + import sorting, applying safe fixes. |
-| `bun run lint` | Biome lint only, no writes. |
-| `bun run typecheck` | `tsc --noEmit` across the project. |
+| Command | Purpose |
+|---|---|
+| `bun run check` | Apply Biome formatting, lint, and import fixes |
+| `bun run typecheck` | Type-check workspaces without emitting files |
+| `bun run test` | Run unit tests |
+| `bun run test:e2e` | Build and run the Playwright browser suite |
+| `bun run build` | Produce workspace production builds |
+| `bun run validate` | Validate documentation configuration and routes |
 
-A Husky `pre-commit` hook runs Biome over the **staged** files and then
-type-checks the project, so a commit cannot introduce a lint or type error. It
-does not reformat files for you: fix them with `bun run check` and re-stage.
-`bun install` wires the hook up via the `prepare` script, so a fresh clone gets
-it automatically.
+<details>
+<summary><strong>Quality and release model</strong></summary>
 
-## Make it yours
+- **Biome** owns repository-wide formatting and static analysis.
+- **TypeScript** remains pinned at `5.9.3`; all dependencies use exact versions.
+- **Bun Test** protects the content-to-Markdown pipeline and metadata helpers.
+- **Playwright** exercises the production experience, themes, modes, essays, and animations.
+- **Lefthook** runs pre-commit checks; **commitlint** enforces Conventional Commits.
+- **release-please** versions the complete repository and creates tags exactly as `vX.Y.Z`.
 
-### The fast way: let an AI agent do it 🤖
+</details>
 
-This project is built to be AI-friendly, so the quickest path is to hand the work to a coding agent like [Claude Code](https://www.anthropic.com/claude-code) (or your favorite agentic coding tool).
+## Content model
 
-Try this:
+The public experience is composed from:
 
-1. Open the project in your AI coding tool.
-2. Give it your raw material: your resume, a LinkedIn export, an old "about me" doc, or even a few messy notes.
-3. Ask it to fill in your details. For example:
-   > "Read `app/data/portfolio.json` to learn the structure, then rewrite it using my resume attached here. Keep the same schema, drop sections I do not need, and run `bun run build` when done."
-
-The agent reads the schema (this README and the section files explain it), structures your content into the JSON, and you get a working portfolio in minutes instead of hours. You can then tweak the wording by hand.
-
-If you would rather do it yourself, read on. It is still simple.
-
-### The manual way
-
-Almost everything lives in [`app/data/portfolio.json`](app/data/portfolio.json). Open it and change the words.
-
-The file has three top-level parts:
-
-| Part | What it holds |
-|------|---------------|
-| `meta` | Your site URL, calendar link, and email. |
-| `socials` | Your social links (used in the bottom bar and the contact card). |
-| `sections` | The ordered list of everything shown on the page. |
-
-Then swap the images in the `public/` folder (`me.png` and `youtube-profile.png`) for your own, keeping the same file names, or update the image paths in the JSON.
-
-### Writing text with formatting
-
-Most text fields accept simple Markdown:
-
-- `**bold**` makes text bold.
-- `[click here](https://example.com)` makes a link.
-
-Some sections take a `body` made of **blocks**. A block is either a paragraph (a normal string) or a bullet list (an object with a `list`). Example:
-
-```json
-"body": [
-  "I built **MetaWiper**, a tool that cleaned image metadata.",
-  { "list": ["First point", "Second point", "Third point"] },
-  "A closing paragraph with a [link](https://example.com)."
-]
+```text
+apps/web/app/data/portfolio.json
 ```
 
-### The sections you can use
+Its ordered `sections` array is the homepage composition layer: moving an entry
+moves the rendered section, and removing one removes it from the site. Essays
+are stored in the same document and transformed into both HTML and Markdown.
+This keeps authoring simple without coupling content edits to React code.
 
-Each `type` maps to a component in [`app/components/sections/`](app/components/sections/). Open any component file to see the exact fields it accepts (its `*Data` type is right at the top).
+See [`apps/web/README.md`](apps/web/README.md) for every section type and
+[`CLAUDE.md`](CLAUDE.md) for the agent-oriented schema reference.
 
-| `type` | What it shows |
-|--------|---------------|
-| `hero` | Photo, name, pronunciation, live local time, and intro lines. |
-| `experience` | A featured current role plus a clickable "Previously" list. |
-| `techStack` | Your skills, as a scrolling row that expands into categories. |
-| `expandableCard` | A single titled card with a "read more" body. Good for a story. |
-| `project` | A project with a description, a stats grid, and a link. |
-| `youtube` | A channel header with a list of videos. |
-| `education` | A simple list of schools or courses. |
-| `github` | A GitHub contributions graph (just give it a username). |
-| `publications` | Research papers with an abstract you can expand. |
-| `recommendations` | Quotes from people, with name and role. |
-| `contact` | Call-to-action buttons and your social links. |
+## Project standards
 
-## For the curious: project layout
+This is a personal portfolio, but the repository is maintained with public,
+reviewable standards:
 
-```
-app/
-  data/
-    portfolio.json        <- YOUR CONTENT lives here
-    generateMarkdown.ts   <- turns the JSON into agent-mode Markdown
-  components/
-    sections/             <- one component per section type
-    sections/registry.tsx <- connects each "type" to its component
-    RichText.tsx          <- renders the **bold** / [links] / bullet lists
-    Collapsible.tsx       <- the "read more / read less" boxes
-    SectionShell.tsx      <- the title + spacing wrapper around a section
-    icons.tsx             <- maps icon names (like "github") to icons
-  page.tsx                <- thin shell that loops over your sections
-public/                   <- images and static files
-```
+<p align="center">
+  <a href="https://github.com/katbose/katbose-portfolio/actions/workflows/ci.yml"><img src="https://github.com/katbose/katbose-portfolio/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
+  <a href="./.github/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg" alt="Code of Conduct"></a>
+  <a href="./.github/SECURITY.md"><img src="https://img.shields.io/badge/Security-Policy-blue.svg" alt="Security Policy"></a>
+  <a href="./.github/CONTRIBUTING.md"><img src="https://img.shields.io/badge/Contributing-Welcome-brightgreen.svg" alt="Contributing"></a>
+</p>
 
-### Adding a brand new kind of section
+Security reports should be submitted privately through
+[GitHub Security Advisories](https://github.com/katbose/katbose-portfolio/security/advisories/new).
 
-Only needed if none of the existing types fit. Three steps:
+## Sponsor this work
 
-1. Create a component in `app/components/sections/`, for example `AwardsSection.tsx`. Export the component and a type that describes its `data`.
-2. Register it in `app/components/sections/registry.tsx`: add it to the `Section` list and add one `case` in `SectionRenderer`.
-3. Add a matching block (with your new `type`) to `sections` in `portfolio.json`.
+If the portfolio architecture, technical documentation, or writing helps you,
+you can support the time spent building and maintaining it. Sponsorship helps
+fund the domain, infrastructure, open documentation, and continued experiments
+around content-driven and agent-readable web experiences.
 
-If you forget step 2, the build will warn you, so it is hard to get wrong.
+<div align="center">
+  <a href="https://github.com/sponsors/katbose">
+    <img src="https://img.shields.io/badge/Sponsor_@katbose-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="Sponsor @katbose through GitHub Sponsors">
+  </a>
+  <br><br>
+  <strong>Thank you for supporting independent engineering and writing.</strong>
+</div>
 
-## Deploy
+---
 
-The easiest host is [Vercel](https://vercel.com), made by the same team behind Next.js. It is free for personal sites.
-
-1. Push your code to a GitHub repository.
-2. Go to Vercel, click **New Project**, and import that repository.
-3. Accept the defaults and click **Deploy**.
-
-That is all. Every time you push a change to GitHub, Vercel rebuilds and ships it. To use your own domain, add it under the project's **Domains** settings.
-
-Any host that runs Next.js works too (Netlify, Cloudflare, your own server with `bun run build && bun run start`), but Vercel is the smoothest path.
-
-## Notes for AI agents
-
-If you are an assistant helping someone build their portfolio with this template:
-
-- Treat [`app/data/portfolio.json`](app/data/portfolio.json) as the source of truth. Editing content means editing this file, not the components.
-- Each section's exact schema is the `*Data` type exported at the top of its file in [`app/components/sections/`](app/components/sections/). Read it before writing data.
-- Text fields support inline `**bold**` and `[links](url)`. A `body` field is an array of blocks: strings (paragraphs) or `{ "list": [...] }` (bullets).
-- The bottom-bar links and the contact card both read from the top-level `socials` list. Update it once.
-- Do not duplicate content into a separate Markdown file. The agent-mode view is generated by [`app/data/generateMarkdown.ts`](app/data/generateMarkdown.ts) from the same JSON.
-- Run `bun run build` to verify changes. A missing section `case` or a wrong field type will fail the type check.
-- Before committing, run `bun run check` and `bun run typecheck`. The `pre-commit` hook runs both and will reject the commit otherwise.
+<div align="center">
+  <sub>Initial design inspiration from <a href="https://github.com/PythonHacker24/yo-hackyfolio">Hackyfolio</a> by <a href="https://github.com/PythonHacker24">Aditya Patil</a>; re-engineered and substantially extended for <a href="https://katbose.dev">katbose.dev</a>.</sub>
+  <br><br>
+  <sub>© 2026 Katabathuni Bose · Released under the <a href="LICENSE">MIT Licence</a></sub>
+</div>

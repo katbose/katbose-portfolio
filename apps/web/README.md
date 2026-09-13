@@ -1,0 +1,246 @@
+# `@katbose/web`
+
+The [katbose.dev](https://katbose.dev) portfolio site. Next.js App Router, React,
+TypeScript, Tailwind CSS v4.
+
+This is the engineering reference. For the project overview see the
+[root README](../../README.md); for the schema written for coding agents see
+[`CLAUDE.md`](../../CLAUDE.md).
+
+## Contents
+
+- [The core idea](#the-core-idea)
+- [Layout](#layout)
+- [Content model](#content-model)
+- [Section types](#section-types)
+- [Posts and rich text](#posts-and-rich-text)
+- [Routing and the dual view](#routing-and-the-dual-view)
+- [The `/docs` boundary](#the-docs-boundary)
+- [Styling](#styling)
+- [Scripts](#scripts)
+- [Testing](#testing)
+- [Adding a section type](#adding-a-section-type)
+- [Gotchas](#gotchas)
+
+## The core idea
+
+The page is a function of one JSON file. `app/data/portfolio.json` holds an
+ordered `sections` array; `app/page.tsx` walks it and dispatches each entry to a
+component by its `type`. Reordering the array reorders the page. Deleting an
+entry removes the section. No component edits.
+
+The same JSON also generates a Markdown rendering of every page, so the version
+a person reads and the version an agent scrapes are produced from one source and
+cannot drift.
+
+## Layout
+
+```
+apps/web/
+├── app/
+│   ├── page.tsx              # homepage: reads sections[], dispatches by type
+│   ├── layout.tsx            # fonts, metadata, providers
+│   ├── providers.tsx         # next-themes wrapper
+│   ├── globals.css           # Tailwind v4 entry, @theme, custom animations
+│   ├── robots.ts             # generated robots.txt
+│   ├── sitemap.ts            # generated sitemap.xml
+│   ├── thoughts/page.tsx     # essay index
+│   ├── [slug]/
+│   │   ├── page.tsx          # a single essay, HTML
+│   │   └── markdown/         # the same essay, text/markdown
+│   ├── components/
+│   │   ├── sections/         # one component per section type
+│   │   └── *.tsx             # shared primitives
+│   └── data/
+│       ├── portfolio.json    # ← all content
+│       ├── posts.ts          # typed access to posts[]
+│       ├── postHelpers.ts    # slug lookup, previews, dates
+│       ├── siteMeta.ts       # metadata derived from meta{}
+│       └── generateMarkdown.ts  # JSON → Markdown
+├── e2e/                      # Playwright
+├── proxy.ts                  # ?format=markdown content negotiation
+├── next.config.ts            # image hosts, dev-only /docs redirect
+└── playwright.config.ts
+```
+
+## Content model
+
+`portfolio.json` has four top-level keys:
+
+| Key | Shape | Purpose |
+|---|---|---|
+| `meta` | object | `siteUrl`, `email`, `calendarUrl`. Feeds `siteMeta.ts`. |
+| `socials` | array | `label`, `href`, `icon`. Rendered in the hero and contact section. |
+| `posts` | array | Long-form essays. Each has a `slug` and a `blocks` array. |
+| `sections` | ordered array | The page itself. Order here is order on screen. |
+
+Every section entry looks like:
+
+```jsonc
+{
+  "type": "experience",   // selects the component
+  "title": "Experience",  // rendered heading; "" to omit
+  "data": { }             // shape depends on type
+}
+```
+
+`data` is only ever read by the one component that handles that `type`, so the
+shapes are independent of each other.
+
+## Section types
+
+Thirteen types are wired up, in this file order:
+
+| # | `type` | Renders |
+|---|---|---|
+| 1 | `hero` | Portrait, name, phonetic, live local time, socials |
+| 2 | `experience` | Featured role plus optional `previous[]` |
+| 3 | `techStack` | Collapsible categories of skills, icons via simpleicons CDN |
+| 4 | `expandableCard` | A heading over collapsible rich text |
+| 5 | `project` | A project with a stat grid and a footer link |
+| 6 | `podcast` | Episode list linking out to YouTube |
+| 7 | `thoughts` | The `count` most recent posts, linking to `/thoughts` |
+| 8 | `youtube` | Channel card, video grid, community callout |
+| 9 | `education` | Institutions with dates |
+| 10 | `github` | Contribution calendar (`react-github-calendar`) |
+| 11 | `publications` | Papers with authors and venues |
+| 12 | `recommendations` | Testimonials with attribution |
+| 13 | `contact` | Email, calendar link, socials |
+
+Each maps to a component in `app/components/sections/`. `hero` reads
+`socials` from the top level as well as its own `data`.
+
+## Posts and rich text
+
+Posts live in `posts[]`, not in `sections`. Each has `slug`, `kicker`, `title`,
+`description`, `date` (`YYYY-MM-DD`), and `blocks[]`.
+
+`blocks` is a small tagged-union rich-text format, deliberately narrower than
+Markdown so it can render to both HTML and Markdown without ambiguity. Block
+kinds include paragraphs, headings, lists, quotes, and images; inline runs carry
+emphasis and links.
+
+`generateMarkdown.ts` is the single place that turns blocks into Markdown, and
+it is unit-tested (`generateMarkdown.test.ts`) precisely because it is the seam
+where the two views could diverge.
+
+`postHelpers.ts` owns slug lookup, preview extraction, and date formatting so
+those rules exist once rather than in each consumer.
+
+## Routing and the dual view
+
+| Route | Serves |
+|---|---|
+| `/` | Homepage from `sections[]` |
+| `/thoughts` | Essay index |
+| `/<slug>` | One essay, HTML |
+| `/<slug>/markdown` | The same essay, `text/markdown` |
+| `/<slug>?format=markdown` | Rewritten to `/<slug>/markdown` by `proxy.ts` |
+| `/robots.txt`, `/sitemap.xml` | Generated by `robots.ts` / `sitemap.ts` |
+
+`proxy.ts` runs as middleware. It checks for `?format=markdown`, and rewrites
+**only** when the slug is a real post — every other request passes through
+untouched. Its matcher skips `_next/`, `api/`, and anything with a file
+extension.
+
+A rewrite is used rather than a redirect so the URL the caller requested is the
+URL they keep.
+
+## The `/docs` boundary
+
+`/docs` is **not** a route in this app. It is the separate Mintlify site in
+`apps/docs`, mapped onto the domain at the hosting layer in production.
+
+Development has no hosting layer, so `next.config.ts` redirects `/docs` to the
+Mintlify dev server on `:7003`. Two details there are deliberate and worth not
+undoing:
+
+- **A redirect, not a rewrite.** `mint dev` serves at the root and references
+  assets with root-absolute URLs. Proxying would return HTML whose assets
+  resolve against `:7000` and 404, rendering an unstyled page.
+- **307, not 308.** A permanent redirect is cached by the browser against this
+  origin, so one visit in development would keep sending production `/docs` to
+  localhost.
+
+Both are guarded on `NODE_ENV === "development"` so they cannot shadow the
+production mapping.
+
+## Styling
+
+Tailwind CSS v4 via `@tailwindcss/postcss`. There is no `tailwind.config.js` —
+v4 moves configuration into CSS, so `globals.css` carries `@import "tailwindcss"`,
+an `@theme inline` block mapping CSS variables to Tailwind tokens, and a
+`@custom-variant dark` bound to the `.dark` class that `next-themes` toggles.
+
+Because those at-rules are v4-only, VS Code's built-in CSS validator reports
+them as unknown. `.vscode/settings.json` sets `css.lint.unknownAtRules: "ignore"`;
+Biome is the CSS linter here and parses them correctly.
+
+Use canonical v4 class names. `bg-linear-to-t` rather than the deprecated
+`bg-gradient-to-t` — the canonical form puts the oklab interpolation behind an
+`@supports` query, so browsers without it still get a working gradient instead
+of dropping the declaration entirely.
+
+## Scripts
+
+```bash
+bun --filter @katbose/web dev         # next dev  -p 7000
+bun --filter @katbose/web build       # next build
+bun --filter @katbose/web start       # next start -p 7000
+bun --filter @katbose/web typecheck   # tsc --noEmit
+bun --filter @katbose/web test        # bun test  (unit)
+bun --filter @katbose/web test:e2e    # playwright
+```
+
+## Testing
+
+**Unit** — `bun test`, colocated beside the module under test:
+
+| File | Covers |
+|---|---|
+| `generateMarkdown.test.ts` | Every block kind and inline run → Markdown |
+| `postHelpers.test.ts` | Slug lookup, previews, date formatting |
+| `posts.test.ts` | Post shape and ordering |
+| `siteMeta.test.ts` | Metadata derived from `meta{}` |
+
+**End-to-end** — Playwright against a production build:
+
+| Spec | Covers |
+|---|---|
+| `homepage.spec.ts` | Headings in JSON order, hero, socials, console clean |
+| `essays.spec.ts` | Essay index and individual essays |
+| `modes.spec.ts` | Human/agent switch, theme toggle, `?theme=`, QR dialog |
+| `animations.spec.ts` | Motion, and that reduced-motion is respected |
+| `fixtures.ts` | Shared setup |
+
+`playwright.config.ts` sets `reuseExistingServer: false`, so **port 7000 must be
+free** before an e2e run or the whole suite fails to start.
+
+On a machine with many browser processes already open, run with `--workers=1` —
+parallel workers contend for the shared browser and flake.
+
+## Adding a section type
+
+1. Add the entry to `sections[]` in `portfolio.json` with a new `type` and its
+   `data`.
+2. Create the component in `app/components/sections/`.
+3. Register it in the dispatch map in `app/page.tsx`.
+4. Teach `generateMarkdown.ts` to render it, and add a case to
+   `generateMarkdown.test.ts`. Skipping this is how the HTML and Markdown views
+   start to drift.
+5. If the section has a visible heading, extend the ordering assertion in
+   `homepage.spec.ts`.
+
+## Gotchas
+
+- **Stale `.next` after deleting a route.** Typecheck reads generated route
+  types and will fail on a route that no longer exists. `rm -rf .next`.
+- **Port 7000 must be free for e2e.** See above.
+- **Images bypassing `next/image`.** `WaterImage` uses a raw `<img>`, so those
+  assets are served unoptimised at full weight. Compress before adding large
+  files to `public/`.
+- **Remote image hosts are allowlisted.** `next.config.ts` permits
+  `cdn.simpleicons.org` and `img.youtube.com` only; a new host needs adding
+  there or `next/image` rejects it.
+- **`portfolio.json` is LF.** Writing it with a tool that emits CRLF rewrites
+  every line; Biome will fail the whole file.

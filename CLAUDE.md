@@ -1,27 +1,63 @@
-# Hackyfolio — Agent Guide
+# katbose.dev — Agent Guide
 
-This is a data-driven Next.js portfolio. All content lives in one file. Components are fixed; data is not.
+A Bun + Turborepo monorepo. The portfolio is a data-driven Next.js app whose
+content lives in one JSON file: components are fixed, data is not.
 
 ## The one rule
 
-**Edit content in `app/data/portfolio.json`. Do not hardcode content inside components.**
+**Edit content in `apps/web/app/data/portfolio.json`. Do not hardcode content inside components.**
+
+## Repository map
+
+```
+apps/
+  web/     Next.js portfolio — katbose.dev            port 7000
+  cms/     reserved, framework undecided              port 7001
+  dash/    reserved, framework undecided              port 7002
+  docs/    Mintlify docs — katbose.dev/docs           port 7003
+packages/
+  typescript-config/   shared base.json + nextjs.json
+```
+
+Things that are easy to get wrong here:
+
+- **`/docs` is not a route in `apps/web`.** It is a separate Mintlify site. In
+  production it is mapped onto the domain at the hosting layer; in development
+  `apps/web/next.config.ts` redirects it to `:7003`. Do not add
+  `apps/web/app/docs/`.
+- **`apps/cms` and `apps/dash` are deliberately empty** — a `package.json` and a
+  `README.md`, nothing else. They declare no scripts, so `turbo run` skips them.
+  Do not scaffold code there speculatively.
+- **Only the root `package.json` has a `version`.** One version covers the whole
+  repository. Never add a `version` field to a workspace.
+- **The root `overrides` block exists for `apps/docs`, not the web app.** The
+  Mintlify CLI pins `react` and `sharp` to versions that collide with Next's, and
+  the block collapses each to a single copy. Removing the `react` or `sharp` rule
+  breaks `mint dev`; the `qs`, `adm-zip` and `js-yaml` rules are security bumps
+  that `bun audit` would otherwise flag. `apps/docs/README.md` explains each one.
+- **`turbo.jsonc`, `apps/docs/docs.json`, and `release-please-config.json` carry
+  no `$schema` key.** All three formats publish one and would accept it; it is
+  absent only because the tooling used to author these files refuses to write
+  remote schema URLs. Adding it locally is a genuine improvement for editor
+  autocomplete. Nothing is unguarded meanwhile: `mint validate` checks
+  `docs.json`, and CI parses the rest.
 
 ## How the system works
 
 ```
-app/data/portfolio.json
-  -> SectionRenderer (app/components/sections/registry.tsx)
+apps/web/app/data/portfolio.json
+  -> SectionRenderer (apps/web/app/components/sections/registry.tsx)
     -> one component per section type
       -> rendered on the page
 ```
 
-The page (`app/page.tsx`) loops over the `sections` array and renders each one. The agent-mode Markdown view is generated from the same JSON by `app/data/generateMarkdown.ts`.
+The page (`apps/web/app/page.tsx`) loops over the `sections` array and renders each one. The agent-mode Markdown view is generated from the same JSON by `apps/web/app/data/generateMarkdown.ts`.
 
 ## The JSON structure
 
 ```
 portfolio.json
-  meta        -> siteUrl, calendarUrl, email
+  meta        -> siteUrl, calendarUrl, email, featured? (optional pill)
   socials[]   -> label, href, icon (used in navbar + contact section)
   posts[]     -> blog posts / essays (see "Blog posts / essays" below)
   sections[]  -> ordered list of sections (order = render order on page)
@@ -38,12 +74,22 @@ Each section:
 
 The `hero` section has no `title` field. Everything else does.
 
+`meta.featured` is optional. When present it renders a small pill above the hero
+and one line in the agent-mode Markdown; when absent both are omitted. All three
+fields are required if you include it:
+
+```json
+"featured": { "tag": "Latest", "title": "A Post Title", "href": "/a-post" }
+```
+
+A relative `href` is resolved against `meta.siteUrl` in the Markdown output.
+
 ## Section types and their data shapes
 
 Read the exported `*Data` type at the top of each component file for the exact schema. Here is a quick reference:
 
 ### `hero`
-File: `app/components/sections/Hero.tsx`
+File: `apps/web/app/components/sections/Hero.tsx`
 ```json
 {
   "type": "hero",
@@ -59,7 +105,7 @@ File: `app/components/sections/Hero.tsx`
 ```
 
 ### `experience`
-File: `app/components/sections/ExperienceSection.tsx`
+File: `apps/web/app/components/sections/ExperienceSection.tsx`
 ```json
 {
   "type": "experience",
@@ -87,7 +133,7 @@ File: `app/components/sections/ExperienceSection.tsx`
 ```
 
 ### `techStack`
-File: `app/components/sections/TechStackSection.tsx`
+File: `apps/web/app/components/sections/TechStackSection.tsx`
 ```json
 {
   "type": "techStack",
@@ -107,7 +153,7 @@ File: `app/components/sections/TechStackSection.tsx`
 The `slug` must match a valid icon on [simpleicons.org](https://simpleicons.org). Check the site if unsure.
 
 ### `expandableCard`
-File: `app/components/sections/ExpandableCardSection.tsx`
+File: `apps/web/app/components/sections/ExpandableCardSection.tsx`
 ```json
 {
   "type": "expandableCard",
@@ -121,7 +167,7 @@ File: `app/components/sections/ExpandableCardSection.tsx`
 ```
 
 ### `project`
-File: `app/components/sections/ProjectSection.tsx`
+File: `apps/web/app/components/sections/ProjectSection.tsx`
 ```json
 {
   "type": "project",
@@ -141,7 +187,7 @@ File: `app/components/sections/ProjectSection.tsx`
 `stats`, `link`, `subtitle`, and `footerLink` are all optional.
 
 ### `youtube`
-File: `app/components/sections/YouTubeSection.tsx`
+File: `apps/web/app/components/sections/YouTubeSection.tsx`
 ```json
 {
   "type": "youtube",
@@ -164,8 +210,46 @@ File: `app/components/sections/YouTubeSection.tsx`
 }
 ```
 
+### `podcast`
+File: `apps/web/app/components/sections/PodcastSection.tsx`
+```json
+{
+  "type": "podcast",
+  "title": "Podcast Appearances",
+  "data": {
+    "episodes": [
+      {
+        "title": "Episode title",
+        "url": "https://youtube.com/watch?v=...",
+        "description": "optional one-liner"
+      }
+    ]
+  }
+}
+```
+Thumbnails are derived from the YouTube ID in `url`, so no image field is
+needed. `description` is optional. A non-YouTube `url` renders without a
+thumbnail rather than breaking.
+
+### `thoughts`
+File: `apps/web/app/components/sections/ThoughtsSection.tsx`
+```json
+{
+  "type": "thoughts",
+  "title": "Thinking",
+  "data": {
+    "count": 3,
+    "viewAllLabel": "View more",
+    "viewAllHref": "/thoughts"
+  }
+}
+```
+Every field is optional (`count` defaults to 3, `viewAllHref` to `/thoughts`).
+This section holds **no content of its own** — it reads the newest entries from
+the top-level `posts` array. Add a post by appending to `posts`, not here.
+
 ### `education`
-File: `app/components/sections/EducationSection.tsx`
+File: `apps/web/app/components/sections/EducationSection.tsx`
 ```json
 {
   "type": "education",
@@ -184,7 +268,7 @@ File: `app/components/sections/EducationSection.tsx`
 ```
 
 ### `github`
-File: `app/components/sections/GithubSection.tsx`
+File: `apps/web/app/components/sections/GithubSection.tsx`
 ```json
 {
   "type": "github",
@@ -194,7 +278,7 @@ File: `app/components/sections/GithubSection.tsx`
 ```
 
 ### `publications`
-File: `app/components/sections/PublicationsSection.tsx`
+File: `apps/web/app/components/sections/PublicationsSection.tsx`
 ```json
 {
   "type": "publications",
@@ -216,7 +300,7 @@ File: `app/components/sections/PublicationsSection.tsx`
 ```
 
 ### `recommendations`
-File: `app/components/sections/RecommendationsSection.tsx`
+File: `apps/web/app/components/sections/RecommendationsSection.tsx`
 ```json
 {
   "type": "recommendations",
@@ -235,7 +319,7 @@ File: `app/components/sections/RecommendationsSection.tsx`
 ```
 
 ### `contact`
-File: `app/components/sections/ContactSection.tsx`
+File: `apps/web/app/components/sections/ContactSection.tsx`
 ```json
 {
   "type": "contact",
@@ -272,9 +356,17 @@ Inline formatting supported inside any string: `**bold**` and `[text](url)`.
 
 Used in two places: the bottom navbar and the contact section. Update it once and both update.
 
-Valid icon names (the `icon` field): `github`, `linkedin`, `x`, `youtube`, `discord`, `medium`, `calendar`, `mail`.
+Valid icon names (the `icon` field): `github`, `linkedin`, `x`, `youtube`,
+`instagram`, `discord`, `medium`, `calendar`, `mail`.
 
-These map to real icon components in `app/components/icons.tsx`. Add new icons there if needed.
+These map to real icon components in `apps/web/app/components/icons.tsx`. Add
+new icons there if needed. An unknown name renders nothing rather than throwing,
+so a typo fails silently — check the name against `ICONS` in that file.
+
+Brand marks come from `react-icons/fa6`, not Lucide: Lucide removed every
+brand/logo icon in v1 for trademark reasons, so `lucide-react` has no `Github`
+or `Linkedin` export to import. Only generic glyphs (`Calendar`, `Mail`) come
+from Lucide.
 
 ## Rearranging sections
 
@@ -288,8 +380,8 @@ Delete its block from the `sections` array.
 
 Only needed if none of the existing types fit:
 
-1. Create `app/components/sections/YourSection.tsx`. Export the component and its `YourData` interface.
-2. Add the variant to the `Section` union in `app/components/sections/registry.tsx`.
+1. Create `apps/web/app/components/sections/YourSection.tsx`. Export the component and its `YourData` interface.
+2. Add the variant to the `Section` union in `apps/web/app/components/sections/registry.tsx`.
 3. Add a `case` for it in `SectionRenderer` in the same file.
 4. Add the block (with your new `type`) to `portfolio.json`.
 
@@ -297,7 +389,7 @@ TypeScript will error at the `SectionRenderer` switch if you forget step 3.
 
 ## Blog posts / essays
 
-Posts are fully templated. **To add a post, append one object to the `posts` array in `app/data/portfolio.json` — nothing else.** No new route, component, middleware, or sitemap edits are needed. (`app/data/posts.ts` only holds the `Post` types and lookup helpers — it reads its data from the JSON.)
+Posts are fully templated. **To add a post, append one object to the `posts` array in `apps/web/app/data/portfolio.json` — nothing else.** No new route, component, proxy, or sitemap edits are needed. (`apps/web/app/data/posts.ts` only holds the `Post` types and lookup helpers — it reads its data from the JSON.)
 
 Each post:
 ```json
@@ -320,37 +412,90 @@ A post block is one of:
 ```
 
 Everything else is derived automatically from that data:
-- the rendered page at `/<slug>` (`app/[slug]/page.tsx`)
+- the rendered page at `/<slug>` (`apps/web/app/[slug]/page.tsx`)
 - the raw-markdown version at `/<slug>?format=markdown` (for AI agents / sharing)
-- reading time and the "Ask ChatGPT about this" deep-link (`app/data/postHelpers.ts`)
+- reading time and the "Ask ChatGPT about this" deep-link (`apps/web/app/data/postHelpers.ts`)
 - the sitemap entry
 
 To feature a post with the pill above the hero, point `meta.featured.href` in `portfolio.json` at `/<slug>`.
 
-Do not hardcode post content in `app/[slug]/page.tsx` — that file is the fixed template; the `posts` array in `portfolio.json` is the content.
+Do not hardcode post content in `apps/web/app/[slug]/page.tsx` — that file is the fixed template; the `posts` array in `portfolio.json` is the content.
 
 ## Images
 
-Put image files in `public/`. Reference them in the JSON as `/filename.png` (root-relative path).
+Put image files in `apps/web/public/`. Reference them in the JSON as `/filename.png` (root-relative path).
 
 ## Verifying changes
 
-This project uses **bun** and **biome**. Always run after editing:
+Run from the repository root. Each of these fans out across the workspaces that
+declare the task.
+
 ```bash
-bun run build
+bun run build       # production builds
+bun run typecheck   # tsc --noEmit
+bun run test        # Bun unit tests
+bun run test:e2e    # Playwright (builds first)
+bun run validate    # docs.json + page resolution (apps/docs)
+bun run check       # Biome lint + format + import sorting, applies safe fixes
 ```
 
-A type mismatch or missing required field will fail here. Fix it before assuming the change worked.
+`bun run build` is the fastest way to catch a bad edit: a type mismatch or a
+missing required field fails there. Fix it before assuming the change worked.
 
-Before committing, also run:
+Biome is deliberately **not** a Turborepo task. It already scans the whole
+repository in one fast pass, including root-level files that no per-workspace
+run would see, so the root scripts call it directly.
+
+Editing `apps/docs` needs its own gates:
+
 ```bash
-bun run check      # biome lint + format + import sorting, applies safe fixes
-bun run typecheck  # tsc --noEmit
+bun --filter @katbose/docs validate       # docs.json + page resolution
+bun --filter @katbose/docs broken-links   # internal links, incl. anchors
+bun --filter @katbose/docs a11y           # contrast + media alt text
+bun --filter @katbose/docs format         # rewrites MDX in place
 ```
 
-A Husky `pre-commit` hook runs biome over the staged files and then type-checks
-the project. It does not write fixes for you — a failing commit means running
-`bun run check` and re-staging.
+Docs pages must be `.mdx`. A `.md` file is served but is never resolved as a
+navigation page, and `mint validate` reports it as missing.
+
+### Two gotchas that look like bugs
+
+- **Stale `.next` breaks typecheck.** `apps/web/tsconfig.json` includes
+  `.next/types/**/*.ts`, which Next generates. Delete a route and `tsc` keeps
+  failing on the generated validator until you remove `apps/web/.next` and
+  rebuild. (There is no tsconfig at the repo root; compiler settings come from
+  `packages/typescript-config`.)
+- **`next build` and `next start` share `apps/web/.next/lock`.** Running both at
+  once fails with "Unable to acquire lock". Playwright also needs port 7000
+  free, because it deliberately refuses to reuse a server it did not start.
+
+### Commits and releases
+
+Commit messages follow Conventional Commits and are enforced by commitlint on
+the `commit-msg` hook. This is not cosmetic: release automation derives the next
+version for the **whole repository** from these messages.
+
+```
+fix:     -> patch      feat:    -> minor
+feat!: or a BREAKING CHANGE: footer -> minor while below 1.0.0, major after
+chore: docs: refactor: test: ci:  -> no release
+```
+
+Tags are exactly `vX.Y.Z`, with no prefix, suffix, or per-app component. The
+canonical changelog is `apps/docs/changelog.mdx`, written by release automation.
+Its trailing `## 0.0.0` heading is load-bearing — see `apps/docs/README.md`
+before touching that file.
+
+Git hooks are managed by [Lefthook](https://lefthook.dev), configured in
+`lefthook.yml`. The `pre-commit` hook runs Biome over the staged files and then
+type-checks the whole project; it does not write fixes for you, so a failing
+commit means running `bun run check` and re-staging. The `commit-msg` hook runs
+commitlint.
+
+Hooks install themselves — the `lefthook` package's postinstall runs
+`lefthook install`, and skips when `CI` is set. There is no `prepare` script.
+`pre-commit` is skipped mid-merge and mid-rebase, because those commits are often
+not something the committer can fix in place.
 
 Two lint decisions are deliberate, so do not "fix" them:
 
@@ -359,7 +504,7 @@ Two lint decisions are deliberate, so do not "fix" them:
   content-derived keys would collide on repeated prose.
 - The `<img>` tags carry `biome-ignore lint/performance/noImgElement`. Their
   `src` values are arbitrary URLs from `portfolio.json`; `next/image` would
-  require whitelisting every host in `next.config.ts` and would break the moment
+  require whitelisting every host in `apps/web/next.config.ts` and would break the moment
   a user adds a logo from a new domain.
 
 Suppression comments must be a **single line** immediately above the offending
@@ -369,5 +514,25 @@ node, otherwise biome reports `suppressions/unused`.
 
 - Do not hardcode user content inside component files.
 - Do not add a second data file. `portfolio.json` is the only source of truth.
-- Do not edit `app/data/generateMarkdown.ts` to patch content. Fix the JSON instead.
+- Do not edit `apps/web/app/data/generateMarkdown.ts` to patch content. Fix the JSON instead.
 - Do not add a `title` field to the `hero` section (it does not use one).
+- Do not add a `version` field to any workspace `package.json`. One version, at
+  the root, owned by release automation.
+- Do not recreate `apps/web/app/docs/`. Documentation lives in `apps/docs`.
+- Do not use a caret or tilde in a dependency range. Every version in this repo
+  is pinned exactly.
+- Do not upgrade TypeScript. It is held at `5.9.3` on purpose while everything
+  else tracks latest.
+- Do not remove the `overrides` block from the root `package.json`.
+
+### Known quirks in `generateMarkdown.ts`, pinned by tests
+
+Two behaviours look like bugs and are not. Both are covered by characterization
+tests, so "fixing" them fails the suite:
+
+- There is no handler for the `github` section, so it contributes nothing to the
+  Markdown output.
+- The `youtube` section emits `## YouTuber @<handle>` rather than its configured
+  `title`.
+
+Change them deliberately, updating the tests in the same commit, or not at all.
