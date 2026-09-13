@@ -1,0 +1,59 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "mintlify-admin": {
+      "type": "remote",
+      "url": "https://mcp.mintlify.com",
+      "enabled": true
+    },
+    "mintlify-search": {
+      "type": "remote",
+      "url": "https://mintlify.com/docs/mcp",
+      "enabled": true
+    },
+    "socket-mcp": {
+      "type": "remote",
+      "url": "https://mcp.socket.dev/",
+      "enabled": true
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp@1.8.0",
+        "--isolated",
+        "--no-usage-statistics",
+        "--no-performance-crux",
+        "--redact-network-headers"
+      ],
+      "timeout": 60000,
+      "enabled": true
+    },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@playwright/mcp@0.0.79",
+        "--isolated",
+        "--headless",
+        "--browser",
+        "chrome"
+      ],
+      "timeout": 60000,
+      "enabled": true
+    },
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer {env:GITHUB_PAT_KATBOSE}"
+      },
+      "enabled": true
+    }
+  },
+  "experimental": {
+    "mcp_timeout": 60000
+  }
+}

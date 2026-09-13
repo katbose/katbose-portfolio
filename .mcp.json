@@ -1,0 +1,73 @@
+{
+  "mcpServers": {
+    "mintlify-admin": {
+      "url": "https://mcp.mintlify.com",
+      "disabled": false,
+      "autoApprove": [],
+      "type": "http"
+    },
+    "mintlify-search": {
+      "url": "https://mintlify.com/docs/mcp",
+      "disabled": false,
+      "autoApprove": [
+        "search_mintlify",
+        "query_docs_filesystem_mintlify"
+      ],
+      "type": "http"
+    },
+    "socket-mcp": {
+      "url": "https://mcp.socket.dev/",
+      "disabled": false,
+      "autoApprove": [],
+      "type": "http"
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@1.8.0",
+        "--isolated",
+        "--no-usage-statistics",
+        "--no-performance-crux",
+        "--redact-network-headers"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "list_pages"
+      ],
+      "type": "stdio"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.79",
+        "--isolated",
+        "--headless",
+        "--browser",
+        "chrome"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "browser_tabs"
+      ],
+      "type": "stdio"
+    },
+    "github": {
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_PAT_KATBOSE}"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "create_pull_request",
+        "pull_request_read",
+        "list_pull_requests",
+        "list_branches",
+        "get_me",
+        "list_commits"
+      ],
+      "type": "http"
+    }
+  }
+}

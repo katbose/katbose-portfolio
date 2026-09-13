@@ -1,0 +1,47 @@
+{
+  "servers": {
+    "mintlify-admin": {
+      "type": "http",
+      "url": "https://mcp.mintlify.com"
+    },
+    "mintlify-search": {
+      "type": "http",
+      "url": "https://mintlify.com/docs/mcp"
+    },
+    "socket-mcp": {
+      "type": "http",
+      "url": "https://mcp.socket.dev/"
+    },
+    "chrome-devtools": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@1.8.0",
+        "--isolated",
+        "--no-usage-statistics",
+        "--no-performance-crux",
+        "--redact-network-headers"
+      ]
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.79",
+        "--isolated",
+        "--headless",
+        "--browser",
+        "chrome"
+      ]
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${env:GITHUB_PAT_KATBOSE}"
+      }
+    }
+  }
+}
