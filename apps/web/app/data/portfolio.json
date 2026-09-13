@@ -1,7 +1,7 @@
 {
   "meta": {
     "siteUrl": "https://katbose.dev",
-    "calendarUrl": "mailto:im@katbose.dev",
+    "calendarUrl": "https://cal.com/katbose/meet",
     "email": "im@katbose.dev"
   },
   "socials": [
@@ -504,81 +504,40 @@
       "title": "Experience",
       "data": {
         "featured": {
-          "name": "Remix (YC W26)",
-          "link": "https://www.ycombinator.com/companies/resonate",
-          "logo": "https://remix.re/app-icon.png",
-          "role": "Software Engineer, San Francisco, CA",
-          "dateRange": "February 2026 - Present",
+          "name": "Capgemini",
+          "link": "https://www.capgemini.com",
+          "logo": "/capgemini-logo.svg",
+          "role": "Senior Software Engineer",
+          "location": "Bengaluru, IND",
+          "dateRange": "December 2022 - Present",
           "collapsedHeight": "max-h-48",
           "body": [
-            "As an early software engineer bridging product strategy and technical execution, I am driving the development of an AI-native messaging platform from zero to one.",
-            "Key focus areas include:",
+            "A leading multinational corporation providing IT services, consulting, and digital transformation. My work there spans two client engagements: third-line technical support for an automotive platform, and React front-end development on an energy product.",
+            "**SMKG VCO - Automobile** | Technical Support Engineer, L3",
             {
               "list": [
-                "Architecting and building core product features for an AI-focused messaging ecosystem.",
-                "Developing real-time systems and innovating ways to transform and present information dynamically within messaging interfaces.",
-                "Collaborating within a lean team to build robust tools for AI-driven communication.",
-                "Operating top-to-bottom, from product conception to complete software development."
+                "Performed code optimization and bug fixing for OpenEdge components to ensure high performance and reliability.",
+                "Primary support contact for RUN incidents, troubleshooting and providing customer updates through to closure.",
+                "Analyzed logs, SQL data, and system behavior to identify root causes, then applied permanent or temporary fixes.",
+                "Managed evolution, anomaly, and enhancement JIRAs, keeping incident resolution within SLA.",
+                "Produced Confluence reports with 100% on-time delivery, giving stakeholders accurate tracking and status updates.",
+                "Created Changements, troubleshooting guides, documentation, steps to reproduce, and knowledge base articles for future resolutions.",
+                "Collaborated with cross-functional teams to gather requirements, design system architecture, and keep work aligned with business goals."
               ]
             },
-            "Transitioning into this founding-level role has been an incredibly rewarding next step following my previous startup ventures."
+            "**Energy Vision** | ReactJS Engineer",
+            {
+              "list": [
+                "Built UI components, made cosmetic changes, and integrated APIs based on client and stakeholder feedback.",
+                "Collaborated with designers, back-end developers, and project managers to fix front-end issues and improve UI/UX.",
+                "Wrote unit tests with Jest, and worked with senior engineers to build custom hooks and reusable components.",
+                "Enhanced existing applications by implementing updates, resolving issues, and keeping functionality seamless."
+              ]
+            }
           ]
         },
         "previousLabel": "Previously",
-        "previous": [
-          {
-            "name": "Entrepreneur First",
-            "role": "Founder in Residence",
-            "location": "Bengaluru",
-            "link": "https://www.joinef.com/",
-            "logo": "https://upload.wikimedia.org/wikipedia/commons/9/95/Entrepreneurs_First_Logo.png",
-            "body": [
-              "As a Founder in Residence at Entrepreneurs First (EF), a premier global talent investor and startup accelerator, I was immersed in designing and developing cutting-edge Agentic AI systems.",
-              "Built autonomous, goal-driven AI agents that shifted from suggestion-based tools to proactive execution, enabling seamless human-AI collaboration and redefining task automation and decision-making.",
-              "Drove a bold vision for the future of computing: making traditional web browsing obsolete, turning personal data into the primary interface, and empowering agentic systems to independently handle complex responsibilities.",
-              "Operated in a high-intensity environment surrounded by world-class cofounders, mentors, and resources, using EF's structured support to explore, validate, and iterate on ideas at pace.",
-              "Positioned at the forefront of a paradigm shift in AI, tackling hard technical and conceptual challenges to create meaningful, scalable impact in the emerging agentic era."
-            ]
-          },
-          {
-            "name": "Google Summer of Code 2025",
-            "role": "Emory University",
-            "location": "Atlanta, USA",
-            "link": "https://minimalistbook.com/gsoc-final-report-2025/",
-            "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-xHRLRVUxrSQ9cZ0T4CLQ6aI4NI62iCHO4An0lLXgUw&s=10",
-            "body": [
-              "Designed and developed a comprehensive system for managing Access Control List (ACL) permissions across multiple Linux file system servers, including NFS and BeeGFS, demonstrating expertise in large-scale distributed systems and secure file management.",
-              "Built a robust backend capable of processing millions of permission change requests, showcasing proficiency in high-performance computing and scalability.",
-              "Implemented two Linux systemd daemons communicating via Unix sockets: one for gRPC-based backend interactions and another for executing ACL changes, highlighting skills in daemon development, inter-process communication, and system-level programming.",
-              "Created a user-friendly Next.js frontend enabling secure login, backend communication, and scheduling of permission requests, illustrating full-stack development capabilities and focus on intuitive user experiences."
-            ]
-          },
-          {
-            "name": "Professional Freelancer (Technical GTM)",
-            "role": "Technical Writer",
-            "location": "Tel Aviv, Israel",
-            "link": "https://www.upwork.com/freelancers/~0172a072394ece49bb?viewMode=1",
-            "logo": "https://play-lh.googleusercontent.com/OtMKLcIcl_wNIhmuXUZT0L72ysVsdekDomOnhIjqAppwqix3wl3iniGGE9xY8AKEqhN9",
-            "body": [
-              "Authored comprehensive, highly technical documentation (50+ pages) for a Software Composition Analysis (SCA) tool, including detailed guides on advanced features such as reachability analysis - focusing on identifying truly exploitable vulnerabilities in open-source dependencies to reduce noise and prioritize remediation in secure software development lifecycles.",
-              "Ghostwrote in-depth content on Reachability Analysis for the CTO of a security company, explaining how it enhances SCA by determining whether detected vulnerabilities are actually reachable and exploitable in the application's codebase - delivering clear, authoritative thought leadership material suitable for blogs, whitepapers, or technical marketing.",
-              "Deployed and configured Flipt (an open-source, Git-native feature flagging platform) on cloud infrastructure to support video production workflows for a feature flagging provider; troubleshot and resolved operational issues to ensure reliable, production-ready performance in a dynamic environment.",
-              "Developed custom scraping tools for a proxy provider targeting real estate platforms, enabling efficient data extraction while adhering to technical and ethical constraints; rapidly produced high-quality articles and technical write-ups on the tools, scraping methodologies, and platform integrations to support knowledge sharing and client deliverables."
-            ]
-          },
-          {
-            "name": "Engineering Intern",
-            "role": "Athena Consulting Ltd.",
-            "location": "Dubai",
-            "logo": "/athena-logo.jpeg",
-            "body": [
-              "Led the complete system design and deployment architecture for Eumlet, a UAE-based B2B Web3 payments and financial platform (built on Next.js), on AWS infrastructure. Configured Debian EC2 instances, Application Load Balancer (ALB), and NGINX reverse proxy under senior guidance - ensuring high availability, scalability, and secure handling of financial transactions in a regulated environment.",
-              "Engineered automated CI/CD pipelines using GitHub Actions for seamless build, test, and deployment workflows, with direct integration and manual orchestration to EC2 targets - demonstrating strong expertise in modern DevOps practices, infrastructure as code principles, and zero-downtime deployments for production fintech applications.",
-              "Managed a team of 4 developers while simultaneously supporting two high-value clients: Lunarspace and Concordium (a privacy-focused Layer-1 blockchain platform) - balancing tight deadlines, client expectations, and resource constraints in a fast-paced environment. Authored comprehensive legal and technical developer handbooks to standardize onboarding, compliance, and best practices for new recruits.",
-              "Collaborated remotely with BGTrade (China-based financial platform team) on global security audits and production deployments of sensitive financial systems - coordinating across time zones and cultures to identify vulnerabilities, implement hardening measures, and ensure secure, compliant rollouts in cross-border fintech ecosystems."
-            ]
-          }
-        ]
+        "previous": []
       }
     },
     {
