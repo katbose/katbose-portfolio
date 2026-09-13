@@ -27,8 +27,8 @@ updates:
       timezone: "Etc/UTC"
     open-pull-requests-limit: 3
     cooldown:
-      semver-major-days: 14
-      semver-minor-days: 7
-      semver-patch-days: 3
+      # Actions are tags, not semver releases, so the per-bump keys used for the
+      # Bun entry are rejected for this ecosystem. One flat window instead.
+      default-days: 7
     commit-message:
       prefix: "chore(actions)"

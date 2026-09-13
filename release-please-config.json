@@ -2,6 +2,7 @@
   "packages": {
     ".": {
       "release-type": "node",
+      "initial-version": "0.1.0",
       "package-name": "katbose-portfolio",
       "changelog-path": "apps/docs/changelog.mdx",
       "include-component-in-tag": false,
