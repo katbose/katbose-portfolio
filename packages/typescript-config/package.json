@@ -1,0 +1,9 @@
+{
+  "name": "@katbose/typescript-config",
+  "private": true,
+  "description": "Shared TypeScript compiler settings for every workspace in the monorepo.",
+  "files": [
+    "base.json",
+    "nextjs.json"
+  ]
+}

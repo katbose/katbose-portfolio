@@ -15,6 +15,14 @@
   "[jsonc]": { "editor.defaultFormatter": "biomejs.biome" },
   "[css]": { "editor.defaultFormatter": "biomejs.biome" },
 
+  // Tailwind v4 moved configuration into CSS, so globals.css legitimately uses
+  // @theme and @custom-variant. VS Code's built-in CSS validator has no notion
+  // of either and reports "Unknown at rule" for both. Biome is the CSS linter
+  // for this project and parses them fine, so silence only this one check
+  // rather than disabling css.validate wholesale — genuine CSS mistakes should
+  // still surface in the editor.
+  "css.lint.unknownAtRules": "ignore",
+
   // LF everywhere, matching .gitattributes and biome.jsonc.
   "files.eol": "\n",
 

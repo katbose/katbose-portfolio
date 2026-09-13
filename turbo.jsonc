@@ -1,0 +1,54 @@
+{
+  // Turborepo orchestrates the workspace-aware tasks only.
+  //
+  // Biome is deliberately NOT a turbo task. It already scans the whole repo in
+  // one fast pass and covers root-level files (workflows, configs, this file)
+  // that a per-workspace run would never see. Splitting it per app would be
+  // slower AND less thorough. Root scripts call it directly instead.
+  "tasks": {
+    "build": {
+      "description": "Production build for a workspace.",
+      // Wait for dependency packages to build first, so a future shared
+      // library is compiled before the app that imports it.
+      "dependsOn": ["^build"],
+      // Next writes into .next; its cache and dev dirs must stay out of the
+      // Turborepo artifact or the cache balloons and replays go stale.
+      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"]
+    },
+
+    "typecheck": {
+      "description": "tsc --noEmit across a workspace.",
+      "dependsOn": ["^typecheck"]
+    },
+
+    "test": {
+      "description": "Fast unit tests (Bun). No build required.",
+      "dependsOn": ["^test"]
+    },
+
+    "test:e2e": {
+      "description": "Playwright browser suite.",
+      // Same-package dependency, NOT "^build": playwright.config.ts starts the
+      // server with `bun run start`, which serves this workspace's own .next
+      // output. Without this the suite fails with "no production build found".
+      "dependsOn": ["build"],
+      "outputs": ["playwright-report/**", "test-results/**"]
+    },
+
+    "validate": {
+      "description": "Content/config validation for a workspace (e.g. Mintlify docs)."
+    }
+
+    // There is deliberately no "dev" task here.
+    //
+    // A dev server is persistent and must never be cached, which leaves
+    // Turborepo doing nothing for it but running two scripts side by side —
+    // something Bun's own workspace filter does natively. So the root `dev`
+    // script is `bun --filter '*' dev`, and this file only declares tasks
+    // Turborepo actually earns its keep on: the cacheable ones.
+    //
+    // A useful side effect: `bun run dev` needs no Turborepo binary, so it still
+    // works on machines where Windows Smart App Control blocks the unsigned
+    // turbo.exe. See CONTRIBUTING.md.
+  }
+}

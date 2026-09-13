@@ -2,7 +2,7 @@
  * Every blog post / essay on the site, as pure content.
  *
  * ADDING A POST = append one object to the `posts` array in `portfolio.json`.
- * No component, route, or middleware edits are needed — the dynamic `/[slug]`
+ * No component, route, or proxy edits are needed — the dynamic `/[slug]`
  * route, the markdown endpoint, reading time, and the "Ask ChatGPT" prompt are
  * all derived from this data (see `postHelpers.ts`). This file only provides
  * the types and lookup helpers.

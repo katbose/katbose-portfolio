@@ -1,5 +1,6 @@
-import { ArrowUpRight, Youtube } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
+import { FaYoutube } from "react-icons/fa6";
 import { DiscordIcon } from "../icons";
 import { SectionShell } from "../SectionShell";
 import type { LinkRef } from "../types";
@@ -97,7 +98,7 @@ export function YouTubeSection({ title, data }: { title: string; data: YouTubeDa
                   )}
 
                   {/* YouTube icon — top left */}
-                  <Youtube className="absolute left-2.5 top-2.5 h-4 w-4 text-white drop-shadow" />
+                  <FaYoutube className="absolute left-2.5 top-2.5 h-4 w-4 text-white drop-shadow" />
                 </div>
 
                 {/* Title — card body */}

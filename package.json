@@ -1,43 +1,46 @@
 {
   "name": "katbose-portfolio",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "private": true,
+  "description": "Monorepo for katbose.dev — portfolio, docs, and future CMS/dashboard apps.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/katbose/katbose-portfolio.git"
+  },
+  "license": "MIT",
+  "packageManager": "bun@1.4.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "bun --filter '*' dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "validate": "turbo run validate",
+    "start": "bun --filter @katbose/web start",
     "lint": "biome lint",
     "format": "biome format --write",
     "check": "biome check --write",
-    "typecheck": "tsc --noEmit",
-    "prepare": "husky"
-  },
-  "dependencies": {
-    "@calcom/embed-react": "^1.5.3",
-    "@paper-design/shaders-react": "^0.0.77",
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.5.0",
-    "@vercel/analytics": "^2.0.1",
-    "framer-motion": "^12.29.2",
-    "lucide-react": "^0.563.0",
-    "next": "16.1.6",
-    "next-themes": "^0.4.6",
-    "qrcode.react": "^4.2.0",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "react-github-calendar": "^5.0.5",
-    "react-icons": "^5.5.0",
-    "three": "^0.182.0"
+    "ci:biome": "biome ci",
+    "mcp:sync": "node scripts/sync-mcp.mjs",
+    "mcp:check": "node scripts/sync-mcp.mjs --check"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.13",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@types/three": "^0.182.0",
-    "husky": "9.1.7",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "@biomejs/biome": "2.5.13",
+    "@commitlint/cli": "21.2.2",
+    "@commitlint/config-conventional": "21.2.2",
+    "lefthook": "2.1.12",
+    "turbo": "2.10.12",
+    "typescript": "5.9.3"
+  },
+  "overrides": {
+    "react": "19.3.0",
+    "sharp": "0.35.4",
+    "qs": "6.16.0",
+    "adm-zip": "0.6.1",
+    "js-yaml@4.3.1": "4.3.2"
   }
 }

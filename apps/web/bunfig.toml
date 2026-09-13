@@ -1,0 +1,7 @@
+[test]
+# Scope Bun's test discovery to the application source.
+#
+# Bun's default matcher also claims `*.spec.ts`, which would pull in the
+# Playwright suite under `e2e/` and run browser specs under the wrong runner.
+# Bun owns `app/**/*.test.ts`; Playwright owns `e2e/**/*.spec.ts`.
+root = "app"

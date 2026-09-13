@@ -1,7 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
+# dependencies (per-workspace in the monorepo, so NOT anchored to the root —
+# bun installs a nested apps/web/node_modules alongside the hoisted root one)
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -11,18 +12,28 @@
 !.yarn/versions
 
 # testing
-/coverage
+coverage/
 
-# next.js
-/.next/
-/out/
+# next.js (per-workspace in the monorepo, so these are not anchored to the root)
+.next/
+out/
 
-# production
-/build
+# production (per-workspace, so not anchored to the root)
+build/
 
 # misc
 .DS_Store
 *.pem
+
+# personal documents. A CV carries a phone number and a personal email address,
+# and this repository is public — anything committed here stays in git history
+# even after the file is deleted. Kept deliberately broad so a stray copy or an
+# exported variant cannot slip through.
+*.pdf
+*.docx
+*.tex
+*[Rr]esume*
+*[Rr][Ee][Ss][Uu][Mm][Ee]*
 
 # debug
 npm-debug.log*
@@ -40,3 +51,26 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .gstack/
+
+# playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# turborepo
+.turbo/
+
+# mintlify cli (local preview cache + generated artifacts)
+.mint/
+.mintlify/
+
+# lefthook personal overrides. lefthook merges any `lefthook-local.*` on top of
+# lefthook.yml; it exists so one person can tweak or skip hooks locally, so
+# committing it would defeat the point.
+lefthook-local.yml
+lefthook-local.yaml
+lefthook-local.json
+lefthook-local.toml
+.lefthook-local.yml
+.lefthook-local.yaml

@@ -1,6 +1,19 @@
-import { Calendar, Github, Instagram, Linkedin, Mail, Youtube } from "lucide-react";
+import { Calendar, Mail } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
-import { FaMedium, FaXTwitter } from "react-icons/fa6";
+import {
+  FaGithub,
+  FaInstagram,
+  FaLinkedin,
+  FaMedium,
+  FaXTwitter,
+  FaYoutube,
+} from "react-icons/fa6";
+
+// Lucide is the source for generic UI glyphs (Calendar, Mail). Brand marks come
+// from react-icons instead: Lucide removed every brand/logo icon in v1 for
+// trademark reasons, and this file already sourced X and Medium from fa6 for the
+// same reason. Keeping all brands in one set also makes the navbar row
+// visually consistent.
 
 export const DiscordIcon = (props: SVGProps<SVGSVGElement>) => (
   // Decorative: every call site pairs the icon with a visible text label.
@@ -12,15 +25,15 @@ export const DiscordIcon = (props: SVGProps<SVGSVGElement>) => (
 
 /** Maps icon-name strings (used in portfolio.json) to icon components. */
 export const ICONS: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
-  github: Github,
-  linkedin: Linkedin,
-  youtube: Youtube,
+  github: FaGithub,
+  linkedin: FaLinkedin,
+  youtube: FaYoutube,
   calendar: Calendar,
   mail: Mail,
   x: FaXTwitter,
   medium: FaMedium,
   discord: DiscordIcon,
-  instagram: Instagram,
+  instagram: FaInstagram,
 };
 
 /** Resolve an icon by name, rendering nothing if the name is unknown. */

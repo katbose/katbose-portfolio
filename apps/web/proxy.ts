@@ -8,7 +8,7 @@ const POST_SLUGS = new Set(posts.map((p) => p.slug));
  * and sharing) by rewriting to the post's markdown route handler. Only applies
  * to real post slugs; every other request passes through untouched.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   if (request.nextUrl.searchParams.get("format") === "markdown") {
     const slug = request.nextUrl.pathname.replace(/^\/+|\/+$/g, "");
     if (POST_SLUGS.has(slug)) {

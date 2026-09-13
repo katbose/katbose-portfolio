@@ -1,5 +1,6 @@
-import { ArrowUpRight, Youtube } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
+import { FaYoutube } from "react-icons/fa6";
 import { SectionShell } from "../SectionShell";
 
 export interface PodcastEpisode {
@@ -46,7 +47,7 @@ export function PodcastSection({ title, data }: { title: string; data: PodcastDa
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 )}
-                <Youtube className="absolute left-2.5 top-2.5 h-4 w-4 text-white drop-shadow" />
+                <FaYoutube className="absolute left-2.5 top-2.5 h-4 w-4 text-white drop-shadow" />
               </div>
 
               {/* Episode details */}

@@ -1,0 +1,13 @@
+{
+  "$comment": "TypeScript settings for Next.js App Router apps. Adds the DOM libs, JSX handling, and the Next language-service plugin on top of base.json.",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "react-jsx",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  }
+}

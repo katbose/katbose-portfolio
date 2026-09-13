@@ -8,7 +8,7 @@ export function generateStaticParams() {
 
 /**
  * Serves a post as raw markdown. Reached at /<slug>/markdown, or via
- * /<slug>?format=markdown (rewritten by middleware.ts) — the agent-friendly
+ * /<slug>?format=markdown (rewritten by proxy.ts) — the agent-friendly
  * version of the post.
  */
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
