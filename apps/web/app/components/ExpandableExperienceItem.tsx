@@ -50,7 +50,7 @@ export function ExpandableExperienceItem({
               <img
                 src={logo}
                 alt={`${title} logo`}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain"
                 loading="lazy"
               />
             </span>
@@ -89,13 +89,13 @@ export function ExpandableExperienceItem({
       <div className="relative mt-3 max-w-xl">
         <div
           className={`overflow-hidden text-sm leading-relaxed text-gray-500 dark:text-gray-400 transition-[max-height] duration-300 ease-out ${
-            open ? "max-h-[600px]" : "max-h-[2.8rem]"
+            open ? "max-h-150" : "max-h-[2.8rem]"
           }`}
         >
           {children}
         </div>
         {!open && (
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white dark:from-black to-transparent" />
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-6 bg-linear-to-t from-white dark:from-black to-transparent" />
         )}
       </div>
     </div>

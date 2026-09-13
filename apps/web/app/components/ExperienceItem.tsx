@@ -34,7 +34,7 @@ export function ExperienceItem({
               <img
                 src={logo}
                 alt={`${title} logo`}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain"
                 loading="lazy"
               />
             </span>
@@ -60,7 +60,7 @@ export function ExperienceItem({
       >
         {children}
         {collapsible && !isExpanded && (
-          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white dark:from-black to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-12 bg-linear-to-t from-white dark:from-black to-transparent" />
         )}
       </div>
 

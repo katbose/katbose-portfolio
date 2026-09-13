@@ -24,7 +24,10 @@ export function Hero({ data, time }: { data: HeroData; time: string }) {
           className="object-contain grayscale"
           priority
         />
-        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white/60 to-transparent dark:from-black dark:via-black/60 backdrop-blur-[1px]" />
+        {/* Blends the base of the portrait into the page. Kept shallow (h-7) and
+            soft: the source image is square with the subject filling most of it,
+            so a taller or denser fade swallows the shoulders. */}
+        <div className="absolute bottom-0 left-0 right-0 h-7 bg-linear-to-t from-white via-white/40 to-transparent dark:from-black dark:via-black/40" />
       </div>
 
       {/* Hero Text */}
