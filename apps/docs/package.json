@@ -1,0 +1,15 @@
+{
+  "name": "@katbose/docs",
+  "private": true,
+  "description": "Mintlify documentation for the katbose.dev monorepo. Served at katbose.dev/docs.",
+  "scripts": {
+    "dev": "mint dev --port 7003",
+    "validate": "mint validate",
+    "format": "mint format",
+    "broken-links": "mint broken-links --check-anchors",
+    "a11y": "mint a11y"
+  },
+  "devDependencies": {
+    "mint": "4.2.890"
+  }
+}

@@ -1,0 +1,70 @@
+---
+title: "katbose.dev"
+description: "A JSON-driven portfolio, a docs site, and the monorepo that holds them together."
+---
+
+This is the documentation for the monorepo behind [katbose.dev](https://katbose.dev). It covers how the repository is laid out, where content actually lives, and how to run the whole thing locally.
+
+It is not a tutorial for building your own portfolio. It is the reference for maintaining this one.
+
+## What is in here
+
+<CardGroup cols={2}>
+  <Card title="Architecture" icon="layers" href="/architecture">
+    The workspace layout, what each app owns, and how content reaches the page.
+  </Card>
+
+  <Card title="Local development" icon="terminal" href="/local-development">
+    Install, run, test, and validate. Includes the port map and the task graph.
+  </Card>
+
+  <Card title="Changelog" icon="history" href="/changelog">
+    Every released version of the project, generated from commit history.
+  </Card>
+
+  <Card title="Repository" icon="git-branch" href="https://github.com/katbose/katbose-portfolio">
+    Source on GitHub.
+  </Card>
+</CardGroup>
+
+## The one idea worth knowing
+
+Content and code are kept apart. The portfolio site renders from a single data file:
+
+```text
+apps/web/app/data/portfolio.json
+```
+
+Sections are an ordered array in that file. The page loops over the array and renders each entry with a component picked by its `type`. Reordering the JSON reorders the page; deleting an entry removes the section. No component edits involved.
+
+<Note>
+  That file is the single source of truth until the CMS in `apps/cms` is chosen. Moving it into a shared package before then would mean guessing at a data model and migrating twice.
+</Note>
+
+## Two views of the same content
+
+Every page is available as a human-facing site and as plain Markdown, both generated from the same JSON. They cannot drift apart, because there is only one source.
+
+<Tabs>
+  <Tab title="Human">
+    The normal site. Rendered React, animated, themed light or dark.
+
+    ```text
+    https://katbose.dev/
+    ```
+  </Tab>
+  <Tab title="Agent">
+    The same content as Markdown, for AI agents, scrapers, and anything that would rather not parse a React app. Toggle it in the bottom bar of the site, or ask for it directly:
+
+    ```text
+    https://katbose.dev/<slug>?format=markdown
+    https://katbose.dev/<slug>/markdown
+    ```
+  </Tab>
+</Tabs>
+
+Content negotiation is handled by `apps/web/proxy.ts`. Paths that are not real posts pass straight through to the normal HTML response, and static assets are never intercepted.
+
+## Versioning
+
+One version for the whole project. There is no independent version for `web`, `docs`, `cms`, or `dash` — a single release covers the repository as a whole, tagged `vX.Y.Z` with no prefix or suffix. Tags and release notes are produced from Conventional Commits, and the [changelog](/changelog) on this site is the canonical copy.

@@ -1,0 +1,135 @@
+---
+title: "Architecture"
+description: "Workspace layout, what each app owns, and the path content takes to the page."
+---
+
+The repository is a [Bun](https://bun.sh) workspace orchestrated by [Turborepo](https://turborepo.com). Applications live under `apps/`, shared configuration under `packages/`.
+
+## Workspace layout
+
+```text
+katbose-portfolio/
+├── apps/
+│   ├── web/      Next.js portfolio — katbose.dev
+│   ├── docs/     Mintlify docs — this site
+│   ├── cms/      reserved, framework undecided
+│   └── dash/     reserved, framework undecided
+├── packages/
+│   └── typescript-config/   shared compiler settings
+├── biome.jsonc   lint + format, whole repo
+├── turbo.jsonc   task graph
+└── package.json  workspaces, one version for everything
+```
+
+| Workspace | Package name | Dev port | Deployed to |
+| --- | --- | --- | --- |
+| `apps/web` | `@katbose/web` | `7000` | Vercel, at `katbose.dev` |
+| `apps/cms` | `@katbose/cms` | `7001` | its own target, separate from `katbose.dev` |
+| `apps/dash` | `@katbose/dash` | `7002` | its own target, separate from `katbose.dev` |
+| `apps/docs` | `@katbose/docs` | `7003` | Mintlify, surfaced at `katbose.dev/docs` |
+
+`cms` and `dash` are deliberately empty. They hold a `package.json` and a `README.md` and nothing else, so the structure is settled before either decision is made. Neither declares any scripts, which means `turbo run` skips them entirely rather than failing on a missing task.
+
+<Note>
+  The docs site is built and hosted by Mintlify, not by Next.js, so the two deploy independently on separate schedules.
+
+  `apps/web` does not serve `/docs` at all — that route was removed. Production reaches this site through a rewrite configured at the hosting layer, which is deliberately not committed because it needs the Mintlify deployment hostname. In development `apps/web/next.config.ts` redirects `/docs` to `localhost:7003` instead. The repository README lists the one-time setup.
+</Note>
+
+## How content reaches the page
+
+Everything the portfolio displays comes from one file.
+
+```text
+apps/web/app/data/portfolio.json
+  → SectionRenderer          picks a component from the section's "type"
+    → one component per type
+      → rendered in array order
+```
+
+The file has four top-level keys:
+
+```json
+{
+  "meta":     { "siteUrl": "…", "calendarUrl": "…", "email": "…" },
+  "socials":  [ { "label": "GitHub", "href": "…", "icon": "github" } ],
+  "posts":    [ /* essays, each rendered at /<slug> */ ],
+  "sections": [ /* ordered list */ ]
+}
+```
+
+`sections` is an ordered array, and the order in the file is the order on the page. Each entry carries a `type`, a `title`, and a `data` object whose shape depends on the type. `hero` is the only type without a `title`.
+
+`socials` is consumed twice — by the floating navbar and by the contact section — so editing it once updates both.
+
+## Section types
+
+Each type maps to a component in `apps/web/app/components/sections/`, and each of those exports its own `*Data` interface. The union and the renderer both live in `registry.tsx`.
+
+| `type` | Renders |
+| --- | --- |
+| `hero` | Photo, name, pronunciation, live local time, intro lines |
+| `experience` | A featured current role plus an expandable "previously" list |
+| `techStack` | Skills as a scrolling row that expands into categories |
+| `expandableCard` | A single titled card with a read-more body |
+| `project` | Description, a stats grid with count-up numbers, and a link |
+| `podcast` | Podcast appearances |
+| `thoughts` | Essay listing, also rendered at `/thoughts` |
+| `youtube` | Channel header with a list of videos |
+| `education` | Schools and courses |
+| `github` | Contributions graph for a username |
+| `publications` | Papers with an expandable abstract |
+| `recommendations` | Quotes with attribution |
+| `contact` | Call-to-action buttons plus the shared social links |
+
+Adding a type means creating the component, adding a variant to the `Section` union, and adding a case to `SectionRenderer`. Forgetting the last step is a type error at the switch, so it fails at build time rather than silently rendering nothing.
+
+## Rich text
+
+Any `body` or `intro` field is an array of blocks. A block is either a paragraph or a bullet list:
+
+```json
+"body": [
+  "A paragraph. Supports **bold** and [links](https://example.com).",
+  { "list": ["First bullet", "Second bullet with **bold**"] },
+  "A paragraph after the list."
+]
+```
+
+Inline syntax is limited on purpose: `**bold**` and `[text](url)`. That is the whole grammar.
+
+## Agent mode
+
+The same JSON is serialised to Markdown, so the human and machine views cannot disagree.
+
+| Route | Response |
+| --- | --- |
+| `/<slug>` | HTML |
+| `/<slug>?format=markdown` | `text/markdown` |
+| `/<slug>/markdown` | `text/markdown` |
+
+`apps/web/proxy.ts` performs the negotiation. Its matcher excludes `_next/`, `api/`, and anything with a file extension, so static assets and internal routes are never intercepted. A path that is not a real post falls through to the ordinary HTML response instead of 404-ing.
+
+<Warning>
+  `generateMarkdown` has two behaviours that look like bugs and are not. It has no handler for the `github` section, so that section contributes nothing to the Markdown output. And the `youtube` section emits `## YouTuber @<handle>` rather than its configured title. Both are pinned by characterization tests — change them deliberately, or not at all.
+</Warning>
+
+## Tooling split
+
+Two tools cover the repository, and the boundary between them is intentional.
+
+**Turborepo** owns workspace-aware tasks: `build`, `typecheck`, `test`, `test:e2e`, `validate`, `dev`. It handles dependency ordering and caching.
+
+**Biome** is not a Turborepo task. It already scans the entire repository in one fast pass, and it covers root-level files — workflows, `turbo.jsonc`, this repo's config — that no per-workspace run would ever see. Splitting it per app would be both slower and less thorough, so the root scripts call it directly.
+
+One nuance in the task graph is worth knowing. `test:e2e` depends on `build` in the same package, not `^build` in dependencies, because Playwright's `webServer` starts `bun run start` and serves that workspace's own `.next` output. Without the same-package dependency the suite fails with "no production build found".
+
+## Shared TypeScript config
+
+`packages/typescript-config` publishes two files: `base.json` (ES2022, strict) and `nextjs.json` (the Next.js preset layered on top). Workspaces extend one of them rather than restating compiler options:
+
+```json
+{ "extends": "@katbose/typescript-config/nextjs.json" }
+```
+
+TypeScript is held at `5.9.3` across the repository while everything else tracks latest. Every direct dependency is pinned to an exact version — no `^`, no `~` — so a version change is always a visible edit to a `package.json` rather than a silent re-resolution. Transitive dependencies still carry whatever ranges their own authors declared, so `bun.lock` remains the source of truth for the full tree.

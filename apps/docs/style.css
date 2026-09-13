@@ -1,0 +1,342 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   katbose.dev docs — visual parity with the portfolio.
+
+   Mintlify picks up any .css file in the content directory automatically and
+   inlines it into a <style> tag, so there is no import to wire up. (Grepping the
+   served HTML for "style.css" will therefore find nothing; grep for a token like
+   --kb-background instead.)
+
+   Everything here is hand-written CSS. Mintlify renders Tailwind v3 internally
+   while apps/web is on Tailwind v4, so utility classes and v4-only syntax
+   (@theme, @custom-variant) are NOT portable across that boundary. The tokens
+   below are transcribed from apps/web/app/globals.css.
+
+   Dark mode: Mintlify toggles `.dark` on <html>, which happens to match the
+   portfolio's own `@custom-variant dark (&:where(.dark, .dark *))`.
+
+   Motion is routed through --kb-transition and --kb-lift rather than a
+   prefers-reduced-motion block full of enumerated selectors. Overriding those
+   two custom properties inside the media query reaches every rule at once, with
+   no !important and no descending-specificity conflicts.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Straight from globals.css */
+  --kb-background: #ffffff;
+  --kb-foreground: #000000;
+
+  /* Tailwind neutrals the portfolio leans on, resolved to literals */
+  --kb-muted: #4b5563; /* gray-600 — body copy */
+  --kb-subtle: #6b7280; /* gray-500 — captions, sidebar rest state */
+  --kb-faint: #9ca3af; /* gray-400 — eyebrows */
+  --kb-border: #e5e7eb; /* gray-200 — every hairline */
+  --kb-border-soft: #f3f4f6; /* gray-100 — table row rules */
+  --kb-chip: #f3f4f6; /* gray-100 — inline code + pill rest state */
+  --kb-heading: #374151; /* gray-700 — uppercase section labels */
+
+  /* Motion, centralised so reduced-motion can switch it off in one place */
+  --kb-transition: 0.2s ease;
+  --kb-lift: -1px;
+}
+
+.dark {
+  --kb-background: #000000;
+  --kb-foreground: #ffffff;
+
+  --kb-muted: #9ca3af; /* gray-400 */
+  --kb-subtle: #9ca3af; /* gray-400 */
+  --kb-faint: #6b7280; /* gray-500 */
+  --kb-border: #3f3f46; /* zinc-700 */
+  --kb-border-soft: #18181b; /* zinc-900 */
+  --kb-chip: #27272a; /* zinc-800 */
+  --kb-heading: #d1d5db; /* gray-300 */
+}
+
+/* globals.css already honours this for the navbar shine; every transition and
+   hover lift defined below opts out through these two properties. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --kb-transition: 0s;
+    --kb-lift: 0px;
+  }
+}
+
+/* ── Canvas ──────────────────────────────────────────────────────────────── */
+
+body {
+  background: var(--kb-background);
+  color: var(--kb-foreground);
+}
+
+/* Inverted selection, matching the portfolio's
+   `selection:bg-black selection:text-white` pair. */
+::selection {
+  background: var(--kb-foreground);
+  color: var(--kb-background);
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────
+   Placed here, well before the #-prefixed blocks, because the rest of this
+   file is ordered by ascending specificity. `footer a` is (0, 0, 2) and
+   `#sidebar-content a` is (1, 1, 1); listing the weaker one later reads as a
+   descending-specificity cascade bug even though the two target disjoint
+   subtrees and can never collide. Ordering weakest-first keeps that honest. */
+
+footer {
+  border-top: 1px solid var(--kb-border);
+  color: var(--kb-subtle);
+}
+
+footer h4,
+footer .footer-header {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--kb-faint);
+}
+
+footer a {
+  color: var(--kb-subtle);
+  transition: color var(--kb-transition);
+}
+
+footer a:hover {
+  color: var(--kb-foreground);
+}
+
+/* ── Body content ────────────────────────────────────────────────────────── */
+
+#content {
+  color: var(--kb-muted);
+}
+
+#content p,
+#content li {
+  line-height: 1.75;
+}
+
+/* This is the signature Hackyfolio move: h2 is not a big display heading, it is
+   a small uppercase wide-tracked label. */
+#content h2 {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--kb-heading);
+  margin-top: 3rem;
+  margin-bottom: 1.25rem;
+}
+
+#content h3,
+#content h4 {
+  color: var(--kb-foreground);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+#content strong {
+  color: var(--kb-foreground);
+  font-weight: 500;
+}
+
+/* Links: underline with generous offset, resolving to full contrast on hover. */
+#content a:not([class*="card"]):not([class*="button"]) {
+  color: var(--kb-muted);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  transition: color var(--kb-transition);
+}
+
+#content a:not([class*="card"]):not([class*="button"]):hover {
+  color: var(--kb-foreground);
+}
+
+/* Inline code as a soft chip. Deliberately excludes code inside fenced blocks,
+   which Shiki owns. */
+#content :not(pre) > code {
+  background-color: var(--kb-chip);
+  color: var(--kb-foreground);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.85em;
+  font-weight: 400;
+  border: none;
+}
+
+/* ── Blocks: code, tables, cards, callouts, quotes ───────────────────────── */
+
+#content pre {
+  border: 1px solid var(--kb-border);
+  border-radius: 0.75rem;
+}
+
+#content table {
+  border: 1px solid var(--kb-border);
+  border-radius: 0.75rem;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  font-size: 0.875rem;
+}
+
+#content thead th {
+  color: var(--kb-subtle);
+  font-weight: 600;
+  border-bottom: 1px solid var(--kb-border);
+}
+
+#content tbody tr {
+  border-bottom: 1px solid var(--kb-border-soft);
+}
+
+#content tbody tr:last-child {
+  border-bottom: 0;
+}
+
+/* Cards and callouts: hairline border, generous radius, no drop shadow — the
+   portfolio never uses shadows except on the floating nav island. */
+#content [class*="card"],
+#content blockquote,
+#content .callout {
+  border: 1px solid var(--kb-border);
+  border-radius: 0.75rem;
+  box-shadow: none;
+}
+
+#content blockquote {
+  color: var(--kb-muted);
+  font-style: normal;
+}
+
+/* ── Page title block ────────────────────────────────────────────────────── */
+
+/* Portfolio hero scale: text-4xl -> sm:text-5xl, bold, tight tracking. */
+#page-title h1 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  font-size: 2.25rem;
+  line-height: 1.1;
+}
+
+@media (min-width: 640px) {
+  #page-title h1 {
+    font-size: 3rem;
+  }
+}
+
+/* Lede paragraph directly under the title. */
+#page-title p {
+  color: var(--kb-muted);
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+/* The eyebrow above the title, styled like the portfolio's "Documentation"
+   kicker: tiny, bold, wide-tracked, uppercase. */
+#page-title .eyebrow,
+#content-area .eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--kb-faint);
+}
+
+/* ── Navbar: the portfolio's translucent, blurred, hairline-bordered bar ──── */
+
+#navbar {
+  background-color: color-mix(in srgb, var(--kb-background) 70%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--kb-border);
+}
+
+/* ── Sidebar: rounded pills that invert on hover and when active ─────────── */
+
+#sidebar {
+  border-right: 1px solid var(--kb-border);
+}
+
+/* Group labels share the uppercase treatment used for section headings. */
+#sidebar-content h5,
+#sidebar-content .group-label {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--kb-faint);
+}
+
+#sidebar-content a,
+#sidebar-content button {
+  border-radius: 9999px;
+  color: var(--kb-subtle);
+  transition:
+    background-color var(--kb-transition),
+    color var(--kb-transition),
+    transform var(--kb-transition);
+}
+
+#sidebar-content a:hover {
+  background-color: var(--kb-chip);
+  color: var(--kb-foreground);
+  transform: translateY(var(--kb-lift));
+}
+
+/* Active page: full inversion, the same emphasis the portfolio's nav chips use
+   on hover. Mintlify marks the current item with aria-current. */
+#sidebar-content a[aria-current="page"] {
+  background-color: var(--kb-foreground);
+  color: var(--kb-background);
+  font-weight: 500;
+}
+
+/* The "back to the portfolio" CTA, rendered as the portfolio's solid button:
+   filled with the foreground colour, text knocked out in the background colour.
+   Inverting per mode is why this lives here rather than in `colors.dark` in
+   docs.json — that is a single hex shared by both modes, so it would paint a
+   black button on a black page (and `mint a11y` fails it at 1:1 contrast).
+
+   Two things to know if this ever stops applying:
+     1. It is declared by `navbar.primary` in docs.json, but the willow theme
+        renders it inside #sidebar, NOT #navbar. #navbar holds only the logo.
+        A theme change may move it back.
+     2. The href below must stay in sync with `navbar.primary.href`.
+
+   No !important needed: id + attribute + type is (1, 1, 1), which already
+   outranks the single-class Tailwind utilities Mintlify emits (0, 1, 0). */
+#sidebar a[href="https://katbose.dev"] {
+  background-color: var(--kb-foreground);
+  color: var(--kb-background);
+  border-radius: 9999px;
+  padding-left: 0.875rem;
+  padding-right: 0.875rem;
+  font-weight: 500;
+  transition:
+    opacity var(--kb-transition),
+    transform var(--kb-transition);
+}
+
+#sidebar a[href="https://katbose.dev"]:hover {
+  color: var(--kb-background);
+  opacity: 0.85;
+  transform: translateY(var(--kb-lift));
+}
+
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+
+#pagination a {
+  border: 1px solid var(--kb-border);
+  border-radius: 0.75rem;
+  color: var(--kb-subtle);
+  transition:
+    color var(--kb-transition),
+    border-color var(--kb-transition);
+}
+
+#pagination a:hover {
+  color: var(--kb-foreground);
+  border-color: var(--kb-foreground);
+}

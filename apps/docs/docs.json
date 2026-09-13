@@ -1,0 +1,113 @@
+{
+  "theme": "willow",
+  "name": "katbose.dev",
+  "description": "Documentation for the katbose.dev monorepo — the portfolio site, its content model, and the tooling around it.",
+  "colors": {
+    "primary": "#000000",
+    "light": "#ffffff"
+  },
+  "background": {
+    "color": {
+      "light": "#ffffff",
+      "dark": "#000000"
+    }
+  },
+  "appearance": {
+    "default": "system"
+  },
+  "fonts": {
+    "family": "DM Sans"
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "styling": {
+    "eyebrows": "section",
+    "latex": false,
+    "codeblocks": {
+      "theme": {
+        "light": "github-light",
+        "dark": "github-dark"
+      }
+    }
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Overview",
+        "icon": "book-open",
+        "pages": ["index", "architecture"]
+      },
+      {
+        "group": "Guides",
+        "icon": "terminal",
+        "pages": ["local-development"]
+      },
+      {
+        "group": "Releases",
+        "icon": "history",
+        "pages": ["changelog"]
+      }
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "type": "github",
+        "href": "https://github.com/katbose/katbose-portfolio"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "katbose.dev",
+      "href": "https://katbose.dev"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/katbose",
+      "linkedin": "https://www.linkedin.com/in/katbose/",
+      "x": "https://x.com/katbose_x",
+      "instagram": "https://www.instagram.com/katbose.dev/"
+    },
+    "links": [
+      {
+        "header": "katbose.dev",
+        "items": [
+          {
+            "label": "Portfolio",
+            "href": "https://katbose.dev"
+          },
+          {
+            "label": "Essays",
+            "href": "https://katbose.dev/thoughts"
+          },
+          {
+            "label": "Book a call",
+            "href": "https://cal.com/katbose/meet"
+          }
+        ]
+      },
+      {
+        "header": "Project",
+        "items": [
+          {
+            "label": "Repository",
+            "href": "https://github.com/katbose/katbose-portfolio"
+          },
+          {
+            "label": "Releases",
+            "href": "https://github.com/katbose/katbose-portfolio/releases"
+          }
+        ]
+      }
+    ]
+  },
+  "contextual": {
+    "options": ["copy", "view", "claude", "chatgpt"],
+    "display": "header"
+  },
+  "metadata": {
+    "timestamp": true
+  }
+}

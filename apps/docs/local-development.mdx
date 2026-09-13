@@ -1,0 +1,153 @@
+---
+title: "Local development"
+description: "Install, run, test, and validate the monorepo."
+---
+
+## Prerequisites
+
+| Tool | Version | Why |
+| --- | --- | --- |
+| [Bun](https://bun.sh) | `1.4.2` | Package manager, workspace resolver, and unit test runner |
+| [Node.js](https://nodejs.org) | `>= 20.17` | Required by the Mintlify CLI |
+
+Bun is pinned through `packageManager` in the root `package.json`. Node is only needed for the docs CLI; the web app builds and runs under Bun.
+
+## Install
+
+```bash
+git clone https://github.com/katbose/katbose-portfolio.git
+cd katbose-portfolio
+bun install
+```
+
+A single install covers every workspace. It also installs the Git hooks: the `lefthook` package's postinstall runs `lefthook install` for you, and deliberately skips when `CI` is set.
+
+## Run
+
+From the repository root, Turborepo starts every workspace that declares a `dev` task:
+
+```bash
+bun run dev
+```
+
+To work on one app at a time, filter by package name:
+
+```bash
+bun --filter @katbose/web dev    # portfolio
+bun --filter @katbose/docs dev   # these docs
+```
+
+Ports are fixed per workspace so nothing collides when several run at once.
+
+| App | URL |
+| --- | --- |
+| `@katbose/web` | `http://localhost:7000` |
+| `@katbose/cms` | `http://localhost:7001` (reserved) |
+| `@katbose/dash` | `http://localhost:7002` (reserved) |
+| `@katbose/docs` | `http://localhost:7003` |
+
+In development the web app sends `/docs` to the Mintlify dev server on `7003` with a temporary redirect, so following the site's Menu badge lands you here. Start both servers if you are working across that boundary.
+
+It is a redirect rather than a proxy on purpose: `mint dev` serves its pages from the root and references assets with root-absolute URLs, so proxying would return HTML whose CSS and JS resolve against `:7000` and 404. `apps/web/next.config.ts` explains it in full.
+
+## Root tasks
+
+Each of these fans out across the workspaces that declare it.
+
+```bash
+bun run build       # production builds
+bun run typecheck   # tsc --noEmit
+bun run test        # Bun unit tests
+bun run test:e2e    # Playwright, builds first
+bun run validate    # content and config validation (docs)
+bun run check       # Biome lint + format, writes fixes
+bun run ci:biome    # Biome in check-only mode
+```
+
+`check` and `ci:biome` bypass Turborepo and call Biome directly, because Biome covers the whole repository — including root-level files that no per-workspace run would see — in a single pass.
+
+## Testing
+
+Two runners with no overlap between them.
+
+<Tabs>
+  <Tab title="Unit — Bun">
+    Colocated with the code they cover, in `apps/web/app/data/`.
+
+    ```bash
+    bun --filter @katbose/web test
+    ```
+
+    `bunfig.toml` scopes the runner to `app/`. Without that, Bun claims `*.spec.*` and would try to execute the Playwright suite as unit tests.
+
+    Assertions derive their expectations from `portfolio.json` at runtime rather than hardcoding strings, so editing content does not break the tests.
+  </Tab>
+  <Tab title="End to end — Playwright">
+    Browser tests in `apps/web/e2e/`.
+
+    ```bash
+    bun run test:e2e
+    ```
+
+    The suite needs a production build, which the task graph guarantees. It runs against `next start`, not `next dev`, because the dev overlay and double-rendering would break the console-error assertions.
+
+    Requests to third-party hosts are aborted by a route blocker in `e2e/fixtures.ts`. The homepage references a hundred-odd external icon URLs, and waiting on them made the suite hostage to network conditions.
+  </Tab>
+</Tabs>
+
+## Docs tasks
+
+Run from `apps/docs`, or with `bun --filter @katbose/docs <script>`.
+
+```bash
+bun run dev            # preview on :7003
+bun run validate       # docs.json + page resolution
+bun run broken-links   # internal links, including anchors
+bun run format         # rewrite MDX in place
+bun run a11y           # colour contrast + media alt text
+```
+
+`format` edits files in place, so check `git status` afterwards rather than assuming it was a no-op.
+
+<Warning>
+  The `overrides` block in the root `package.json` exists for this workspace, not the web app. Mintlify pins `sharp` and `react` to exact versions that collide with the ones `next` and `apps/web` resolve, and left alone the collisions break `mint dev` outright. Do not remove those two rules; `apps/docs/README.md` explains what each one prevents.
+
+  If `bun install` ever fails inside a `puppeteer` postinstall saying a browser folder exists but its executable is missing, delete `~/.cache/puppeteer` and install again.
+</Warning>
+
+<Note>
+  Styling for this site is plain CSS in `apps/docs/style.css`, which Mintlify inlines into a `<style>` tag automatically. Do not reach for Tailwind utilities there: Mintlify renders Tailwind v3 while the web app is on v4, so classes and v4-only syntax are not portable across that boundary.
+
+  Pages must use the `.mdx` extension. A `.md` file is served but never resolved as a navigation page.
+</Note>
+
+## Commits and releases
+
+Git hooks are managed by [Lefthook](https://lefthook.dev) in `lefthook.yml`. The `commit-msg` hook runs commitlint; the `pre-commit` hook runs Biome over the staged files and then type-checks the whole project. `pre-commit` is skipped mid-merge and mid-rebase.
+
+Release automation reads those messages, so the prefix determines the version bump:
+
+| Prefix | Effect |
+| --- | --- |
+| `fix:` | patch |
+| `feat:` | minor |
+| `feat!:` or a `BREAKING CHANGE:` footer | minor while below `1.0.0`, major after |
+| `chore:`, `docs:`, `refactor:`, `test:`, `ci:` | no release |
+
+The project is deliberately pre-1.0, so a breaking change bumps the minor rather than jumping to `1.0.0` (`bump-minor-pre-major` in `release-please-config.json`).
+
+One version covers the whole repository. Tags are exactly `vX.Y.Z` — no prefix, no suffix, and no per-app versions. The [changelog](/changelog) on this site is the canonical copy, written directly by the release automation.
+
+## Gotchas
+
+Three that cost real time.
+
+**`next build` and `next start` share `apps/web/.next/lock`.** Running them concurrently fails with "Unable to acquire lock". If a run is interrupted and the lock is stale, delete the directory:
+
+```bash
+rm -rf apps/web/.next
+```
+
+**Port 7000 must be free before an end-to-end run.** Playwright is configured with `reuseExistingServer: false` on purpose. An orphaned `next start` from an earlier session will happily serve HTML that references chunk hashes a later build deleted, which surfaces as hydration that never completes rather than as an obvious error. Failing loudly on a busy port is the better trade.
+
+**`portfolio.json` is content, not code.** Nothing in `apps/web/app/components/` should hardcode a string that belongs in the data file, and there should never be a second data file.
