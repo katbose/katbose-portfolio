@@ -1,0 +1,193 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Superseded runs on the same ref are pointless; cancel them. `main` is excluded
+# from cancellation so a push that lands while a release is being cut still gets
+# a complete verdict.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# Read-only. Nothing in CI writes to the repository — releases are a separate
+# workflow with its own, wider permissions.
+permissions:
+  contents: read
+
+env:
+  # mint pulls in Puppeteer, whose postinstall downloads a Chrome build. None of
+  # the docs commands run here need a browser (verified: validate, format,
+  # broken-links and a11y all pass with no browser present), so skipping it
+  # removes a large download and a genuinely flaky install step.
+  PUPPETEER_SKIP_DOWNLOAD: "true"
+
+# Every action below is pinned by commit SHA rather than tag, so a moved or
+# retagged release cannot change what executes here. The human-readable version
+# is named in the comment above each `uses`.
+jobs:
+  verify:
+    name: Lint, types, tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      # Codecov exchanges this short-lived OIDC identity for upload access; no
+      # long-lived repository token is exposed to the workflow.
+      id-token: write
+
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          # Nothing in CI writes to the repository, so do not leave the
+          # Actions token in the runner's git config where a later step or a
+          # compromised dependency could reach it.
+          persist-credentials: false
+
+      - name: Set up Bun
+        # oven-sh/setup-bun v2.2.0
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          # Matches `packageManager` in package.json. Not "latest": the lockfile
+          # uses nested overrides, which need Bun >= 1.4 and are written as
+          # lockfile version 3.
+          bun-version: 1.4.2
+
+      - name: Install dependencies
+        # --frozen-lockfile makes a lockfile that disagrees with package.json a
+        # failure rather than something CI silently repairs.
+        run: bun install --frozen-lockfile
+
+      - name: Biome
+        # Deliberately not a Turborepo task: one pass covers the whole repo,
+        # including root-level files no per-workspace run would see.
+        #
+        # `--reporter=github` is appended rather than baked into the script, so
+        # the same `ci:biome` entry point is used locally and here and cannot
+        # drift. It emits GitHub workflow commands, which render as annotations
+        # on the changed lines in the pull request diff instead of leaving the
+        # reader to find the file and line in the log.
+        run: bun run ci:biome -- --reporter=github
+
+      - name: MCP config mirrors are in sync
+        # .kiro/settings/mcp.json is the source of truth for MCP servers;
+        # .mcp.json, opencode.json, .vscode/mcp.json, and .codex/config.toml are
+        # generated mirrors for Claude Code, OpenCode, VS Code, and Codex. Fails
+        # if any mirror wasn't regenerated after editing the source.
+        run: bun run mcp:check
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Unit tests with coverage
+        # Run from the web workspace so its bunfig.toml keeps Playwright specs
+        # out of Bun's unit-test discovery.
+        working-directory: apps/web
+        run: bun test --coverage --coverage-reporter=text --coverage-reporter=lcov
+
+      - name: Upload unit coverage
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          files: ./apps/web/coverage/lcov.info
+          disable_search: true
+          fail_ci_if_error: true
+          flags: unit
+          use_oidc: true
+
+      - name: Build
+        # Run explicitly, ahead of the e2e job, so a build failure is reported as
+        # a build failure. `test:e2e` depends on `build`, so this is a cache hit
+        # the second time rather than a rebuild.
+        run: bun run build
+
+      - name: Install Playwright browser
+        # Only Chromium: playwright.config.ts declares a single project.
+        run: bunx playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: bun run test:e2e
+
+      - name: Upload Playwright report
+        # actions/upload-artifact v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: |
+            apps/web/playwright-report/
+            apps/web/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  docs:
+    name: Docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          # Nothing in CI writes to the repository, so do not leave the
+          # Actions token in the runner's git config where a later step or a
+          # compromised dependency could reach it.
+          persist-credentials: false
+
+      - name: Set up Node
+        # actions/setup-node v7.0.0
+        # The Mintlify CLI is a Node program and needs Node >= 20.17. Pinned so
+        # the runner's default version cannot drift underneath it.
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+
+      - name: Set up Bun
+        # oven-sh/setup-bun v2.2.0
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version: 1.4.2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate docs.json and page resolution
+        # Deliberately the root script, which goes through Turborepo, rather than
+        # filtering to the workspace directly. It is the same check either way,
+        # but this exercises the `validate` task wiring in turbo.jsonc so it
+        # cannot silently rot. The remaining steps have no turbo task and so
+        # filter to the workspace.
+        run: bun run validate
+
+      - name: Check for broken internal links
+        run: bun --filter @katbose/docs broken-links
+
+      - name: Accessibility
+        # Catches contrast failures in docs.json colours and media missing alt
+        # text. This is the check that flagged `colors.dark` at 1:1 on the dark
+        # background.
+        run: bun --filter @katbose/docs a11y
+
+      - name: MDX formatting is canonical
+        # `mint format` rewrites in place, so the drift check is "did it change
+        # anything". Run last: a failure here is cosmetic, and running it earlier
+        # would mask the substantive checks above.
+        #
+        # changelog.mdx is excluded because it is generated, and the two tools
+        # disagree about it: release-please emits `*` bullets and blank lines
+        # around each heading, and `mint format` rewrites both. Nothing in the
+        # repo can satisfy both at once. Since CI cannot run on the release pull
+        # request (see release.yml), the first job to see a generated changelog
+        # is the one on main, so without this exclusion every release would end
+        # with a red main and a manual formatting commit. The difference is
+        # whitespace and bullet glyphs; it does not affect how the page renders.
+        run: |
+          bun --filter @katbose/docs format
+          if ! git diff --exit-code -- apps/docs ':(exclude)apps/docs/changelog.mdx'; then
+            echo "::error::mint format rewrote MDX files. Run 'bun --filter @katbose/docs format' locally and commit the result."
+            exit 1
+          fi

@@ -1,0 +1,53 @@
+name: Socket Security
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Refresh the full dependency-policy result even when the lockfile is quiet.
+    - cron: "43 4 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: socket-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# The scan only reads checked-out manifests. The Socket credential is supplied
+# directly to the CLI and is never persisted by actions/checkout.
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Scan dependency policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Verify Socket authentication
+        shell: bash
+        env:
+          SOCKET_CLI_API_TOKEN: ${{ secrets.SOCKET_CLI_API_TOKEN }}
+        run: |
+          if [ -z "$SOCKET_CLI_API_TOKEN" ]; then
+            echo "::error::Add the SOCKET_CLI_API_TOKEN repository secret with full-scans:create permission."
+            exit 1
+          fi
+
+      - name: Scan dependencies
+        # Exact package pin; Socket CLI exits nonzero when the org policy fails.
+        # It discovers this monorepo's package.json files and text bun.lock.
+        env:
+          SOCKET_CLI_API_TOKEN: ${{ secrets.SOCKET_CLI_API_TOKEN }}
+          npm_config_ignore_scripts: "true"
+        run: npx --yes socket@1.1.171 ci
