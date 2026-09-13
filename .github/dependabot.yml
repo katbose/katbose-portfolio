@@ -1,22 +1,10 @@
 version: 2
 
+# Bun dependency updates are intentionally omitted for now. GitHub's hosted
+# updater supports bun.lock through format v1, while Bun 1.4.2 writes this
+# project's required version-scoped overrides in format v3. Socket continues to
+# enforce dependency policy; restore a `bun` entry when Dependabot supports v3.
 updates:
-  # Bun owns the text lockfile and all JavaScript/TypeScript workspaces.
-  - package-ecosystem: "bun"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "08:00"
-      timezone: "Etc/UTC"
-    open-pull-requests-limit: 5
-    cooldown:
-      semver-major-days: 14
-      semver-minor-days: 7
-      semver-patch-days: 3
-    commit-message:
-      prefix: "chore(deps)"
-
   # Preserve immutable action SHAs while opening reviewed update pull requests.
   - package-ecosystem: "github-actions"
     directory: "/"
