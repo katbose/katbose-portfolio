@@ -32,7 +32,7 @@ export function Collapsible({
         {children}
         {!expanded && (
           <div
-            className={`absolute bottom-0 left-0 right-0 ${gradientHeight} bg-gradient-to-t from-white dark:from-black to-transparent`}
+            className={`absolute bottom-0 left-0 right-0 ${gradientHeight} bg-linear-to-t from-white dark:from-black to-transparent`}
           />
         )}
       </div>

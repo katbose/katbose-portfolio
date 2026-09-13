@@ -1,7 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, Bot, Check, Code2, Copy, QrCode, User, X } from "lucide-react";
+import { ArrowUpRight, Bot, Check, Copy, Menu, QrCode, User, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { QRCodeSVG } from "qrcode.react";
@@ -75,14 +75,22 @@ export default function Home() {
         <ThemeToggle />
       </div>
 
-      {/* Open-source badge, tucked in the lower-right corner */}
+      {/* Menu badge, tucked in the lower-right corner. Points at /docs, which is
+          served by Mintlify rather than this app: in production a rewrite maps it
+          onto the docs deployment, and in development next.config.ts redirects it
+          to the Mintlify dev server on :7003.
+
+          The label is hidden below `sm`, so the aria-label carries the accessible
+          name on small screens. It opens with the visible word "Menu" so the
+          accessible name still contains the visible label. */}
       <Link
         href="/docs"
-        title="This portfolio is open source. Build your own with JSON using your AI editor. Read the docs."
+        aria-label="Menu — documentation for this site"
+        title="Documentation: architecture, local development, and changelog"
         className="group fixed bottom-24 right-4 z-40 inline-flex items-center gap-1.5 rounded-full border border-gray-200 dark:border-zinc-700 bg-white/70 dark:bg-zinc-900/80 px-2.5 py-2 text-xs font-medium text-gray-500 shadow-sm backdrop-blur-md transition-colors hover:text-black dark:text-gray-400 dark:hover:text-white sm:bottom-6 sm:right-6 sm:px-3"
       >
-        <Code2 className="h-4 w-4" />
-        <span className="hidden sm:inline">Open source</span>
+        <Menu className="h-4 w-4" />
+        <span className="hidden sm:inline">Menu</span>
         <ArrowUpRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
       </Link>
 
@@ -231,7 +239,7 @@ export default function Home() {
 
       {/* QR Code Modal */}
       {showQR && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+        <div className="fixed inset-0 z-60 flex items-center justify-center">
           {/* The backdrop is a real button rather than a div with onClick: it keeps
               click-outside-to-close while staying focusable and announced. Being a
               sibling of the panel (not its parent) also removes the need to stop

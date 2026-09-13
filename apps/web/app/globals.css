@@ -83,7 +83,15 @@ body {
     transparent 95deg
   );
   padding: 1.5px;
+  /* Two masks, subtracted from each other, leave only the 1.5px padding ring —
+     that ring is what the conic gradient shows through. The standard `mask`
+     sits alongside the -webkit- one because the prefixed property alone would
+     leave the ring unmasked (a solid gradient blob) in engines that ship only
+     the unprefixed form. */
   -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;

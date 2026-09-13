@@ -57,7 +57,7 @@ export function ThoughtsSection({ title, data }: { title: string; data: Thoughts
             {/* Preview with faded bottom */}
             <div className="relative max-h-12 overflow-hidden text-xs leading-relaxed text-gray-600 dark:text-gray-400">
               <Inline text={previewText(post)} />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-white to-transparent dark:from-black" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-linear-to-t from-white to-transparent dark:from-black" />
             </div>
           </Link>
         ))}
