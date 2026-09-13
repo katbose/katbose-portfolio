@@ -1,0 +1,81 @@
+$schema: ./node_modules/lefthook/schema.json
+
+# Git hooks for the katbose.dev monorepo.
+#
+# Hooks install themselves: the lefthook npm package's postinstall runs
+# `lefthook install -f`, and it deliberately skips when CI is set. There is no
+# `prepare` script to keep in sync as a result.
+#
+# Everything runs through `bunx` / `bun run` so the pinned local versions are
+# used rather than whatever happens to be on PATH.
+
+# Fail loudly if the installed hooks have drifted from this file, instead of
+# silently running nothing. Silent skipping is the classic way a hook stops
+# earning its keep without anyone noticing.
+assert_lefthook_installed: true
+
+# Guards against an older globally-installed lefthook being picked up. The repo
+# pins 2.1.12 as a devDependency.
+min_version: 2.1.0
+
+pre-commit:
+  # Skipped mid-merge and mid-rebase: those commits are often not something the
+  # committer can fix in place, and blocking them turns a conflict resolution
+  # into a fight with the tooling.
+  skip:
+    - merge
+    - rebase
+
+  # Sequential on purpose. Biome takes milliseconds and typecheck takes seconds,
+  # so parallelising saves almost nothing, and running Biome first means an
+  # obvious formatting problem fails before waiting on tsc. Interleaved output
+  # from two tools is also harder to read than one clear failure.
+  parallel: false
+
+  jobs:
+    # Scoped to what is actually staged. Formatting is deliberately NOT applied
+    # here: rewriting files mid-commit leaves the staged copy and the working
+    # copy disagreeing, which is worse than a failed commit.
+    - name: biome
+      run: bunx biome check --staged --no-errors-on-unmatched
+      fail_text: Biome found problems in staged files. Run 'bun run check' to auto-fix, then re-stage.
+
+    # Whole-project, not just staged files: a change in one file can break the
+    # types in another, and checking only what is staged would miss exactly
+    # that. Turborepo caches it, so an unchanged repeat replays instantly.
+    - name: typecheck
+      run: bun run typecheck
+      fail_text: TypeScript errors. Fix them before committing.
+
+    # .kiro/settings/mcp.json is the source of truth for MCP servers; .mcp.json,
+    # opencode.json, .vscode/mcp.json, and .codex/config.toml are generated
+    # mirrors for Claude Code, OpenCode, VS Code, and Codex. Catches a hand-edit
+    # to one mirror (or to the source without re-running the sync) before it
+    # ships as a silent drift between clients.
+    - name: mcp-sync
+      glob: ".kiro/settings/mcp.json"
+      run: bun run mcp:check
+      fail_text: MCP config mirrors are out of date. Run 'bun run mcp:sync', then re-stage the generated files.
+
+commit-msg:
+  jobs:
+    # Release automation derives the next version for the whole repository from
+    # these messages, so a malformed subject silently costs a release note or a
+    # version bump. {1} is the path to the commit message file that Git passes.
+    #
+    # Not skipped on merge: commitlint's own default ignores already let
+    # "Merge ..." messages through, so skipping would only widen the gap.
+    - name: commitlint
+      run: bunx commitlint --edit {1}
+      fail_text: |
+        Commit message rejected.
+
+          format:  <type>[optional scope][!]: <subject>
+          example: feat(docs): add architecture page
+                   fix: correct the calendar link in the navbar
+                   feat!: drop the legacy /docs route
+
+          types:   feat fix docs style refactor perf test build ci chore revert
+
+        feat -> minor, fix -> patch, ! or a BREAKING CHANGE: footer -> major.
+        Everything else ships without a release.
