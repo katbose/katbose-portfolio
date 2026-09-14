@@ -1,5 +1,6 @@
 {
   "$comment": "Framework-agnostic TypeScript base for every workspace in this monorepo. Extend this directly for non-React packages; extend nextjs.json for Next.js apps.",
+  "$comment-types": "`types` is set explicitly because TypeScript 7 no longer auto-includes @types packages from the monorepo root's node_modules/@types. Without it, importing from 'bun:test' fails with TS2307 even though @types/bun is installed. bun-types itself references the Node types, so process.env and other Node globals still resolve. Remember that `types` is replaced rather than merged when a config extends this one.",
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022"],
@@ -12,7 +13,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "allowJs": true,
-    "incremental": true
+    "incremental": true,
+    "types": ["bun"]
   },
   "exclude": ["node_modules"]
 }
