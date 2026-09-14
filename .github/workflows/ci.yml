@@ -140,11 +140,22 @@ jobs:
 
       - name: Set up Node
         # actions/setup-node v7.0.0
-        # The Mintlify CLI is a Node program and needs Node >= 20.17. Pinned so
-        # the runner's default version cannot drift underneath it.
+        #
+        # Node tracks latest, in step with every other dependency here, rather
+        # than sitting on Active LTS. Node 26 is Current, not LTS, until October
+        # 2026. Two things follow from that choice:
+        #
+        #   - It matches `@types/node`, which is on 26. Typing against one major
+        #     while executing on another is the kind of skew that only shows up
+        #     at runtime, which is precisely where it is most expensive.
+        #   - The Mintlify CLI is a Node program needing Node >= 20.17, so it is
+        #     satisfied by any major this pin would plausibly hold.
+        #
+        # Still pinned to a major, not `latest`, so a new Node release cannot
+        # silently change what CI runs on. Bump it deliberately.
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
-          node-version: 24
+          node-version: 26
 
       - name: Set up Bun
         # oven-sh/setup-bun v2.2.0
