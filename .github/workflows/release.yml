@@ -4,6 +4,34 @@ on:
   push:
     branches: [main]
 
+# MERGE THE RELEASE PULL REQUEST WITH SQUASH, NEVER A MERGE COMMIT.
+#
+# To tag a release, release-please has to match the merged release pull request
+# to a commit on main and read a version out of it. Squashing keeps the pull
+# request title, `chore: release main`, as the commit subject, which is a valid
+# Conventional Commit. A merge commit instead produces `Merge pull request #N
+# from ...`, which cannot be parsed:
+#
+#   commit could not be parsed: <sha> Merge pull request #1 from ...
+#   error message: unexpected token ' ' at 1:6, valid tokens [(, !, :]
+#   There are untagged, merged release PRs outstanding - aborting
+#
+# The run then reports success while creating no tag and no release, and leaves
+# the pull request labelled `autorelease: pending`. That label is not cosmetic:
+# an outstanding untagged release PR aborts every later release too, so a single
+# bad merge wedges the pipeline until someone intervenes by hand.
+#
+# This is exactly how v0.1.0 went wrong. Recovery meant creating tag v0.1.0 and
+# the GitHub release manually against the merge commit, with notes lifted out of
+# apps/docs/changelog.mdx, then relabelling the pull request `autorelease:
+# tagged` to unwedge later runs.
+#
+# Scope, so this is not mis-read: unparseable subjects on ordinary pull requests
+# are skipped harmlessly when the changelog is assembled. It is only the release
+# pull request's own merge commit that has to parse. Squashing everything is
+# still the simpler rule to hold, and it keeps one tidy Conventional Commit per
+# pull request for the changelog.
+
 # Never cut two releases at once: a second push while a release PR is being
 # reconciled would race on the same manifest and tag.
 concurrency:
