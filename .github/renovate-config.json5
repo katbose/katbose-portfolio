@@ -1,0 +1,80 @@
+{
+  // Self-hosted admin + repo config in a single file, per the pattern this
+  // action's own README recommends for exactly this case: one repository,
+  // no separate onboarding PR.
+  //   https://github.com/renovatebot/github-action#configurationfile
+  "platform": "github",
+
+  // Explicit and narrow on purpose. Self-hosted Renovate has no GitHub App
+  // installation to scope it, so without this it could be pointed at every
+  // repository the token can see. `autodiscover: false` is also the
+  // default; stating it removes any doubt.
+  "autodiscover": false,
+  "repositories": ["katbose/katbose-portfolio"],
+
+  // There is no repository-level renovate.json (see the filename note in
+  // renovate.yml), so tell Renovate not to look for one or open an
+  // onboarding PR.
+  "onboarding": false,
+  "requireConfig": "optional",
+
+  // Keeps generated branches distinguishable from anything the hosted Mend
+  // GitHub App would create, in case that is ever installed too.
+  "branchPrefix": "renovate-selfhosted/",
+
+  // LIVE. Renovate will push branches and open real pull requests.
+  //
+  // Nothing here is auto-merged, deliberately. Renovate has an open bug where
+  // a bump to a workspace-level package.json can land without regenerating
+  // bun.lock (renovatebot/renovate#39586). Since almost every dependency in
+  // this repo lives under apps/* rather than the root manifest, that is the
+  // likely path, not an edge case. If it happens, CI's
+  // `bun install --frozen-lockfile` fails on the pull request, which is
+  // exactly where it should fail. Merging such a PR would break main and
+  // block every later PR until the lockfile was repaired by hand.
+  //
+  // So: review the diff of the first few PRs and confirm bun.lock moved
+  // alongside the manifest before trusting this unattended.
+  "dependencyDashboard": true,
+
+  // Scoped to the two ecosystems this repo can currently automate. The Bun
+  // manager shells out to the pinned `bun` binary instead of parsing
+  // bun.lock itself, so it is expected to handle lockfileVersion 3 and the
+  // version-scoped js-yaml override where Dependabot's hosted Bun updater
+  // cannot (see .github/dependabot.yml).
+  "enabledManagers": ["bun", "github-actions"],
+
+  // Keeps a bad batch small and reviewable while this is new.
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+
+  // Matches the repo's existing Conventional Commit style, which
+  // release-please parses to build the changelog.
+  "commitMessagePrefix": "chore(deps):",
+
+  // Mirrors the seven-day supply-chain cooldown already used for GitHub
+  // Actions in .github/dependabot.yml: nothing is adopted the day it ships.
+  "minimumReleaseAge": "7 days",
+
+  // Group routine minor/patch bumps; leave majors as individual PRs so each
+  // breaking upgrade gets reviewed on its own, the same policy as Dependabot.
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "minor and patch",
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "groupName": null,
+    },
+    {
+      // These are pinned to full commit SHAs on purpose. Renovate updates the
+      // SHA and the trailing version comment together, preserving the
+      // repository's supply-chain policy.
+      "matchManagers": ["github-actions"],
+      "pinDigests": true,
+    },
+  ],
+
+  "labels": ["dependencies"]
+}

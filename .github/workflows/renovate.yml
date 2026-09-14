@@ -1,0 +1,53 @@
+name: Renovate
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Weekly; offset from the other scheduled maintenance workflows so their
+    # runs don't land in the same few minutes.
+    - cron: "17 5 * * 1"
+
+# A second run should never start while one is mid-extract; scheduled runs
+# are infrequent enough that waiting is fine rather than cancelling.
+concurrency:
+  group: renovate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+# Renovate authenticates with its own token (see the `token` input below),
+# never the default GITHUB_TOKEN, so this workflow itself only needs to read
+# the checked-out config file.
+permissions:
+  contents: read
+
+jobs:
+  renovate:
+    name: Self-hosted Renovate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Verify Renovate token
+        shell: bash
+        env:
+          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+        run: |
+          if [ -z "$RENOVATE_TOKEN" ]; then
+            echo "::error::Add the RENOVATE_TOKEN repository secret (classic PAT: public_repo + workflow scopes)."
+            exit 1
+          fi
+
+      - name: Self-hosted Renovate
+        uses: renovatebot/github-action@dcfba84a42d1b5d5e49bf131b1bf53511851a123 # v46.3.1
+        with:
+          configurationFile: .github/renovate-config.json5
+          token: ${{ secrets.RENOVATE_TOKEN }}
+        env:
+          # Verbose while this is new: the log is what shows whether bun.lock
+          # was regenerated alongside each workspace-level manifest bump.
+          # Drop to the default once the first PRs confirm that.
+          LOG_LEVEL: debug
