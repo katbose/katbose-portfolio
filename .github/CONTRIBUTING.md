@@ -195,11 +195,16 @@ one:
 bun add --exact <package>@<version>
 ```
 
-Two standing exceptions to "track latest":
+One standing exception to "track latest":
 
-- **TypeScript stays at `5.9.3`.** Do not upgrade it.
 - The `overrides` block pins `react`, `sharp`, `qs`, `adm-zip` and `js-yaml` for
   reasons documented in `apps/docs/README.md`.
+
+TypeScript tracks latest along with everything else and is currently on 7. Note
+that TypeScript 7 no longer auto-includes `@types` packages from the monorepo
+root, which is why `packages/typescript-config/base.json` sets `types`
+explicitly. That field is replaced rather than merged when a config extends it,
+so a workspace needing other ambient types has to restate the full list.
 
 Run `bun audit` after adding anything. Two advisories are currently accepted and
 explained in [`SECURITY.md`](SECURITY.md); anything beyond those needs a look.

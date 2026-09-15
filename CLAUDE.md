@@ -14,17 +14,18 @@ apps/
   web/     Next.js portfolio — katbose.dev            port 7000
   cms/     reserved, framework undecided              port 7001
   dash/    reserved, framework undecided              port 7002
-  docs/    Mintlify docs — katbose.dev/docs           port 7003
+  docs/    Mintlify docs — docs.katbose.dev          port 7003
 packages/
   typescript-config/   shared base.json + nextjs.json
 ```
 
 Things that are easy to get wrong here:
 
-- **`/docs` is not a route in `apps/web`.** It is a separate Mintlify site. In
-  production it is mapped onto the domain at the hosting layer; in development
-  `apps/web/next.config.ts` redirects it to `:7003`. Do not add
-  `apps/web/app/docs/`.
+- **The docs are a separate site on their own subdomain**, `docs.katbose.dev`,
+  served directly by Mintlify. Nothing on `katbose.dev` proxies or rewrites to
+  it, `/docs` is not a route in `apps/web`, and no `vercel.json` is needed. The
+  Menu badge links across origins via `DOCS_URL` in `app/data/siteMeta.ts`,
+  which points at `:7003` in development. Do not add `apps/web/app/docs/`.
 - **`apps/cms` and `apps/dash` are deliberately empty** — a `package.json` and a
   `README.md`, nothing else. They declare no scripts, so `turbo run` skips them.
   Do not scaffold code there speculatively.
@@ -518,12 +519,15 @@ node, otherwise biome reports `suppressions/unused`.
 - Do not add a `title` field to the `hero` section (it does not use one).
 - Do not add a `version` field to any workspace `package.json`. One version, at
   the root, owned by release automation.
-- Do not recreate `apps/web/app/docs/`. Documentation lives in `apps/docs`.
+- Do not recreate `apps/web/app/docs/`. Documentation lives in `apps/docs` and
+  is served from `docs.katbose.dev`, not a path on this domain.
 - Do not use a caret or tilde in a dependency range. Every version in this repo
   is pinned exactly.
-- Do not upgrade TypeScript. It is held at `5.9.3` on purpose while everything
-  else tracks latest.
 - Do not remove the `overrides` block from the root `package.json`.
+- Do not remove `types` from `packages/typescript-config/base.json`. TypeScript 7
+  no longer auto-includes `@types` from the monorepo root, so dropping it breaks
+  `bun:test` imports with TS2307. The field is replaced, not merged, when a
+  config extends this one.
 
 ### Known quirks in `generateMarkdown.ts`, pinned by tests
 

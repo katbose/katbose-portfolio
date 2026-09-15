@@ -81,7 +81,7 @@ katbose-portfolio/
 <div align="center">
   <img src="https://img.shields.io/badge/Next.js_16-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js 16">
   <img src="https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React 19">
-  <img src="https://img.shields.io/badge/TypeScript_5.9-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript 5.9">
+  <img src="https://img.shields.io/badge/TypeScript_7-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript 7">
   <img src="https://img.shields.io/badge/Tailwind_CSS_4-0F172A?style=flat-square&logo=tailwindcss&logoColor=38BDF8" alt="Tailwind CSS 4">
   <img src="https://img.shields.io/badge/Bun_1.4-14151A?style=flat-square&logo=bun&logoColor=FBF0DF" alt="Bun 1.4">
   <img src="https://img.shields.io/badge/Turborepo-0B0B0B?style=flat-square&logo=turborepo&logoColor=EF4444" alt="Turborepo">
@@ -131,7 +131,7 @@ bun --filter @katbose/docs dev
 <summary><strong>Quality and release model</strong></summary>
 
 - **Biome** owns repository-wide formatting and static analysis.
-- **TypeScript** remains pinned at `5.9.3`; all dependencies use exact versions.
+- **TypeScript 7** across every workspace; all dependencies use exact versions.
 - **Bun Test** protects the content-to-Markdown pipeline and metadata helpers.
 - **Playwright** exercises the production experience, themes, modes, essays, and animations.
 - **Lefthook** runs pre-commit checks; **commitlint** enforces Conventional Commits.

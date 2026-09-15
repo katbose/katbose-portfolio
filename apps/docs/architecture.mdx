@@ -26,14 +26,14 @@ katbose-portfolio/
 | `apps/web` | `@katbose/web` | `7000` | Vercel, at `katbose.dev` |
 | `apps/cms` | `@katbose/cms` | `7001` | its own target, separate from `katbose.dev` |
 | `apps/dash` | `@katbose/dash` | `7002` | its own target, separate from `katbose.dev` |
-| `apps/docs` | `@katbose/docs` | `7003` | Mintlify, surfaced at `katbose.dev/docs` |
+| `apps/docs` | `@katbose/docs` | `7003` | Mintlify, served at `docs.katbose.dev` |
 
 `cms` and `dash` are deliberately empty. They hold a `package.json` and a `README.md` and nothing else, so the structure is settled before either decision is made. Neither declares any scripts, which means `turbo run` skips them entirely rather than failing on a missing task.
 
 <Note>
   The docs site is built and hosted by Mintlify, not by Next.js, so the two deploy independently on separate schedules.
 
-  `apps/web` does not serve `/docs` at all — that route was removed. Production reaches this site through a rewrite configured at the hosting layer, which is deliberately not committed because it needs the Mintlify deployment hostname. In development `apps/web/next.config.ts` redirects `/docs` to `localhost:7003` instead. The repository README lists the one-time setup.
+  This site has its own subdomain, `docs.katbose.dev`, which Mintlify serves directly. `apps/web` has no `/docs` route and nothing on `katbose.dev` proxies or rewrites to it, so the two sites share only a brand and a repository. The web app's Menu badge is an ordinary cross-origin link built from `DOCS_URL` in `apps/web/app/data/siteMeta.ts`, which points at `localhost:7003` in development.
 </Note>
 
 ## How content reaches the page
@@ -132,4 +132,4 @@ One nuance in the task graph is worth knowing. `test:e2e` depends on `build` in 
 { "extends": "@katbose/typescript-config/nextjs.json" }
 ```
 
-TypeScript is held at `5.9.3` across the repository while everything else tracks latest. Every direct dependency is pinned to an exact version — no `^`, no `~` — so a version change is always a visible edit to a `package.json` rather than a silent re-resolution. Transitive dependencies still carry whatever ranges their own authors declared, so `bun.lock` remains the source of truth for the full tree.
+TypeScript tracks latest along with everything else and is currently on 7. Every direct dependency is pinned to an exact version — no `^`, no `~` — so a version change is always a visible edit to a `package.json` rather than a silent re-resolution. Transitive dependencies still carry whatever ranges their own authors declared, so `bun.lock` remains the source of truth for the full tree.
