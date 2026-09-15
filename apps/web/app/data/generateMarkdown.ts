@@ -1,7 +1,7 @@
 import type { PortfolioData, Section } from "../components/sections/registry";
 import type { Block } from "../components/types";
 import { postUrl } from "./postHelpers";
-import { getSortedPosts } from "./posts";
+import { sortPosts } from "./posts";
 
 /** Find the first section of a given type, narrowed to its variant. */
 function find<T extends Section["type"]>(
@@ -23,7 +23,7 @@ function blocks(content: Block[]): string {
  * drives the visual components, so both stay in sync from one source.
  */
 export function generateMarkdown(data: PortfolioData, time: string): string {
-  const { sections, socials, meta } = data;
+  const { sections, socials, meta, posts } = data;
   const parts: string[] = [];
 
   // Title + About
@@ -135,10 +135,16 @@ export function generateMarkdown(data: PortfolioData, time: string): string {
     parts.push(lines.join("\n"));
   }
 
-  // Thoughts (essays / notes, pulled from posts.ts)
+  // Thoughts (essays / notes)
+  //
+  // Reads `data.posts` rather than calling `getSortedPosts()`. This function
+  // advertises itself as a pure `data -> markdown` transformation, but the
+  // thoughts branch used to ignore `data` entirely and reach for module-level
+  // state instead — so the same argument could produce different output
+  // depending on the content file, and a caller had no way to substitute posts.
   const thoughts = find(sections, "thoughts");
   if (thoughts) {
-    const items = getSortedPosts()
+    const items = sortPosts(posts)
       .map((p) => `- [${p.title}](${postUrl(p)}) — ${p.description}`)
       .join("\n");
     parts.push(`## ${thoughts.title}\n\n${items}`);

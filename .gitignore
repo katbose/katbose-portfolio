@@ -58,6 +58,12 @@ playwright-report/
 blob-report/
 playwright/.cache/
 
+# Visual regression baselines are platform-specific (font rasterization differs
+# between Windows/Linux/macOS). Committing them causes CI failures when the
+# runner's OS doesn't match the dev machine. Generate locally for manual review,
+# but exclude from version control.
+**/*-snapshots/
+
 # turborepo
 .turbo/
 

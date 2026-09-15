@@ -41,7 +41,13 @@ export function Hero({ data, time }: { data: HeroData; time: string }) {
         <span className="text-gray-300 dark:text-gray-700">•</span>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5">
-            <span className="tabular-nums text-xs sm:text-sm">{time || "00:00:00"}</span>
+            {/* Marked so visual-regression runs can mask it: this is the only
+                text on the page that changes every second, and an unmasked
+                clock would invalidate every screenshot baseline. The hook must
+                survive being extracted into its own client island. */}
+            <span data-testid="local-time" className="tabular-nums text-xs sm:text-sm">
+              {time || "00:00:00"}
+            </span>
             <span className="text-[10px] uppercase tracking-wider sm:text-xs">
               {data.timezone.label}
             </span>

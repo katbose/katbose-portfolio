@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import type { PortfolioData, Section } from "../components/sections/registry";
 import { generateMarkdown } from "./generateMarkdown";
 import { postUrl } from "./postHelpers";
-import { getSortedPosts } from "./posts";
+import { getSortedPosts, posts as realPosts } from "./posts";
 
 /**
  * Characterization tests for the agent-mode markdown generator.
@@ -15,6 +15,7 @@ import { getSortedPosts } from "./posts";
 
 const META: PortfolioData["meta"] = {
   siteUrl: "https://fixture.example",
+  docsUrl: "https://docs.fixture.example",
   calendarUrl: "https://cal.example/fixture",
   email: "fixture@example.test",
 };
@@ -24,9 +25,20 @@ const SOCIALS: PortfolioData["socials"] = [
   { label: "LinkedIn", href: "https://linkedin.example/fixture", icon: "linkedin" },
 ];
 
-/** Build a fixture portfolio containing only the given sections. */
-function build(sections: Section[], meta: Partial<PortfolioData["meta"]> = {}): PortfolioData {
-  return { meta: { ...META, ...meta }, socials: SOCIALS, sections };
+/**
+ * Build a fixture portfolio containing only the given sections.
+ *
+ * `posts` defaults to the real content because the thoughts assertion below
+ * checks the generator against every published post. Callers that care about
+ * post handling pass their own list — which is now possible at all, since the
+ * generator reads `data.posts` instead of importing the post list itself.
+ */
+function build(
+  sections: Section[],
+  meta: Partial<PortfolioData["meta"]> = {},
+  posts: PortfolioData["posts"] = realPosts,
+): PortfolioData {
+  return { meta: { ...META, ...meta }, socials: SOCIALS, posts, sections };
 }
 
 const HERO: Section = {

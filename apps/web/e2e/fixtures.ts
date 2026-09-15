@@ -1,5 +1,6 @@
 import { test as base, type ConsoleMessage, type Page } from "@playwright/test";
-import portfolioJson from "../app/data/portfolio.json";
+import { portfolio } from "../app/data/portfolio";
+import { sortPosts } from "../app/data/posts";
 
 /**
  * All specs import `test` from here rather than from @playwright/test, so every
@@ -35,40 +36,17 @@ export { expect } from "@playwright/test";
  * hardcoded here — these tests assert *behaviour*, not biography.
  */
 
-interface HeroSection {
-  type: "hero";
-  data: { name: string; intro: string[]; timezone: { label: string } };
-}
-interface TitledSection {
-  type: string;
-  title: string;
-}
-type AnySection = HeroSection | TitledSection;
+export { portfolio };
 
-interface Portfolio {
-  meta: { siteUrl: string; email: string; calendarUrl: string };
-  socials: { label: string; href: string; icon: string }[];
-  posts: {
-    slug: string;
-    title: string;
-    kicker: string;
-    description: string;
-    date: string;
-  }[];
-  sections: AnySection[];
-}
-
-export const portfolio = portfolioJson as unknown as Portfolio;
-
-export const hero = portfolio.sections.find((s): s is HeroSection => s.type === "hero");
+export const hero = portfolio.sections.find((s) => s.type === "hero");
 
 /** Section headings in file order — the order the page must render them in. */
 export const sectionTitles: string[] = portfolio.sections
-  .filter((s): s is TitledSection => typeof (s as TitledSection).title === "string")
+  .filter((s) => s.type !== "hero")
   .map((s) => s.title);
 
 /** Posts newest-first, matching `getSortedPosts()`. */
-export const sortedPosts = [...portfolio.posts].sort((a, b) => (a.date < b.date ? 1 : -1));
+export const sortedPosts = sortPosts(portfolio.posts);
 
 /**
  * Console/page errors that are not the app's fault.

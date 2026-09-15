@@ -2,6 +2,23 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/**
+ * Collapsed-panel heights, kept generated even though no source file mentions
+ * them literally.
+ *
+ * `collapsedHeight` in `portfolio.json` is interpolated straight into a
+ * `className` (see `Collapsible.tsx`). Tailwind only emits utilities it can
+ * statically see in scanned source, and it does not scan the JSON — so before
+ * this rule existed, the only `max-h-*` classes that worked were the three that
+ * happened to appear as literal defaults in the section components. Authoring
+ * `"collapsedHeight": "max-h-96"` produced a panel that silently never clamped,
+ * with a "View More" button that appeared to do nothing.
+ *
+ * This list is the allowlist enforced by `portfolio.schema.ts`. Add a value in
+ * both places or not at all.
+ */
+@source inline("max-h-{20,24,32,40,48,56,64,72,80,96}");
+
 :root {
   --background: #ffffff;
   --foreground: #000000;

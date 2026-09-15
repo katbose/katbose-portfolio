@@ -8,13 +8,12 @@ import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "./components/icons";
 import { Reveal } from "./components/Reveal";
-import { type PortfolioData, SectionRenderer } from "./components/sections/registry";
+import { SectionRenderer } from "./components/sections/registry";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { WaterOverlay } from "./components/WaterImage";
 import { generateMarkdown } from "./data/generateMarkdown";
-import portfolioJson from "./data/portfolio.json";
-
-const portfolio = portfolioJson as unknown as PortfolioData;
+import { portfolio } from "./data/portfolio";
+import { DOCS_URL } from "./data/siteMeta";
 
 export default function Home() {
   const [time, setTime] = useState<string>("");
@@ -75,16 +74,16 @@ export default function Home() {
         <ThemeToggle />
       </div>
 
-      {/* Menu badge, tucked in the lower-right corner. Points at /docs, which is
-          served by Mintlify rather than this app: in production a rewrite maps it
-          onto the docs deployment, and in development next.config.ts redirects it
-          to the Mintlify dev server on :7003.
+      {/* Menu badge, tucked in the lower-right corner. Points at the Mintlify
+          docs, which are a separate site on their own subdomain — so this is a
+          cross-origin link, not a route in this app. `DOCS_URL` swaps in the
+          local `mint dev` server during development.
 
           The label is hidden below `sm`, so the aria-label carries the accessible
           name on small screens. It opens with the visible word "Menu" so the
           accessible name still contains the visible label. */}
       <Link
-        href="/docs"
+        href={DOCS_URL}
         aria-label="Menu — documentation for this site"
         title="Documentation: architecture, local development, and changelog"
         className="group fixed bottom-24 right-4 z-40 inline-flex items-center gap-1.5 rounded-full border border-gray-200 dark:border-zinc-700 bg-white/70 dark:bg-zinc-900/80 px-2.5 py-2 text-xs font-medium text-gray-500 shadow-sm backdrop-blur-md transition-colors hover:text-black dark:text-gray-400 dark:hover:text-white sm:bottom-6 sm:right-6 sm:px-3"

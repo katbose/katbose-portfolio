@@ -4,11 +4,15 @@
   "description": "The katbose.dev portfolio site. Content lives in app/data/portfolio.json.",
   "scripts": {
     "dev": "next dev -p 7000",
+    "validate:content": "bun run scripts/validate-content.ts",
+    "prebuild": "bun run validate:content",
     "build": "next build",
+    "bundle:report": "bun run scripts/bundle-report.ts",
     "start": "next start -p 7000",
     "typecheck": "tsc --noEmit",
     "test": "bun test",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test --project=chromium",
+    "test:visual": "playwright test --project=visual-desktop --project=visual-mobile"
   },
   "dependencies": {
     "@paper-design/shaders-react": "0.0.80",
@@ -32,6 +36,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "tailwindcss": "4.3.3",
-    "typescript": "7.0.2"
+    "typescript": "7.0.2",
+    "zod": "4.6.5"
   }
 }

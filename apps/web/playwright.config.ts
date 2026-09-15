@@ -22,13 +22,57 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? [["github"], ["list"]] : [["list"]],
   timeout: 30_000,
-  expect: { timeout: 10_000 },
+  expect: {
+    timeout: 10_000,
+    toHaveScreenshot: {
+      // Freezes CSS animations and transitions at their end state, which is what
+      // makes the marquee, the reveal transitions, and the theme fade
+      // screenshottable at all.
+      animations: "disabled",
+      caret: "hide",
+      // Font antialiasing differs by a pixel or two between runs even on the
+      // same machine. Small enough to ignore noise, tight enough that a real
+      // layout or colour change still fails.
+      maxDiffPixelRatio: 0.01,
+    },
+  },
   use: {
     baseURL: BASE_URL,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+
+  /**
+   * Behaviour tests and visual tests are separate projects on purpose.
+   *
+   * Screenshot baselines are tied to the platform that produced them — font
+   * rasterisation on Windows does not match Linux, so baselines committed from a
+   * dev machine would fail on a Linux CI runner and teach everyone to ignore the
+   * suite. Until baselines are generated in a container, `visual.spec.ts` runs
+   * locally (`bun run test:visual`) and CI runs the behaviour suite only.
+   *
+   * The mobile project is deliberately scoped to the visual spec as well. The
+   * behaviour suite makes desktop-shaped assumptions in places — the navbar
+   * "Menu" label is hidden below `sm`, for one — so running all of it at phone
+   * width would report layout intent as failure.
+   */
+  projects: [
+    {
+      name: "chromium",
+      testIgnore: /visual\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "visual-desktop",
+      testMatch: /visual\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "visual-mobile",
+      testMatch: /visual\.spec\.ts/,
+      use: { ...devices["Pixel 5"] },
+    },
+  ],
   webServer: {
     command: "bun run start",
     url: BASE_URL,

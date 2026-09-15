@@ -1,3 +1,4 @@
+import type { Post } from "../../data/posts";
 import type { PortfolioMeta, Social } from "../types";
 import { type ContactData, ContactSection } from "./ContactSection";
 import { type EducationData, EducationSection } from "./EducationSection";
@@ -34,10 +35,18 @@ export type Section =
   | { type: "thoughts"; title: string; data: ThoughtsData }
   | { type: "podcast"; title: string; data: PodcastData };
 
-/** Top-level shape of `portfolio.json`. */
+/**
+ * Top-level shape of `portfolio.json`.
+ *
+ * `posts` is part of this contract even though no section renders it directly:
+ * the file has always carried it, the `/[slug]` routes are generated from it,
+ * and the agent-mode markdown lists it. Leaving it undeclared is what forced
+ * `posts.ts` to reach for the JSON separately with its own cast.
+ */
 export interface PortfolioData {
   meta: PortfolioMeta;
   socials: Social[];
+  posts: Post[];
   sections: Section[];
 }
 

@@ -15,7 +15,7 @@ This is the engineering reference. For the project overview see the
 - [Section types](#section-types)
 - [Posts and rich text](#posts-and-rich-text)
 - [Routing and the dual view](#routing-and-the-dual-view)
-- [The `/docs` boundary](#the-docs-boundary)
+- [The docs boundary](#the-docs-boundary)
 - [Styling](#styling)
 - [Scripts](#scripts)
 - [Testing](#testing)
@@ -59,7 +59,7 @@ apps/web/
 │       └── generateMarkdown.ts  # JSON → Markdown
 ├── e2e/                      # Playwright
 ├── proxy.ts                  # ?format=markdown content negotiation
-├── next.config.ts            # image hosts, dev-only /docs redirect
+├── next.config.ts            # remote image hosts
 └── playwright.config.ts
 ```
 
@@ -146,24 +146,25 @@ extension.
 A rewrite is used rather than a redirect so the URL the caller requested is the
 URL they keep.
 
-## The `/docs` boundary
+## The docs boundary
 
-`/docs` is **not** a route in this app. It is the separate Mintlify site in
-`apps/docs`, mapped onto the domain at the hosting layer in production.
+The documentation is **not** part of this app. It is the Mintlify site in
+`apps/docs`, served by Mintlify on its own subdomain, `docs.katbose.dev`.
 
-Development has no hosting layer, so `next.config.ts` redirects `/docs` to the
-Mintlify dev server on `:7003`. Two details there are deliberate and worth not
-undoing:
+Because it is a separate origin, this app needs no configuration for it at all:
+no rewrite, no redirect, no `vercel.json`, and no `/docs` route. The Menu badge
+on the home page is an ordinary cross-origin link, built from `DOCS_URL` in
+`app/data/siteMeta.ts`.
 
-- **A redirect, not a rewrite.** `mint dev` serves at the root and references
-  assets with root-absolute URLs. Proxying would return HTML whose assets
-  resolve against `:7000` and 404, rendering an unstyled page.
-- **307, not 308.** A permanent redirect is cached by the browser against this
-  origin, so one visit in development would keep sending production `/docs` to
-  localhost.
+`DOCS_URL` reads `meta.docsUrl` from `portfolio.json`, except in development,
+where it points at the local `mint dev` server on `:7003` so you are not sent to
+the deployed docs while editing them. The switch is on `NODE_ENV`, which Next
+inlines at build time, so the production bundle contains only the real URL — no
+`localhost` reference survives into it.
 
-Both are guarded on `NODE_ENV === "development"` so they cannot shadow the
-production mapping.
+An earlier arrangement served the docs at `katbose.dev/docs`. That needed a
+hosting-layer rewrite in production and a dev-only redirect here, both of which
+the subdomain removes.
 
 ## Styling
 
