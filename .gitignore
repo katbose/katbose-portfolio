@@ -64,6 +64,11 @@ playwright/.cache/
 # but exclude from version control.
 **/*-snapshots/
 
+# AI agent documentation — local reference only, not committed to repository.
+# Contains modernization plans, handoff guides, and implementation checklists
+# for AI agents working on the codebase.
+.ai-docs/
+
 # turborepo
 .turbo/
 
