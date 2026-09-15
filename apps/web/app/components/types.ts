@@ -30,6 +30,8 @@ export interface LinkRef {
 
 export interface PortfolioMeta {
   siteUrl: string;
+  /** Absolute origin of the Mintlify docs site. Its own subdomain, not a path here. */
+  docsUrl: string;
   calendarUrl: string;
   email: string;
   /** Optional pill above the hero pointing at a featured page (e.g. an essay). */

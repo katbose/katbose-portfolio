@@ -1,18 +1,34 @@
-import type { PortfolioData } from "../components/sections/registry";
-import portfolioJson from "./portfolio.json";
-
 /**
  * Site-level identity, derived from `portfolio.json`.
  *
  * Route metadata (`layout.tsx`, `sitemap.ts`, `robots.ts`) used to hardcode the
  * owner's name and URL, which meant the page title could silently disagree with
- * the content file. Everything here reads from the JSON instead, so updating
+ * the content file. Everything here reads from the content instead, so updating
  * `portfolio.json` remains the only edit needed.
  */
-const portfolio = portfolioJson as unknown as PortfolioData;
+
+import { portfolio } from "./portfolio";
 
 /** Absolute site URL, trailing slash stripped so it is safe to concatenate. */
 export const SITE_URL = portfolio.meta.siteUrl.replace(/\/$/, "");
+
+/**
+ * Where the documentation lives.
+ *
+ * The docs are a Mintlify site on their own subdomain, so this is a cross-origin
+ * link rather than a route in this app. Nothing needs to proxy or rewrite
+ * `/docs`, and there is deliberately no `/docs` route here.
+ *
+ * In development that subdomain would send you to the deployed docs, which is
+ * rarely what you want while editing them, so point at the local `mint dev`
+ * server instead. Its port must match the `--port` in `apps/docs/package.json`.
+ * `NODE_ENV` is inlined at build time, so the production bundle contains only
+ * the real URL.
+ */
+export const DOCS_URL =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:7003"
+    : portfolio.meta.docsUrl.replace(/\/$/, "");
 
 const hero = portfolio.sections.find((section) => section.type === "hero");
 

@@ -1,7 +1,7 @@
 {
   "name": "@katbose/docs",
   "private": true,
-  "description": "Mintlify documentation for the katbose.dev monorepo. Served at katbose.dev/docs.",
+  "description": "Mintlify documentation for the katbose.dev monorepo. Served at docs.katbose.dev.",
   "scripts": {
     "dev": "mint dev --port 7003",
     "validate": "mint validate",

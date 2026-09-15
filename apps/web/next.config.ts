@@ -1,11 +1,18 @@
 import type { NextConfig } from "next";
 
 /**
- * Where the Mintlify dev server runs. Must match the `--port` in
- * apps/docs/package.json.
+ * There is deliberately no handling for `/docs` here.
+ *
+ * The documentation is a Mintlify site on its own subdomain
+ * (`docs.katbose.dev`), which Mintlify serves directly. Nothing on this domain
+ * proxies, rewrites, or redirects to it, and `/docs` is not a route in this app.
+ *
+ * An earlier arrangement served the docs at `katbose.dev/docs`, which required a
+ * rewrite at the hosting layer in production plus a dev-only redirect to
+ * `mint dev` here. A subdomain removes both: the Menu badge links straight to
+ * the right origin via `DOCS_URL` in `app/data/siteMeta.ts`, which swaps in the
+ * local Mintlify port during development.
  */
-const DOCS_DEV_ORIGIN = "http://localhost:7003";
-
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -18,34 +25,6 @@ const nextConfig: NextConfig = {
         hostname: "img.youtube.com",
       },
     ],
-  },
-
-  /**
-   * `/docs` is not a route in this app. It is a separate Mintlify site, mapped
-   * onto this domain at the hosting layer in production.
-   *
-   * In development there is no hosting layer, so send the browser to the
-   * Mintlify dev server instead. Two deliberate choices here:
-   *
-   * - A redirect, not a rewrite. `mint dev` serves its pages at the root and
-   *   references its assets with root-absolute URLs (`/_next/...`,
-   *   `/style.css`). Proxying `/docs` to it would return HTML whose assets
-   *   resolve against :7000, 404, and render an unstyled page. Redirecting
-   *   moves the browser's origin so the assets resolve correctly.
-   *
-   * - Temporary (307), never permanent. A 308 is cached by the browser against
-   *   this origin, so a single visit in development would keep sending the
-   *   production `/docs` to localhost long after the dev server was gone.
-   *
-   * Guarded on NODE_ENV so it can never shadow the production mapping.
-   */
-  async redirects() {
-    if (process.env.NODE_ENV !== "development") return [];
-
-    return [
-      { source: "/docs", destination: DOCS_DEV_ORIGIN, permanent: false },
-      { source: "/docs/:path*", destination: `${DOCS_DEV_ORIGIN}/:path*`, permanent: false },
-    ];
   },
 };
 

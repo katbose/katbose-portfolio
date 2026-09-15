@@ -46,9 +46,9 @@ Ports are fixed per workspace so nothing collides when several run at once.
 | `@katbose/dash` | `http://localhost:7002` (reserved) |
 | `@katbose/docs` | `http://localhost:7003` |
 
-In development the web app sends `/docs` to the Mintlify dev server on `7003` with a temporary redirect, so following the site's Menu badge lands you here. Start both servers if you are working across that boundary.
+These docs are published on their own subdomain, `docs.katbose.dev`, so they are a separate origin from the portfolio rather than a path on it. Nothing proxies or rewrites between the two.
 
-It is a redirect rather than a proxy on purpose: `mint dev` serves its pages from the root and references assets with root-absolute URLs, so proxying would return HTML whose CSS and JS resolve against `:7000` and 404. `apps/web/next.config.ts` explains it in full.
+In development the web app's Menu badge points at `http://localhost:7003` instead of the deployed subdomain, so following it lands you here rather than in production. That comes from `DOCS_URL` in `apps/web/app/data/siteMeta.ts`, switched on `NODE_ENV`. Start both servers if you are working across that boundary.
 
 ## Root tasks
 

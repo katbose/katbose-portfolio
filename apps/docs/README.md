@@ -1,7 +1,8 @@
 # @katbose/docs
 
-Mintlify documentation for the monorepo. Hosted by Mintlify and surfaced at
-`katbose.dev/docs` through a rewrite, so it deploys independently of the web app.
+Mintlify documentation for the monorepo. Hosted by Mintlify and served on its own
+subdomain, `docs.katbose.dev`, so it deploys independently of the web app and
+needs nothing from it.
 
 ## Local
 
