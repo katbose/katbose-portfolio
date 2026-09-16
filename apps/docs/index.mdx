@@ -37,9 +37,7 @@ apps/web/app/data/portfolio.json
 
 Sections are an ordered array in that file. The page loops over the array and renders each entry with a component picked by its `type`. Reordering the JSON reorders the page; deleting an entry removes the section. No component edits involved.
 
-Those sections render on the server. Focused client components add the clock,
-disclosures, themes, agent mode and deferred visual effects. The
-[architecture guide](/architecture) describes those boundaries and loading rules.
+Those sections render on the server. Focused client components add the clock, disclosures, themes, agent mode and deferred visual effects. The [architecture guide](/architecture) describes those boundaries and loading rules.
 
 <Note>
   That file is the single source of truth until the CMS in `apps/cms` is chosen. Moving it into a shared package before then would mean guessing at a data model and migrating twice.

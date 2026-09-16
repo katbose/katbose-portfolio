@@ -69,9 +69,7 @@ bun audit          # dependency vulnerability audit
 
 ## Testing
 
-The web production build uses `next build --webpack`; development uses Turbopack.
-Fonts are committed with their license and need no build-time download. To check
-the built route budgets, run `bun --filter @katbose/web bundle:report --check`.
+The web production build uses `next build --webpack`; development uses Turbopack. Fonts are committed with their license and need no build-time download. To check the built route budgets, run `bun --filter @katbose/web bundle:report --check`.
 
 Two runners with no overlap between them.
 
@@ -100,13 +98,7 @@ Two runners with no overlap between them.
   </Tab>
 </Tabs>
 
-Playwright owns its server and defaults to port 7000. Set `PLAYWRIGHT_PORT` to a
-free port when another server is running. Use `--workers=1` for behavior tests on
-a busy machine. `bun --filter @katbose/web test:visual` compares local desktop and
-mobile baselines with one worker; baselines remain Git-ignored and platform-specific.
-The suite covers hydration, first-paint themes, font preloads, deferred media,
-touch controls, reduced motion and clipboard failures. Run Lighthouse separately
-from browser suites or builds to avoid CPU contention.
+Playwright owns its server and defaults to port 7000. Set `PLAYWRIGHT_PORT` to a free port when another server is running. Use `--workers=1` for behavior tests on a busy machine. `bun --filter @katbose/web test:visual` compares local desktop and mobile baselines with one worker; baselines remain Git-ignored and platform-specific. The suite covers hydration, first-paint themes, font preloads, deferred media, touch controls, reduced motion and clipboard failures. Run Lighthouse separately from browser suites or builds to avoid CPU contention.
 
 ## Docs tasks
 
@@ -128,12 +120,7 @@ bun run a11y           # colour contrast + media alt text
   If `bun install` ever fails inside a `puppeteer` postinstall saying a browser folder exists but its executable is missing, delete `~/.cache/puppeteer` and install again.
 </Warning>
 
-The version-scoped `puppeteer@24.3.1` override selects `25.11.0` to remove the
-vulnerable ZIP extraction dependency. It deliberately crosses a major version;
-the Mintlify browser adapter is checked by `node scripts/check-docs-browser.mjs`.
-Set `PUPPETEER_EXECUTABLE_PATH` to an installed Chrome when browser downloads are
-skipped. CI sets `PUPPETEER_SKIP_DOWNLOAD=true` because its docs checks do not
-launch a browser. Skipping the download alone does not fix a vulnerable dependency.
+The version-scoped `puppeteer@24.3.1` override selects `25.11.0` to remove the vulnerable ZIP extraction dependency. It deliberately crosses a major version; the Mintlify browser adapter is checked by `node scripts/check-docs-browser.mjs`. Set `PUPPETEER_EXECUTABLE_PATH` to an installed Chrome when browser downloads are skipped. CI sets `PUPPETEER_SKIP_DOWNLOAD=true` because its docs checks do not launch a browser. Skipping the download alone does not fix a vulnerable dependency.
 
 <Note>
   Styling for this site is plain CSS in `apps/docs/style.css`, which Mintlify inlines into a `<style>` tag automatically. Do not reach for Tailwind utilities there: Mintlify renders Tailwind v3 while the web app is on v4, so classes and v4-only syntax are not portable across that boundary.

@@ -64,45 +64,24 @@ The file has four top-level keys:
 
 ## Server and client boundaries
 
-The homepage is a Server Component. It creates the section tree and navigation
-links, then passes those rendered slots into `PortfolioShell.client.tsx`. Static
-prose, education and essay previews stay on the server; content JSON and its Zod
-schema do not become browser dependencies. Prebuild validates the content file.
+The homepage is a Server Component. It creates the section tree and navigation links, then passes those rendered slots into `PortfolioShell.client.tsx`. Static prose, education and essay previews stay on the server; content JSON and its Zod schema do not become browser dependencies. Prebuild validates the content file.
 
-Client components own only interactive state: the shell handles agent mode and
-QR visibility, disclosures own their expanded state, and `LiveClock.client.tsx`
-owns the one-second timer. Clock ticks do not rerender the entire homepage.
+Client components own only interactive state: the shell handles agent mode and QR visibility, disclosures own their expanded state, and `LiveClock.client.tsx` owns the one-second timer. Clock ticks do not rerender the entire homepage.
 
 ## Loading, themes and media
 
-- Browser-native animations handle reveals, counters and transitions. Initial
-  hero content is visible in server HTML before JavaScript runs.
-- QR generation loads when opened. The contribution calendar, illustration
-  images and shaders, and skill icons load as their sections approach the viewport.
-- Off-screen sections use CSS content visibility until first visited. Batched
-  intersection observers avoid repeated synchronous layout during hydration.
-- Touch navigation uses a CSS water effect. Fine-pointer devices retain WebGL;
-  reduced-motion preferences disable shaders, marquee and theme transitions.
-- Navbar colors use theme CSS for identical server and initial client markup.
-  Shared theme URLs initialize before paint and follow browser history.
-- Page links use native document navigation. Each navigation reloads the document
-  instead of prefetching route code in the browser.
-- DM Sans is vendored with its license under `apps/web/public/fonts/`. The layout
-  explicitly preloads both subsets; builds do not download fonts from Google.
-- Vercel Analytics loads only when `VERCEL=1`. That environment value participates
-  in the Turborepo build cache key.
+- Browser-native animations handle reveals, counters and transitions. Initial hero content is visible in server HTML before JavaScript runs.
+- QR generation loads when opened. The contribution calendar, illustration images and shaders, and skill icons load as their sections approach the viewport.
+- Off-screen sections use CSS content visibility until first visited. Batched intersection observers avoid repeated synchronous layout during hydration.
+- Touch navigation uses a CSS water effect. Fine-pointer devices retain WebGL; reduced-motion preferences disable shaders, marquee and theme transitions.
+- Navbar colors use theme CSS for identical server and initial client markup. Shared theme URLs initialize before paint and follow browser history.
+- Page links use native document navigation. Each navigation reloads the document instead of prefetching route code in the browser.
+- DM Sans is vendored with its license under `apps/web/public/fonts/`. The layout explicitly preloads both subsets; builds do not download fonts from Google.
+- Vercel Analytics loads only when `VERCEL=1`. That environment value participates in the Turborepo build cache key.
 
-Static images use Next's responsive optimization with server-rendered `img`
-markup. A small adapter isolates Next's internal image helpers because the public
-barrel retains unused client Image code in the pinned version. Five parity tests
-compare it with the public API; review the adapter when upgrading Next. Illustration
-textures share the optimized image URL and retain a no-JavaScript image fallback.
+Static images use Next's responsive optimization with server-rendered `img` markup. A small adapter isolates Next's internal image helpers because the public barrel retains unused client Image code in the pinned version. Five parity tests compare it with the public API; review the adapter when upgrading Next. Illustration textures share the optimized image URL and retain a no-JavaScript image fallback.
 
-Production builds use Next's Webpack backend; development uses Turbopack. The
-bundle report sums raw JavaScript referenced by generated HTML, including preload
-and legacy references. It excludes deferred downloads and HTML/RSC payloads.
-CI enforces 580 KB for the homepage and 650 KB for the essay routes. This is a
-bundle guardrail, not compressed transfer size or a Core Web Vitals measurement.
+Production builds use Next's Webpack backend; development uses Turbopack. The bundle report sums raw JavaScript referenced by generated HTML, including preload and legacy references. It excludes deferred downloads and HTML/RSC payloads. CI enforces 580 KB for the homepage and 650 KB for the essay routes. This is a bundle guardrail, not compressed transfer size or a Core Web Vitals measurement.
 
 ## Section types
 
@@ -144,10 +123,7 @@ Inline syntax is limited on purpose: `**bold**` and `[text](url)`. That is the w
 
 The same JSON is serialised to Markdown, so the human and machine views cannot disagree.
 
-The server creates a deterministic Markdown template. Opening agent mode fills
-one timestamp slot using the configured timezone. The rendered text and clipboard
-copy use that same snapshot; a failed clipboard write leaves manual copying
-available. Background clock ticks do not regenerate the Markdown.
+The server creates a deterministic Markdown template. Opening agent mode fills one timestamp slot using the configured timezone. The rendered text and clipboard copy use that same snapshot; a failed clipboard write leaves manual copying available. Background clock ticks do not regenerate the Markdown.
 
 | Route | Response |
 | --- | --- |
