@@ -65,6 +65,19 @@ describe("generateMarkdown - hero", () => {
     expect(md).toContain("• 00:00:00 UTC");
   });
 
+  test("omits the timestamp by default for deterministic server output", () => {
+    const md = generateMarkdown(build([HERO]));
+    expect(md).toContain("/fɪkstʃə/ • noun\n");
+    expect(md).not.toContain("UTC");
+    expect(md).not.toContain("00:00:00");
+  });
+
+  test("can explicitly omit a supplied timestamp", () => {
+    const md = generateMarkdown(build([HERO]), "12:34:56", { includeTimestamp: false });
+    expect(md).not.toContain("12:34:56");
+    expect(md).not.toContain("UTC");
+  });
+
   test("renders the intro paragraphs under an About heading", () => {
     const md = generateMarkdown(build([HERO]), "00:00:00");
     expect(md).toContain("## About\n\nFirst intro line.\n\nSecond intro line.");

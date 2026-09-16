@@ -22,7 +22,11 @@ function blocks(content: Block[]): string {
  * Derive the agent-mode markdown view from the same `portfolio.json` that
  * drives the visual components, so both stay in sync from one source.
  */
-export function generateMarkdown(data: PortfolioData, time: string): string {
+export function generateMarkdown(
+  data: PortfolioData,
+  time?: string,
+  options: { includeTimestamp?: boolean } = {},
+): string {
   const { sections, socials, meta, posts } = data;
   const parts: string[] = [];
 
@@ -30,7 +34,9 @@ export function generateMarkdown(data: PortfolioData, time: string): string {
   const hero = find(sections, "hero");
   if (hero) {
     const { name, phonetic, noun, timezone, intro } = hero.data;
-    parts.push(`# ${name}\n${phonetic} • ${noun} • ${time || "00:00:00"} ${timezone.label}`);
+    const includeTimestamp = options.includeTimestamp ?? time !== undefined;
+    const timestamp = includeTimestamp ? ` • ${time || "00:00:00"} ${timezone.label}` : "";
+    parts.push(`# ${name}\n${phonetic} • ${noun}${timestamp}`);
     parts.push(`## About\n\n${intro.join("\n\n")}`);
   }
 
