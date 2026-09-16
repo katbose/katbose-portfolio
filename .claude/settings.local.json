@@ -1,0 +1,10 @@
+{
+  "enabledMcpjsonServers": [
+    "mintlify-admin",
+    "mintlify-search",
+    "socket-mcp",
+    "chrome-devtools",
+    "playwright",
+    "github"
+  ]
+}
