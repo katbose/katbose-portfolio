@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { expect, test, waitForHydration } from "./fixtures";
+import { expect, portfolio, test, waitForHydration } from "./fixtures";
 
 /**
  * Visual baselines for the server-first refactor.
@@ -27,7 +27,7 @@ import { expect, test, waitForHydration } from "./fixtures";
  *     and the contributions graph fail the same way on every run.
  *
  * RUNNING THEM
- *   bun run test:visual                  # compare against committed baselines
+ *   bun run test:visual                  # compare against local baselines
  *   bun run test:visual -- --update-snapshots
  *
  * Baselines are platform-specific. See the note in `playwright.config.ts`.
@@ -40,6 +40,10 @@ function unstableRegions(page: Page) {
     // Every water shader surface. Masked as a group so adding or removing an
     // instance does not silently stop masking one.
     page.locator("canvas"),
+    // The touch-device CSS surface occupies the same navbar decoration box.
+    page.getByTestId("water-overlay"),
+    // Deferred shaders have the same visual region before their canvas mounts.
+    page.getByTestId("water-image"),
   ];
 }
 
@@ -60,7 +64,9 @@ async function settle(page: Page): Promise<void> {
 /** Scroll the whole page so every lazy/reveal-gated section has been triggered. */
 async function scrollThrough(page: Page): Promise<void> {
   await page.evaluate(async () => {
-    const step = window.innerHeight;
+    // Overlap the observer's inset viewport so a short counter row cannot
+    // fall between scroll positions without ever becoming intersecting.
+    const step = window.innerHeight / 2;
     for (let y = 0; y < document.body.scrollHeight; y += step) {
       window.scrollTo(0, y);
       await new Promise((r) => setTimeout(r, 120));
@@ -68,6 +74,17 @@ async function scrollThrough(page: Page): Promise<void> {
     window.scrollTo(0, 0);
   });
   await page.waitForTimeout(800);
+  for (const section of await page.locator("main > div").all()) {
+    await expect(section).toHaveCSS("opacity", "1");
+  }
+  for (const section of portfolio.sections) {
+    if (section.type !== "project") continue;
+    for (const stat of section.data.stats ?? []) {
+      await expect(page.getByText(stat.label, { exact: true }).locator("..")).toContainText(
+        stat.value,
+      );
+    }
+  }
 }
 
 async function setTheme(page: Page, theme: "light" | "dark"): Promise<void> {
@@ -129,9 +146,12 @@ test.describe("interactive states", () => {
     const toggle = page.getByRole("button", { name: /view full stack/i });
     await toggle.scrollIntoViewIfNeeded();
     await toggle.click();
-    // The marquee is swapped for the grouped list via AnimatePresence; wait for
-    // the exit/enter pair to finish before shooting.
+    // Settle the expanded layout, then reveal the whole page. A screenshot
+    // taken at the click's scroll position depends on scroll anchoring and can
+    // capture invisible sections, a hovered skill and moving mask coordinates.
     await page.waitForTimeout(1200);
+    await page.mouse.move(0, 0);
+    await scrollThrough(page);
 
     await expect(page).toHaveScreenshot("techstack-expanded.png", {
       fullPage: true,

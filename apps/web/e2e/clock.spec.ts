@@ -108,28 +108,25 @@ test.describe("agent mode markdown", () => {
     const rendered = (await pre.textContent()) ?? "";
     expect(rendered.length).toBeGreaterThan(500);
 
+    // Agent mode is a stable snapshot. A clock tick must not change its text.
+    await page.waitForTimeout(1100);
+    expect(await pre.textContent()).toBe(rendered);
+
     await page.getByRole("button", { name: /copy markdown/i }).click();
     await expect(page.getByRole("button", { name: /copied/i })).toBeVisible();
 
     const copied = await page.evaluate(() => navigator.clipboard.readText());
 
     /**
-     * Normalise the two things that differ for reasons the app is not
-     * responsible for, then demand exact equality on everything else.
-     *
-     * 1. The clock. The document embeds the current time, so it can legitimately
-     *    advance by a second between reading the DOM and reading the clipboard.
-     *
-     * 2. Line endings. Chromium's clipboard on Windows rewrites every `\n` as
+     * Normalise only line endings. Chromium's clipboard on Windows rewrites every `\n` as
      *    `\r\n` — writing "a\nb" and reading it straight back returns "a\r\nb".
      *    Comparing raw would make every single line differ and produce a diff
      *    where both sides look identical.
      *
      * What survives normalisation is the part that matters: the full markdown
-     * body, byte for byte. That is the guarantee to hold onto when generation
-     * moves server-side and the clock is spliced in only on copy.
+     * body and timestamp, byte for byte.
      */
-    const normalise = (md: string) => md.replace(/\r\n/g, "\n").replace(CLOCK, "<TIME>");
+    const normalise = (md: string) => md.replace(/\r\n/g, "\n");
 
     expect(normalise(copied)).toBe(normalise(rendered));
 
@@ -151,5 +148,22 @@ test.describe("agent mode markdown", () => {
     // The handler restores the label after a timeout. If that regressed, the
     // button would read "Copied!" forever and give no feedback on a second copy.
     await expect(copy).toBeVisible({ timeout: 5000 });
+  });
+
+  test("offers manual copying when clipboard access is denied", async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator.clipboard, "writeText", {
+        value: async () => {
+          throw new Error("Clipboard denied");
+        },
+      });
+    });
+    await page.goto("/");
+    await waitForHydration(page);
+    await page.getByRole("switch").click();
+    await page.getByRole("button", { name: /copy markdown/i }).click();
+    await expect(page.getByRole("status")).toContainText("copy it manually");
+    await expect(page.locator("main pre")).toBeVisible();
+    await expect(page.getByRole("button", { name: /copied/i })).toHaveCount(0);
   });
 });

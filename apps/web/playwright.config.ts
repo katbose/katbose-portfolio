@@ -9,7 +9,10 @@ import { defineConfig, devices } from "@playwright/test";
  * Turborepo task graph expresses that dependency (`test:e2e` dependsOn `build`).
  */
 
-const PORT = 7000;
+const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 7000);
+if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
+  throw new Error("PLAYWRIGHT_PORT must be an integer between 1 and 65535");
+}
 const BASE_URL = `http://127.0.0.1:${PORT}`;
 
 export default defineConfig({
@@ -74,7 +77,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "bun run start",
+    command: `bunx --no-install next start -p ${PORT}`,
     url: BASE_URL,
     // Never reuse a server this run did not start. `next start` can survive the
     // terminal that launched it on Windows, and reusing such an orphan means

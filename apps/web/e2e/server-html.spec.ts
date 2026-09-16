@@ -10,19 +10,9 @@ import { expect, hero, portfolio, sectionTitles, test } from "./fixtures";
  * the single most consequential architectural property of this app: how much of
  * the portfolio is real HTML versus how much is assembled client-side.
  *
- * This is the baseline that makes the server-first refactor measurable. Right
- * now `app/page.tsx` is a Client Component, so the homepage content reaches the
- * browser as an RSC payload that React has to render — and these tests record
- * exactly that. As sections move to the server the same assertions should start
- * finding content in the markup instead, with no test rewritten to make it so.
- *
- * ON NOT ASSERTING VISIBILITY
- * ---------------------------
- * Content being present is a weaker claim than content being *visible* without
- * JavaScript, and deliberately so. `Reveal` and `motion.main` server-render with
- * `opacity: 0`, so a no-JavaScript visitor gets markup they cannot see. That is a
- * real gap, it is scheduled for the animation work, and it is not something a
- * server-first split fixes on its own. Overstating it here would hide it.
+ * The homepage now renders its static sections on the server. Script payloads
+ * are stripped before checking prose so they cannot conceal a regression.
+ * These markup checks complement the browser visibility and animation tests.
  */
 
 /** Entities the renderer emits that would otherwise break naive matching. */
@@ -76,6 +66,23 @@ async function fetchHomeHtml(request: {
 }
 
 test.describe("server response", () => {
+  test("preloads both hero font subsets before JavaScript runs", async ({ request }) => {
+    const html = await fetchHomeHtml(request);
+    const links = html.match(/<link\b[^>]+>/g) ?? [];
+    const fonts = links.filter((link) => /rel="preload"/.test(link) && /as="font"/.test(link));
+    expect(fonts).toHaveLength(2);
+    for (const link of fonts) {
+      // Empty crossorigin is the anonymous mode emitted by React's preload API.
+      expect(link).toMatch(/crossorigin="(?:anonymous)?"/);
+      const url = link.match(/href="([^"]+)"/)?.[1];
+      expect(url).toMatch(/^\/fonts\/dm-sans-latin(?:-ext)?-[a-f0-9]+\.woff2$/);
+      const response = await request.get(url as string);
+      expect(response.ok()).toBe(true);
+      expect(response.headers()["content-type"]).toContain("font/woff2");
+      expect((await response.body()).subarray(0, 4).toString()).toBe("wOF2");
+    }
+  });
+
   test("serves the homepage as HTML without needing the browser", async ({ request }) => {
     const html = await fetchHomeHtml(request);
 
