@@ -1,6 +1,9 @@
 {
   "name": "@katbose/docs",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "description": "Mintlify documentation for the katbose.dev monorepo. Served at docs.katbose.dev.",
   "scripts": {
     "dev": "mint dev --port 7003",

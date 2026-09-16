@@ -73,6 +73,9 @@ jobs:
         # reader to find the file and line in the log.
         run: bun run ci:biome -- --reporter=github
 
+      - name: Dependency security audit
+        run: bun audit
+
       - name: MCP config mirrors are in sync
         # .kiro/settings/mcp.json is the source of truth for MCP servers;
         # .mcp.json, opencode.json, .vscode/mcp.json, and .codex/config.toml are
@@ -105,8 +108,11 @@ jobs:
         run: bun run build
 
       - name: Install Playwright browser
-        # Only Chromium: playwright.config.ts declares a single project.
+        # Behaviour runs in CI; desktop/mobile screenshot baselines stay local.
         run: bunx playwright install --with-deps chromium
+
+      - name: Client JavaScript budgets
+        run: bun --filter @katbose/web bundle:report --check
 
       - name: End-to-end tests
         run: bun run test:e2e
@@ -148,7 +154,7 @@ jobs:
         #   - It matches `@types/node`, which is on 26. Typing against one major
         #     while executing on another is the kind of skew that only shows up
         #     at runtime, which is precisely where it is most expensive.
-        #   - The Mintlify CLI is a Node program needing Node >= 20.17, so it is
+        #   - The docs browser tooling requires Node >= 22, so it is
         #     satisfied by any major this pin would plausibly hold.
         #
         # Still pinned to a major, not `latest`, so a new Node release cannot

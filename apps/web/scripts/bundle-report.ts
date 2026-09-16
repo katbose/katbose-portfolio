@@ -15,10 +15,10 @@
  *
  * HOW TO READ THE NUMBERS
  * -----------------------
- * Sizes are raw bytes on disk, not transfer sizes — real responses are
- * compressed and land roughly 3-4x smaller. Raw is the honest number for
- * *interactivity* cost, because the browser must decompress, parse, and execute
- * all of it regardless of how efficiently it arrived.
+ * Sizes are raw bytes on disk, not compressed transfer sizes. This conservative
+ * metric includes preload and legacy references in HTML; modern browsers skip
+ * nomodule scripts. It excludes later dynamic imports and HTML/RSC payloads.
+ * Keep this method stable when comparing with the recorded baseline.
  *
  * USAGE
  *   bun run bundle:report          # print the table
@@ -39,7 +39,7 @@ const NEXT_DIR = join(import.meta.dir, "..", ".next");
  * ignore it. Ratchet them down as the server-first refactor lands.
  */
 const BUDGETS_KB: Record<string, number> = {
-  "/": 900,
+  "/": 580,
   "/thoughts": 650,
   "/[slug]": 650,
 };
@@ -63,8 +63,8 @@ interface RouteReport {
  * files on disk.
  *
  * Reading the emitted HTML rather than a build manifest is deliberate: it counts
- * exactly what a browser would fetch for a cold visit, including chunks pulled
- * in by preload hints, and it cannot drift from the shipped output.
+ * the document's own references, including preload and legacy chunks, without
+ * drifting from the shipped output. It is not a network-transfer measurement.
  */
 function measure(htmlPath: string): { chunks: number; bytes: number } {
   const html = readFileSync(htmlPath, "utf8");
@@ -73,8 +73,11 @@ function measure(htmlPath: string): { chunks: number; bytes: number } {
   let bytes = 0;
   for (const ref of refs) {
     // "/_next/..." -> "<.next>/..."
-    const file = join(NEXT_DIR, ref.replace("/_next/", ""));
-    if (existsSync(file)) bytes += Bun.file(file).size;
+    // Webpack URL-encodes route segments such as [slug] in HTML references.
+    const file = join(NEXT_DIR, decodeURIComponent(ref.replace("/_next/", "")));
+    // Missing chunks mean a stale/incomplete build, never a zero-byte saving.
+    if (!existsSync(file)) throw new Error(`Referenced client chunk is missing: ${file}`);
+    bytes += Bun.file(file).size;
   }
 
   return { chunks: refs.size, bytes };
