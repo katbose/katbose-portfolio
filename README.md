@@ -95,7 +95,7 @@ katbose-portfolio/
 ### Prerequisites
 
 - **Bun `1.4.2`**—pinned by the root `packageManager` field
-- **Node.js `>= 20.17`**—required by the Mintlify CLI
+- **Node.js `>= 22`**—required by the docs browser tooling
 
 ```powershell
 # Clone and enter the repository
@@ -117,6 +117,10 @@ bun --filter @katbose/docs dev
 ```
 
 ## Engineering workflow
+
+The homepage now uses server-rendered sections with isolated client interactions.
+See [architecture](ARCHITECTURE.md) for component boundaries, loading behavior,
+build choices and verification commands.
 
 | Command | Purpose |
 |---|---|

@@ -8,7 +8,7 @@ description: "Install, run, test, and validate the monorepo."
 | Tool | Version | Why |
 | --- | --- | --- |
 | [Bun](https://bun.sh) | `1.4.2` | Package manager, workspace resolver, and unit test runner |
-| [Node.js](https://nodejs.org) | `>= 20.17` | Required by the Mintlify CLI |
+| [Node.js](https://nodejs.org) | `>= 22` | Required by the docs browser tooling |
 
 Bun is pinned through `packageManager` in the root `package.json`. Node is only needed for the docs CLI; the web app builds and runs under Bun.
 
@@ -62,11 +62,16 @@ bun run test:e2e    # Playwright, builds first
 bun run validate    # content and config validation (docs)
 bun run check       # Biome lint + format, writes fixes
 bun run ci:biome    # Biome in check-only mode
+bun audit          # dependency vulnerability audit
 ```
 
 `check` and `ci:biome` bypass Turborepo and call Biome directly, because Biome covers the whole repository — including root-level files that no per-workspace run would see — in a single pass.
 
 ## Testing
+
+The web production build uses `next build --webpack`; development uses Turbopack.
+Fonts are committed with their license and need no build-time download. To check
+the built route budgets, run `bun --filter @katbose/web bundle:report --check`.
 
 Two runners with no overlap between them.
 
@@ -95,6 +100,14 @@ Two runners with no overlap between them.
   </Tab>
 </Tabs>
 
+Playwright owns its server and defaults to port 7000. Set `PLAYWRIGHT_PORT` to a
+free port when another server is running. Use `--workers=1` for behavior tests on
+a busy machine. `bun --filter @katbose/web test:visual` compares local desktop and
+mobile baselines with one worker; baselines remain Git-ignored and platform-specific.
+The suite covers hydration, first-paint themes, font preloads, deferred media,
+touch controls, reduced motion and clipboard failures. Run Lighthouse separately
+from browser suites or builds to avoid CPU contention.
+
 ## Docs tasks
 
 Run from `apps/docs`, or with `bun --filter @katbose/docs <script>`.
@@ -114,6 +127,13 @@ bun run a11y           # colour contrast + media alt text
 
   If `bun install` ever fails inside a `puppeteer` postinstall saying a browser folder exists but its executable is missing, delete `~/.cache/puppeteer` and install again.
 </Warning>
+
+The version-scoped `puppeteer@24.3.1` override selects `25.11.0` to remove the
+vulnerable ZIP extraction dependency. It deliberately crosses a major version;
+the Mintlify browser adapter is checked by `node scripts/check-docs-browser.mjs`.
+Set `PUPPETEER_EXECUTABLE_PATH` to an installed Chrome when browser downloads are
+skipped. CI sets `PUPPETEER_SKIP_DOWNLOAD=true` because its docs checks do not
+launch a browser. Skipping the download alone does not fix a vulnerable dependency.
 
 <Note>
   Styling for this site is plain CSS in `apps/docs/style.css`, which Mintlify inlines into a `<style>` tag automatically. Do not reach for Tailwind utilities there: Mintlify renders Tailwind v3 while the web app is on v4, so classes and v4-only syntax are not portable across that boundary.
@@ -148,6 +168,6 @@ Three that cost real time.
 rm -rf apps/web/.next
 ```
 
-**Port 7000 must be free before an end-to-end run.** Playwright is configured with `reuseExistingServer: false` on purpose. An orphaned `next start` from an earlier session will happily serve HTML that references chunk hashes a later build deleted, which surfaces as hydration that never completes rather than as an obvious error. Failing loudly on a busy port is the better trade.
+**The selected Playwright port must be free before an end-to-end run.** It defaults to 7000 and can be changed with `PLAYWRIGHT_PORT`. Playwright uses `reuseExistingServer: false` so an older server cannot serve HTML referencing chunks from a different build.
 
 **`portfolio.json` is content, not code.** Nothing in `apps/web/app/components/` should hardcode a string that belongs in the data file, and there should never be a second data file.

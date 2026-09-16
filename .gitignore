@@ -68,6 +68,7 @@ playwright/.cache/
 # Contains modernization plans, handoff guides, and implementation checklists
 # for AI agents working on the codebase.
 .ai-docs/
+/apps/web/MODERNIZATION.md
 
 # turborepo
 .turbo/

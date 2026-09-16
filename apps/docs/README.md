@@ -56,7 +56,8 @@ Both are fixed by collapsing each package onto a single version, in the root
   "sharp": "0.35.4",
   "qs": "6.16.0",
   "adm-zip": "0.6.1",
-  "js-yaml@4.3.1": "4.3.2"
+  "js-yaml@4.3.1": "4.3.2",
+  "puppeteer@24.3.1": "25.11.0"
 }
 ```
 
@@ -87,12 +88,29 @@ under `front-matter`, and commitlint still loads its config.
 Nested and version-scoped overrides need Bun >= 1.4, and Bun writes them as
 lockfile version 3. `packageManager` already pins Bun 1.4.2.
 
-One advisory is left unresolved: `extract-zip@2.0.1`, reached only through
-`puppeteer > @puppeteer/browsers`. The advisory range is `<=2.0.1` and 2.0.1 is
-the latest published release, so there is no version to move to. It is a
-devDependency that runs only when Puppeteer extracts a browser archive, which CI
-skips entirely via `PUPPETEER_SKIP_DOWNLOAD`. Recheck it when Puppeteer ships a
-patched dependency.
+The version-scoped Puppeteer override replaces Mintlify's 24.3.1 pin with
+25.11.0 and its matching browser downloader 3.2.2. This removes `extract-zip`
+and both reported path-traversal/arbitrary-write advisories. `bun audit` on
+September 16, 2026 reports **no vulnerabilities** across 956 audited packages.
+Mintlify itself remains pinned at 4.2.891.
+
+This crosses a major version deliberately. The
+[Puppeteer 25 migration notes](https://pptr.dev/CHANGELOG#2500-2026-05-12)
+require Node 22 and remove several deprecated APIs. Mintlify's installed ESM
+adapter uses supported `launch`, page navigation, viewport, headers and content
+APIs. Validation, broken links, accessibility, and the adapter's actual launch /
+JavaScript execution / HTML extraction were verified on Node 24.21.0.
+
+To repeat the integration check with an installed Chrome (PowerShell):
+
+```powershell
+$env:PUPPETEER_EXECUTABLE_PATH = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
+node scripts/check-docs-browser.mjs
+```
+
+CI skips the browser download because its docs checks do not launch Chrome.
+The override removes the vulnerable package; skipping the download alone was
+not a fix. Revisit this override when Mintlify updates its own Puppeteer pin.
 
 Running the CLI through `bunx` instead of installing it here was tried and
 rejected. It avoids the conflicts, but the shared `%TEMP%\bunx-*` tree is not

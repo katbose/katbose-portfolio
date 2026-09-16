@@ -45,6 +45,12 @@ Things that are easy to get wrong here:
 
 ## How the system works
 
+The homepage is a Server Component. `PortfolioShell.client.tsx` receives rendered
+sections and navigation links as slots, with pre-generated Markdown. Keep content
+imports out of client islands. `LiveClock.client.tsx` owns the one-second timer;
+agent mode uses a stable timestamp snapshot. See [ARCHITECTURE.md](ARCHITECTURE.md)
+before changing boundaries.
+
 ```
 apps/web/app/data/portfolio.json
   -> SectionRenderer (apps/web/app/components/sections/registry.tsx)

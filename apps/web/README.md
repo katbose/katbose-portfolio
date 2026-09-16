@@ -168,6 +168,11 @@ the subdomain removes.
 
 ## Styling
 
+DM Sans is self-hosted from `public/fonts/` with its license. `app/fonts.css`
+preserves the font subsets and fallback metrics; `layout.tsx` preloads both
+files. Builds do not download fonts. Update preload URLs with any font changes.
+
+
 Tailwind CSS v4 via `@tailwindcss/postcss`. There is no `tailwind.config.js` —
 v4 moves configuration into CSS, so `globals.css` carries `@import "tailwindcss"`,
 an `@theme inline` block mapping CSS variables to Tailwind tokens, and a
@@ -186,7 +191,7 @@ of dropping the declaration entirely.
 
 ```bash
 bun --filter @katbose/web dev         # next dev  -p 7000
-bun --filter @katbose/web build       # next build
+bun --filter @katbose/web build       # next build --webpack (measured production bundle)
 bun --filter @katbose/web start       # next start -p 7000
 bun --filter @katbose/web typecheck   # tsc --noEmit
 bun --filter @katbose/web test        # bun test  (unit)
@@ -194,6 +199,9 @@ bun --filter @katbose/web test:e2e    # playwright
 ```
 
 ## Testing
+
+For server/client boundaries, loading behavior and bundle measurement semantics,
+see [architecture](../../ARCHITECTURE.md).
 
 **Unit** — `bun test`, colocated beside the module under test:
 
@@ -203,6 +211,9 @@ bun --filter @katbose/web test:e2e    # playwright
 | `postHelpers.test.ts` | Slug lookup, previews, date formatting |
 | `posts.test.ts` | Post shape and ordering |
 | `siteMeta.test.ts` | Metadata derived from `meta{}` |
+| `portfolio.schema.test.ts` | Content validation and invalid-data rejection |
+| `localTime.test.ts` | Timezone formatting and Markdown timestamp insertion |
+| `imageProps.test.ts` | Internal image adapter parity with Next's public API |
 
 **End-to-end** — Playwright against a production build:
 
@@ -211,21 +222,32 @@ bun --filter @katbose/web test:e2e    # playwright
 | `homepage.spec.ts` | Headings in JSON order, hero, socials, console clean |
 | `essays.spec.ts` | Essay index and individual essays |
 | `modes.spec.ts` | Human/agent switch, theme toggle, `?theme=`, QR dialog |
-| `animations.spec.ts` | Motion, and that reduced-motion is respected |
+| `animations.spec.ts` | Reveals, disclosures and final counter values |
+| `reduced-motion.spec.ts` | Static media and usable controls with reduced motion |
+| `touch-navigation.spec.ts` | Touch controls work without starting WebGL |
+| `theme-first-paint.spec.ts` | Shared theme before hydration and browser history |
+| `water-theme-hydration.spec.ts` | Navbar colors before/after hydration with saved, system and shared themes |
+| `clock.spec.ts` | Clock isolation, exact Markdown copy and clipboard failures |
+| `server-html.spec.ts` | Content and working font preloads in the server response |
+| `deferred-calendar.spec.ts` | Calendar loads only near the viewport |
+| `deferred-images.spec.ts` | Illustration sources load only near the viewport |
+| `visual.spec.ts` | Local desktop/mobile visual regression baselines |
 | `fixtures.ts` | Shared setup |
 
-`playwright.config.ts` sets `reuseExistingServer: false`, so **port 7000 must be
-free** before an e2e run or the whole suite fails to start.
+`playwright.config.ts` sets `reuseExistingServer: false`. Its port must be free;
+it defaults to 7000. Set `PLAYWRIGHT_PORT=7100` to leave another server running.
 
-On a machine with many browser processes already open, run with `--workers=1` —
-parallel workers contend for the shared browser and flake.
+The visual script uses `--workers=1` because concurrent WebGL renders can cause
+timeouts. Run Lighthouse separately from browser tests. For behavior tests on a
+busy machine, pass `--workers=1` too.
 
 ## Adding a section type
 
 1. Add the entry to `sections[]` in `portfolio.json` with a new `type` and its
    `data`.
 2. Create the component in `app/components/sections/`.
-3. Register it in the dispatch map in `app/page.tsx`.
+3. Register its union variant and renderer in `app/components/sections/registry.tsx`
+   and add its schema to `app/data/portfolio.schema.ts`.
 4. Teach `generateMarkdown.ts` to render it, and add a case to
    `generateMarkdown.test.ts`. Skipping this is how the HTML and Markdown views
    start to drift.
@@ -236,10 +258,10 @@ parallel workers contend for the shared browser and flake.
 
 - **Stale `.next` after deleting a route.** Typecheck reads generated route
   types and will fail on a route that no longer exists. `rm -rf .next`.
-- **Port 7000 must be free for e2e.** See above.
-- **Images bypassing `next/image`.** `WaterImage` uses a raw `<img>`, so those
-  assets are served unoptimised at full weight. Compress before adding large
-  files to `public/`.
+- **The chosen Playwright port must be free.** See above.
+- **Shader images.** `WaterImage` uses `getImageProps` on the server so its raw
+  fallback image and WebGL texture share an optimized URL. Keep those URLs
+  identical; passing the original source to the shader downloads the full PNG.
 - **Remote image hosts are allowlisted.** `next.config.ts` permits
   `cdn.simpleicons.org` and `img.youtube.com` only; a new host needs adding
   there or `next/image` rejects it.
