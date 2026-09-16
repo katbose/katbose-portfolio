@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fonts.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -20,6 +21,7 @@
 @source inline("max-h-{20,24,32,40,48,56,64,72,80,96}");
 
 :root {
+  --font-dm-sans: "DM Sans", "DM Sans Fallback";
   --background: #ffffff;
   --foreground: #000000;
 }

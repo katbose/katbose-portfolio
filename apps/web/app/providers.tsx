@@ -1,8 +1,6 @@
 "use client";
 
 import { ThemeProvider as NextThemesProvider } from "next-themes";
-import { Suspense } from "react";
-
 import { ThemeFromQuery } from "./components/ThemeFromQuery";
 
 /**
@@ -30,11 +28,7 @@ import { ThemeFromQuery } from "./components/ThemeFromQuery";
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   return (
     <NextThemesProvider attribute="class" defaultTheme="system" enableSystem={true}>
-      {/* Reads ?theme= from the URL. Needs Suspense because useSearchParams
-          suspends during the static render of a prerendered page. */}
-      <Suspense fallback={null}>
-        <ThemeFromQuery />
-      </Suspense>
+      <ThemeFromQuery />
       {children}
     </NextThemesProvider>
   );

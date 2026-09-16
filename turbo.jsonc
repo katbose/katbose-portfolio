@@ -11,6 +11,7 @@
       // Wait for dependency packages to build first, so a future shared
       // library is compiled before the app that imports it.
       "dependsOn": ["^build"],
+      "env": ["VERCEL"],
       // Next writes into .next; its cache and dev dirs must stay out of the
       // Turborepo artifact or the cache balloons and replays go stale.
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"]
