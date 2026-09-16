@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
-import Image from "next/image";
 import { FaYoutube } from "react-icons/fa6";
+import { OptimizedImage as Image } from "../OptimizedImage";
 import { SectionShell } from "../SectionShell";
 
 export interface PodcastEpisode {
@@ -56,11 +56,11 @@ export function PodcastSection({ title, data }: { title: string; data: PodcastDa
                   {episode.title}
                 </span>
                 {episode.description && (
-                  <span className="text-xs leading-relaxed text-gray-500 dark:text-gray-500">
+                  <span className="text-xs leading-relaxed text-gray-500 dark:text-gray-400">
                     {episode.description}
                   </span>
                 )}
-                <span className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-gray-500 group-hover:text-black dark:text-gray-500 dark:group-hover:text-white transition-colors">
+                <span className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-gray-500 group-hover:text-black dark:text-gray-400 dark:group-hover:text-white transition-colors">
                   Watch on YouTube
                   <ArrowUpRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </span>

@@ -55,6 +55,24 @@ body {
   animation: infinite-scroll 30s linear infinite;
 }
 
+/* Touch navigation uses a compositor animation instead of compiling a WebGL
+   program for a small decorative background. */
+.water-sheen {
+  background:
+    radial-gradient(ellipse at 20% 80%, currentColor, transparent 55%),
+    radial-gradient(ellipse at 80% 10%, currentColor, transparent 50%);
+  animation: water-drift 9s ease-in-out infinite alternate;
+}
+
+@keyframes water-drift {
+  from {
+    transform: translateX(-8%) scale(1.1);
+  }
+  to {
+    transform: translateX(8%) scale(1.2);
+  }
+}
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -125,7 +143,21 @@ body {
   );
 }
 
+/* The animated masked conic border repaints every frame. Touch navigation
+   already has a composited CSS water surface, so keep its border static. */
+@media (hover: none), (pointer: coarse) {
+  .nav-edge-shine {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .animate-infinite-scroll,
+  .water-sheen {
+    animation: none;
+  }
+
   .nav-edge-shine {
     animation: none;
     opacity: 0;

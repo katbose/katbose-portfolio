@@ -39,7 +39,7 @@ export function RecommendationsSection({
                   {rec.name}
                 </span>
               )}
-              <span className="ml-2 text-xs font-medium text-gray-500 dark:text-gray-500">
+              <span className="ml-2 text-xs font-medium text-gray-500 dark:text-gray-400">
                 {rec.role}
               </span>
             </div>

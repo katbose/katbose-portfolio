@@ -1,5 +1,4 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import Link from "next/link";
 import { readingTime } from "../../data/postHelpers";
 import { getSortedPosts, type Post } from "../../data/posts";
 import { Inline } from "../RichText";
@@ -34,13 +33,13 @@ export function ThoughtsSection({ title, data }: { title: string; data: Thoughts
     <SectionShell title={title}>
       <div className="grid gap-3 sm:grid-cols-3">
         {previews.map((post) => (
-          <Link
+          <a
             key={post.slug}
             href={`/${post.slug}`}
             className="group relative block overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 p-4 transition-all hover:-translate-y-0.5 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm"
           >
             {/* Meta row */}
-            <div className="mb-1.5 flex items-center gap-2 text-[10px] font-medium text-gray-400 dark:text-gray-500">
+            <div className="mb-1.5 flex items-center gap-2 text-[10px] font-medium text-gray-500 dark:text-gray-400">
               <span className="uppercase tracking-widest">{post.kicker}</span>
               <span className="h-1 w-1 rounded-full bg-gray-300 dark:bg-gray-700" />
               <span>{readingTime(post)}</span>
@@ -59,16 +58,16 @@ export function ThoughtsSection({ title, data }: { title: string; data: Thoughts
               <Inline text={previewText(post)} />
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-linear-to-t from-white to-transparent dark:from-black" />
             </div>
-          </Link>
+          </a>
         ))}
       </div>
 
-      <Link
+      <a
         href={data.viewAllHref ?? "/thoughts"}
         className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-black dark:text-white underline underline-offset-4 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
       >
         {data.viewAllLabel ?? "View more"} <ArrowRight className="h-3 w-3" />
-      </Link>
+      </a>
     </SectionShell>
   );
 }

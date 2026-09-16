@@ -1,7 +1,7 @@
-import { ExperienceItem } from "../ExperienceItem";
 import { RichText } from "../RichText";
 import { SectionShell } from "../SectionShell";
 import type { Block } from "../types";
+import { StaticExperienceItem } from "./StaticExperienceItem";
 
 export interface EducationItem {
   title: string;
@@ -20,7 +20,7 @@ export function EducationSection({ title, data }: { title: string; data: Educati
     <SectionShell title={title}>
       <div className="space-y-12">
         {data.items.map((item) => (
-          <ExperienceItem
+          <StaticExperienceItem
             key={item.title}
             title={item.title}
             role={item.role}
@@ -28,7 +28,7 @@ export function EducationSection({ title, data }: { title: string; data: Educati
             logo={item.logo}
           >
             <RichText blocks={item.body} />
-          </ExperienceItem>
+          </StaticExperienceItem>
         ))}
       </div>
     </SectionShell>

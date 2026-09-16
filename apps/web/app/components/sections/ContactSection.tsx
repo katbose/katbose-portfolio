@@ -61,7 +61,7 @@ export function ContactSection({
 
             {/* Socials */}
             <div className="mt-8">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-600">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 {data.socialsLabel}
               </p>
               <div className="flex flex-wrap items-center gap-2">

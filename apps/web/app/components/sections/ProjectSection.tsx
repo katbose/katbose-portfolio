@@ -41,7 +41,7 @@ export function ProjectSection({ title, data }: { title: string; data: ProjectDa
               <span className="text-lg font-semibold text-black dark:text-white">{data.name}</span>
             )}
             {data.subtitle && (
-              <span className="text-xs font-medium text-gray-500 dark:text-gray-500">
+              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                 {data.subtitle}
               </span>
             )}
@@ -86,7 +86,7 @@ export function ProjectSection({ title, data }: { title: string; data: ProjectDa
                 <span className="text-2xl font-bold tabular-nums text-black dark:text-white sm:text-3xl">
                   <CountUp value={stat.value} />
                 </span>
-                <span className="text-xs text-gray-400 dark:text-gray-500">{stat.label}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</span>
               </div>
             ))}
           </div>

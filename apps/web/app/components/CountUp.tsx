@@ -1,7 +1,7 @@
 "use client";
 
-import { useInView } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { reducedMotion } from "./animations";
 
 /**
  * Counts from 0 up to the numeric part of `value` when scrolled into view —
@@ -10,7 +10,26 @@ import { useEffect, useRef, useState } from "react";
  */
 export function CountUp({ value, duration = 1800 }: { value: string; duration?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10% 0px" });
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    if (!("IntersectionObserver" in window)) {
+      setInView(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "-10% 0px" },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   const match = value.match(/\d+(\.\d+)?/);
   const target = match ? parseFloat(match[0]) : null;
@@ -22,6 +41,10 @@ export function CountUp({ value, duration = 1800 }: { value: string; duration?: 
 
   useEffect(() => {
     if (!inView || target === null) return;
+    if (reducedMotion()) {
+      setDisplay(target.toFixed(decimals));
+      return;
+    }
     let raf = 0;
     const start = performance.now();
     const tick = (now: number) => {

@@ -52,7 +52,6 @@ export interface PortfolioData {
 
 /** Context the page threads into sections that need page-level state/data. */
 export interface SectionContext {
-  time: string;
   socials: Social[];
 }
 
@@ -60,7 +59,7 @@ export interface SectionContext {
 export function SectionRenderer({ section, ctx }: { section: Section; ctx: SectionContext }) {
   switch (section.type) {
     case "hero":
-      return <Hero data={section.data} time={ctx.time} />;
+      return <Hero data={section.data} />;
     case "experience":
       return <ExperienceSection title={section.title} data={section.data} />;
     case "techStack":

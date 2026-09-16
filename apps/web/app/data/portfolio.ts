@@ -35,9 +35,8 @@
  * ON DELIBERATELY NOT PARSING HERE
  * --------------------------------
  * Validating in this module would mean importing `zod` into the application
- * graph. While `app/page.tsx` is still a Client Component that transitively
- * reaches this file, that would ship the schema *and* the validator to every
- * visitor's browser — the opposite of the goal. Content is a committed local
+ * graph. This module is consumed by Server Components and build/test tooling;
+ * client islands receive only the props they need. Content is a committed local
  * file and `/` is fully prerendered, so a build-time gate proves everything a
  * per-render parse would, for free. If content ever comes from a source this
  * program does not control, parse it at *that* boundary.

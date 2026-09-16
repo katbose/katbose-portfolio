@@ -1,6 +1,5 @@
 import { ArrowLeft, ArrowUpRight, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CopyEssayButton } from "../components/essay/CopyEssayButton";
 import { Inline } from "../components/RichText";
@@ -38,14 +37,14 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
       <main className="flex w-full max-w-2xl flex-col text-left">
         {/* Header */}
-        <Link
+        <a
           href="/"
           className="mb-8 inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 transition-colors hover:text-black dark:hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" /> Back to portfolio
-        </Link>
+        </a>
 
-        <span className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+        <span className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
           {post.kicker}
         </span>
         <h1 className="mb-6 text-3xl font-bold tracking-tight sm:text-4xl">{post.title}</h1>
@@ -99,12 +98,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
       {/* Bottom island nav, matching the portfolio */}
       <nav className="fixed bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-4 rounded-full border border-gray-200 dark:border-zinc-700 bg-white/70 dark:bg-zinc-900/80 px-5 py-3 shadow-sm backdrop-blur-md transition-all hover:bg-white/90 dark:hover:bg-zinc-900">
-        <Link
+        <a
           href="/"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-gray-300 transition-colors hover:text-black dark:hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" /> Portfolio
-        </Link>
+        </a>
       </nav>
     </div>
   );

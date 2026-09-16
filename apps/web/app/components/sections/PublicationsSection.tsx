@@ -45,7 +45,7 @@ export function PublicationsSection({ title, data }: { title: string; data: Publ
                 />
               )}
             </div>
-            <p className="text-xs font-medium text-gray-500 dark:text-gray-500">{pub.venue}</p>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400">{pub.venue}</p>
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Authors: {pub.authors}</p>
 
             <Collapsible
@@ -53,7 +53,7 @@ export function PublicationsSection({ title, data }: { title: string; data: Publ
               gradientHeight="h-16"
               className="mt-6 space-y-2"
             >
-              <p className="text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500 font-bold">
+              <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold">
                 Abstract
               </p>
               <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">

@@ -1,7 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
-import Image from "next/image";
 import { FaYoutube } from "react-icons/fa6";
 import { DiscordIcon } from "../icons";
+import { OptimizedImage as Image } from "../OptimizedImage";
 import { SectionShell } from "../SectionShell";
 import type { LinkRef } from "../types";
 
@@ -36,6 +36,9 @@ export function YouTubeSection({ title, data }: { title: string; data: YouTubeDa
             // biome-ignore lint/performance/noImgElement: logo is an arbitrary remote URL from portfolio.json
             <img
               src={data.logo}
+              crossOrigin={
+                data.logo.startsWith("https://upload.wikimedia.org/") ? "anonymous" : undefined
+              }
               alt="YouTube"
               className="h-8 w-auto shrink-0 object-contain"
               loading="lazy"
@@ -51,12 +54,12 @@ export function YouTubeSection({ title, data }: { title: string; data: YouTubeDa
               {data.name}
               <ArrowUpRight className="h-3.5 w-3.5 text-gray-400" />
             </a>
-            <span className="text-xs text-gray-500 dark:text-gray-500">{data.tagline}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{data.tagline}</span>
             <a
               href={data.community.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-500 hover:text-black dark:hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
             >
               <DiscordIcon className="h-3.5 w-3.5 text-[#5865F2]" />
               <span>
@@ -128,7 +131,7 @@ export function YouTubeSection({ title, data }: { title: string; data: YouTubeDa
               </div>
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-gray-700 group-hover:text-black dark:text-gray-300 dark:group-hover:text-white">
                 Visit Channel
-                <ArrowUpRight className="h-3.5 w-3.5 text-gray-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 dark:text-gray-500" />
+                <ArrowUpRight className="h-3.5 w-3.5 text-gray-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 dark:text-gray-400" />
               </span>
             </a>
           )}

@@ -1,6 +1,5 @@
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { ThemeToggle } from "../components/ThemeToggle";
 import { readingTime } from "../data/postHelpers";
@@ -23,26 +22,26 @@ export default function ThoughtsPage() {
       </div>
 
       <main className="flex w-full max-w-2xl flex-col text-left">
-        <Link
+        <a
           href="/"
           className="mb-8 inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 transition-colors hover:text-black dark:hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" /> Back to portfolio
-        </Link>
+        </a>
 
-        <span className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+        <span className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
           Thoughts
         </span>
         <h1 className="mb-12 text-3xl font-bold tracking-tight sm:text-4xl">Essays &amp; notes</h1>
 
         <div className="grid gap-4">
           {posts.map((post) => (
-            <Link
+            <a
               key={post.slug}
               href={`/${post.slug}`}
               className="group block rounded-xl border border-gray-200 dark:border-gray-700 p-6 transition-all hover:-translate-y-0.5 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm"
             >
-              <div className="mb-2 flex items-center gap-3 text-xs font-medium text-gray-400 dark:text-gray-500">
+              <div className="mb-2 flex items-center gap-3 text-xs font-medium text-gray-500 dark:text-gray-400">
                 <span className="uppercase tracking-widest">{post.kicker}</span>
                 <span className="h-1 w-1 rounded-full bg-gray-300 dark:bg-gray-700" />
                 <span>{readingTime(post)}</span>
@@ -56,19 +55,19 @@ export default function ThoughtsPage() {
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                 {post.description}
               </p>
-            </Link>
+            </a>
           ))}
         </div>
       </main>
 
       {/* Bottom island nav, matching the portfolio */}
       <nav className="fixed bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-4 rounded-full border border-gray-200 dark:border-zinc-700 bg-white/70 dark:bg-zinc-900/80 px-5 py-3 shadow-sm backdrop-blur-md transition-all hover:bg-white/90 dark:hover:bg-zinc-900">
-        <Link
+        <a
           href="/"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-gray-300 transition-colors hover:text-black dark:hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" /> Portfolio
-        </Link>
+        </a>
       </nav>
     </div>
   );

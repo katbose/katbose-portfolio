@@ -63,22 +63,22 @@ export function ExpandableExperienceItem({
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               aria-label={`Visit the ${title} website`}
-              className="text-xs text-gray-400 dark:text-gray-500 underline underline-offset-2 hover:text-black dark:hover:text-white"
+              className="text-xs text-gray-500 dark:text-gray-400 underline underline-offset-2 hover:text-black dark:hover:text-white"
             >
               website
             </a>
           )}
         </div>
         <ChevronDown
-          className={`h-3.5 w-3.5 shrink-0 text-gray-300 dark:text-gray-600 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+          className={`h-3.5 w-3.5 shrink-0 text-gray-300 dark:text-gray-400 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
       </div>
 
       {/* Row 2: role | location */}
       <div className="mt-1.5 flex items-center justify-between gap-4 pl-8">
-        <span className="text-sm text-gray-400 dark:text-gray-500">{role}</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">{role}</span>
         {location && (
-          <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 shrink-0">
+          <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 shrink-0">
             <MapPin className="h-3 w-3" />
             {location}
           </span>

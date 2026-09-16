@@ -1,4 +1,5 @@
-import Image from "next/image";
+import { LiveClock } from "../LiveClock.client";
+import { OptimizedImage as Image } from "../OptimizedImage";
 import { Inline } from "../RichText";
 
 export interface HeroData {
@@ -11,7 +12,7 @@ export interface HeroData {
   intro: string[];
 }
 
-export function Hero({ data, time }: { data: HeroData; time: string }) {
+export function Hero({ data }: { data: HeroData }) {
   return (
     <>
       {/* Profile Image */}
@@ -22,7 +23,8 @@ export function Hero({ data, time }: { data: HeroData; time: string }) {
           fill
           sizes="(max-width: 640px) 160px, 224px"
           className="object-contain grayscale"
-          priority
+          loading="eager"
+          fetchPriority="low"
         />
         {/* Blends the base of the portrait into the page. Kept shallow (h-7) and
             soft: the source image is square with the subject filling most of it,
@@ -34,7 +36,7 @@ export function Hero({ data, time }: { data: HeroData; time: string }) {
       <h1 className="mb-4 text-5xl font-bold tracking-tight sm:text-7xl">{data.name}</h1>
 
       {/* Phonetic Pronunciation + local time */}
-      <div className="mb-8 flex flex-wrap items-center justify-center gap-2 text-xs text-gray-400 dark:text-gray-500 sm:text-sm">
+      <div className="mb-8 flex flex-wrap items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
         <span>{data.phonetic}</span>
         <span className="text-gray-300 dark:text-gray-700">•</span>
         <span>{data.noun}</span>
@@ -45,9 +47,7 @@ export function Hero({ data, time }: { data: HeroData; time: string }) {
                 text on the page that changes every second, and an unmasked
                 clock would invalidate every screenshot baseline. The hook must
                 survive being extracted into its own client island. */}
-            <span data-testid="local-time" className="tabular-nums text-xs sm:text-sm">
-              {time || "00:00:00"}
-            </span>
+            <LiveClock timezone={data.timezone.tz} />
             <span className="text-[10px] uppercase tracking-wider sm:text-xs">
               {data.timezone.label}
             </span>

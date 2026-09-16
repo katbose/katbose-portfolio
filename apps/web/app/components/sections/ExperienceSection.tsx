@@ -60,11 +60,11 @@ export function ExperienceSection({ title, data }: { title: string; data: Experi
               {featured.name}
             </span>
           )}
-          <span className="text-xs font-medium text-gray-500 dark:text-gray-500">
+          <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
             {featured.role}
           </span>
           {featured.location && (
-            <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
               <MapPin className="h-3 w-3" />
               {featured.location}
             </span>
@@ -72,7 +72,7 @@ export function ExperienceSection({ title, data }: { title: string; data: Experi
           {/* Pushed right on wider screens so the card reads name/role on the
               left and dates on the right, the way a CV entry does. */}
           {featured.dateRange && (
-            <span className="text-xs text-gray-400 dark:text-gray-500 sm:ml-auto">
+            <span className="text-xs text-gray-500 dark:text-gray-400 sm:ml-auto">
               {featured.dateRange}
             </span>
           )}
@@ -91,7 +91,7 @@ export function ExperienceSection({ title, data }: { title: string; data: Experi
           over an empty bordered box looks like a loading bug. */}
       {previous.length > 0 && (
         <div className="mt-10">
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-600">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
             {previousLabel}
           </h3>
           <div className="flex flex-col rounded-xl border border-gray-200 dark:border-gray-700 px-6 sm:px-8">
