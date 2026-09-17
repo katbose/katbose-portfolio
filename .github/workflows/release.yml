@@ -71,7 +71,29 @@ jobs:
       # commits being released. Swap in a PAT as `token:` if CI on the release PR
       # is ever wanted.
       - name: Run release-please
+        id: release
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      - name: Checkout release presentation scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Add release overview
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_PR: ${{ steps.release.outputs.pr }}
+          RELEASE_CREATED: ${{ steps.release.outputs.release_created }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag_name }}
+        run: |
+          node --test scripts/format-release-notes.test.mjs
+          if [ -n "$RELEASE_PR" ]; then
+            number=$(printf '%s' "$RELEASE_PR" | jq -r '.number // empty')
+            if [ -n "$number" ]; then node scripts/format-release-notes.mjs --pr "$number"; fi
+          fi
+          if [ "$RELEASE_CREATED" = "true" ]; then
+            node scripts/format-release-notes.mjs --release "$RELEASE_TAG"
+          fi

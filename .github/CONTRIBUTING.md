@@ -220,6 +220,29 @@ that tags the repository as exactly `vX.Y.Z`, with no prefix or suffix, and
 writes [`apps/docs/changelog.mdx`](../apps/docs/changelog.mdx). Do not bump
 versions or edit the changelog by hand.
 
+### Release presentation
+
+Release Please groups commits into features, fixes, performance, architecture,
+build/dependencies, documentation, verification and automation. Write commit
+subjects around the user-visible outcome; explain the approach in the body.
+
+For a release with a larger story, add a short version-specific overview at
+`.github/release-summaries/X.Y.Z.md`: three or four outcomes, why they matter,
+and useful links. Avoid promises about future work or unsupported performance
+claims. The release workflow adds it above the generated PR details and uses it
+on the published release, with the complete changelog in an expandable section.
+Versions without a summary show up to three generated highlights. The formatter
+preserves Release Please's version block and commit links. It never publishes
+or merges a release by itself.
+
+### Deployment labels
+
+Vercel builds the web workspace automatically. The deployment-label workflow
+keeps its status and URLs but labels its GitHub target `production - apps/web`.
+It handles only Vercel's `Production` records, ignores its own updates, and
+checks for newer statuses before writing. Preview and Mintlify records are
+untouched. This label does not rename Vercel's built-in Production environment.
+
 ## Conduct
 
 By taking part you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).

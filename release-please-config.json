@@ -12,7 +12,54 @@
       "bump-patch-for-minor-pre-major": false,
       "pull-request-title-pattern": "chore(release): v${version}",
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "changelog-sections": [
+        {
+          "type": "feat",
+          "section": "✨ Features",
+          "hidden": false
+        },
+        {
+          "type": "fix",
+          "section": "🛠 Fixes",
+          "hidden": false
+        },
+        {
+          "type": "perf",
+          "section": "⚡ Performance",
+          "hidden": false
+        },
+        {
+          "type": "refactor",
+          "section": "🏗 Architecture",
+          "hidden": false
+        },
+        {
+          "type": "build",
+          "section": "📦 Build and dependencies",
+          "hidden": false
+        },
+        {
+          "type": "docs",
+          "section": "📖 Documentation",
+          "hidden": false
+        },
+        {
+          "type": "test",
+          "section": "🧪 Verification",
+          "hidden": false
+        },
+        {
+          "type": "ci",
+          "section": "⚙️ Automation",
+          "hidden": false
+        },
+        {
+          "type": "revert",
+          "section": "↩️ Reverts",
+          "hidden": false
+        }
+      ]
     }
   },
   "bootstrap-sha": "5079ebf98cf58841e4c711cb322ff482c1c8cd9d",
