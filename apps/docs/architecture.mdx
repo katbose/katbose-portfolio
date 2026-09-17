@@ -73,7 +73,7 @@ Client components own only interactive state: the shell handles agent mode and Q
 - Browser-native animations handle reveals, counters and transitions. Initial hero content is visible in server HTML before JavaScript runs.
 - QR generation loads when opened. The contribution calendar, illustration images and shaders, and skill icons load as their sections approach the viewport.
 - Off-screen sections use CSS content visibility until first visited. Batched intersection observers avoid repeated synchronous layout during hydration.
-- Touch navigation uses a CSS water effect. Fine-pointer devices retain WebGL; reduced-motion preferences disable shaders, marquee and theme transitions.
+- Mobile and desktop navigation share the same WebGL water shader and edge shine; reduced-motion preferences disable shaders, marquee and theme transitions.
 - Navbar colors use theme CSS for identical server and initial client markup. Shared theme URLs initialize before paint and follow browser history.
 - Page links use native document navigation. Each navigation reloads the document instead of prefetching route code in the browser.
 - DM Sans is vendored with its license under `apps/web/public/fonts/`. The layout explicitly preloads both subsets; builds do not download fonts from Google.

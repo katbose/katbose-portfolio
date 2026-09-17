@@ -145,15 +145,6 @@ body {
   );
 }
 
-/* The animated masked conic border repaints every frame. Touch navigation
-   already has a composited CSS water surface, so keep its border static. */
-@media (hover: none), (pointer: coarse) {
-  .nav-edge-shine {
-    animation: none;
-    opacity: 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .animate-infinite-scroll,
   .water-sheen {

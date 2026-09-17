@@ -224,7 +224,7 @@ see [architecture](../../ARCHITECTURE.md).
 | `modes.spec.ts` | Human/agent switch, theme toggle, `?theme=`, QR dialog |
 | `animations.spec.ts` | Reveals, disclosures and final counter values |
 | `reduced-motion.spec.ts` | Static media and usable controls with reduced motion |
-| `touch-navigation.spec.ts` | Touch controls work without starting WebGL |
+| `touch-navigation.spec.ts` | Touch controls render the desktop water shader |
 | `theme-first-paint.spec.ts` | Shared theme before hydration and browser history |
 | `water-theme-hydration.spec.ts` | Navbar colors before/after hydration with saved, system and shared themes |
 | `clock.spec.ts` | Clock isolation, exact Markdown copy and clipboard failures |

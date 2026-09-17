@@ -15,20 +15,6 @@ function useMotionAllowed() {
   return allowed;
 }
 
-const FINE_POINTER = "(hover: hover) and (pointer: fine)";
-
-function useFinePointer() {
-  const [fine, setFine] = useState(false);
-  useEffect(() => {
-    const preference = window.matchMedia(FINE_POINTER);
-    const update = () => setFine(preference.matches);
-    update();
-    preference.addEventListener("change", update);
-    return () => preference.removeEventListener("change", update);
-  }, []);
-  return fine;
-}
-
 // WebGL shader — client-only, no SSR. The plain <img> underneath acts as the
 // fallback until the canvas mounts.
 const Water = lazy(() => import("./WaterShader.client"));
@@ -43,17 +29,13 @@ export function WaterOverlay({
   const wrapRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
   const motionAllowed = useMotionAllowed();
-  const finePointer = useFinePointer();
 
   // The library stamps `data-paper-shader` on its mount element at the exact
   // moment WebGL init completes and frames start rendering — watch for it.
   // biome-ignore lint/correctness/useExhaustiveDependencies: must observe once on mount; re-running on a new onReady identity would re-fire the callback
   useEffect(() => {
     if (!onReady) return;
-    if (
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
-      !window.matchMedia(FINE_POINTER).matches
-    ) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       onReady();
       return;
     }
@@ -80,7 +62,7 @@ export function WaterOverlay({
       data-testid="water-overlay"
       className="pointer-events-none absolute inset-0 -z-10"
     >
-      {motionAllowed && finePointer ? (
+      {motionAllowed ? (
         <Suspense fallback={null}>
           <Water
             className="absolute inset-0 [&_canvas]:absolute [&_canvas]:inset-0 [&_canvas]:block [&_canvas]:h-full [&_canvas]:w-full"

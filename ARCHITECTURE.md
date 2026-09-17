@@ -48,8 +48,8 @@ the text available for manual copying.
 
 Page transitions, scroll reveals and counters use browser-native animation APIs.
 The initial hero is visible without waiting for JavaScript. Reduced-motion
-preferences disable shaders, marquee animation and the theme view transition. The touch navbar uses a CSS
-water effect and static border; fine-pointer devices use WebGL. A static named shader export keeps
+preferences disable shaders, marquee animation and the theme view transition. Mobile and desktop navbars use the same WebGL
+water shader and animated edge shine. A static named shader export keeps
 unused shaders out of the deferred bundle.
 QR code generation loads when opened. GitHub's calendar and illustration
 images/shaders load when their sections approach the viewport. React lazy
