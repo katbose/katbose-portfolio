@@ -1,0 +1,31 @@
+name: Label web deployments
+on:
+  deployment_status:
+permissions:
+  deployments: write
+concurrency:
+  group: web-deployment-label-${{ github.event.deployment.id }}
+  cancel-in-progress: false
+jobs:
+  label:
+    if: >-
+      github.event.deployment.creator.login == 'vercel[bot]' &&
+      github.event.deployment_status.creator.login == 'vercel[bot]' &&
+      github.event.deployment_status.environment == 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # No checkout or repository code executes with this token.
+      - name: Preserve Vercel status under the web workspace environment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          id=$(jq -r '.deployment.id' "$GITHUB_EVENT_PATH")
+          # Do not overwrite a newer Vercel status if events arrive out of order.
+          latest=$(gh api "repos/$REPO/deployments/$id/statuses" --jq '.[0].id')
+          event_id=$(jq -r '.deployment_status.id' "$GITHUB_EVENT_PATH")
+          if [ "$latest" != "$event_id" ]; then exit 0; fi
+          jq '.deployment_status | {state, description, log_url, environment_url} + {environment: "production - apps/web", auto_inactive: false}' "$GITHUB_EVENT_PATH" |
+            gh api --method POST "repos/$REPO/deployments/$id/statuses" --input - > /dev/null
