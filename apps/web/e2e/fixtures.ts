@@ -56,21 +56,12 @@ export const sortedPosts = sortPosts(portfolio.posts);
  * company logos). Those can fail in a sandboxed CI network, and that is not a
  * regression in this codebase.
  */
+// Ignore transport diagnostics, never arbitrary messages naming a host.
 const IGNORABLE = [
   /net::ERR_/i,
   /Failed to load resource/i,
   /ERR_NAME_NOT_RESOLVED/i,
   /ERR_INTERNET_DISCONNECTED/i,
-  /cdn\.simpleicons\.org/i,
-  /github-contributions-api/i,
-  /githubusercontent\.com/i,
-  /wikimedia\.org/i,
-  /gstatic\.com/i,
-  /googleusercontent\.com/i,
-  /nith\.ac\.in/i,
-  /remix\.re/i,
-  /play-lh\.googleusercontent/i,
-  /favicon/i,
   /Download the React DevTools/i,
 ];
 
