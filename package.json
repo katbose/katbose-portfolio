@@ -1,6 +1,6 @@
 {
   "name": "katbose-portfolio",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Monorepo for katbose.dev — portfolio, docs, and future CMS/dashboard apps.",
   "repository": {
