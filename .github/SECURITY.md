@@ -64,8 +64,8 @@ normal issue, not as a security report.
 - **`bun audit` on every change.** Contributors run it before opening a pull
   request.
 - **Least-privilege CI.** The CI workflow requests `contents: read` and nothing
-  more. Write permissions are isolated in a separate release workflow that only
-  runs on `main`.
+  more. Release writes are isolated to the release workflow on `main`; the
+  deployment-label workflow has only deployment-write access and checks out no code.
 - **Actions pinned by commit SHA.** Every GitHub Action is referenced by its full
   40-character commit SHA rather than a tag, so a moved or retagged release cannot
   change what executes. The human-readable version sits in a comment beside each
@@ -75,25 +75,24 @@ normal issue, not as a security report.
 - **No secrets in the repository.** `.env*` is gitignored and nothing in the tree
   requires a credential to build.
 
-## Accepted advisories
+## Code scanning
 
-`bun audit` currently reports two advisories, both the same package. They are
-known and accepted rather than overlooked:
+CodeQL scans JavaScript/TypeScript and GitHub Actions on pushes and pull requests
+into main, weekly, and on manual dispatch. Both languages use the
+`security-extended` suite. Source, scripts and tests remain in scope; findings
+are assessed by their reachable impact rather than severity labels alone.
+Neither language requires a build or dependency installation for analysis.
+Action versions stay pinned, checkout credentials are not persisted, and only
+analysis jobs receive permission to upload security results.
 
-**`extract-zip@2.0.1`** — GHSA-jmr9-qjv8-65gv and GHSA-7pqw-9j4j-h8q3, symlink
-path traversal on archive extraction, rated high.
+## Dependency advisory history
 
-- **Path:** `@katbose/docs` → `mint` → … → `puppeteer` → `@puppeteer/browsers` →
-  `extract-zip`
-- **Why it is unresolved:** the advisory range is `<=2.0.1`, and 2.0.1 is the
-  latest published release. There is no fixed version to move to.
-- **Why the risk is low here:** it is a `devDependency` of the documentation
-  toolchain, never shipped to a browser and never on a request path. It runs only
-  when Puppeteer extracts a downloaded browser archive, which CI skips entirely
-  via `PUPPETEER_SKIP_DOWNLOAD`, and the archives come from Google's own
-  distribution.
-- **Revisit when:** Puppeteer ships a release that no longer depends on a
-  vulnerable `extract-zip`.
+The previously accepted `extract-zip@2.0.1` advisories (GHSA-jmr9-qjv8-65gv and
+GHSA-7pqw-9j4j-h8q3) were removed through the version-scoped Puppeteer override.
+The replacement downloader no longer depends on that extractor. Skipping the
+browser download alone was not the fix. See `apps/docs/README.md` for the
+compatibility checks and override rationale. CI runs `bun audit` on the current
+lockfile; historical audit results are not a guarantee for future advisories.
 
 Five other advisories reported against this tree were resolved by pinning
 `sharp`, `qs`, `adm-zip` and `js-yaml` in the root `overrides` block.

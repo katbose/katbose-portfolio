@@ -21,12 +21,20 @@ permissions:
 
 jobs:
   analyze:
-    name: Analyze JavaScript and TypeScript
+    name: Analyze ${{ matrix.language }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Retain the existing JS analysis category so its alerts are reconciled.
+          - language: javascript-typescript
+            category: .github/workflows/codeql.yml:analyze
+          - language: actions
+            category: .github/workflows/codeql.yml:analyze-actions
     permissions:
       contents: read
-      packages: read
       security-events: write
 
     steps:
@@ -38,8 +46,11 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
         with:
-          languages: javascript-typescript
+          languages: ${{ matrix.language }}
           build-mode: none
+          queries: security-extended
 
       - name: Analyze
         uses: github/codeql-action/analyze@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
+        with:
+          category: ${{ matrix.category }}

@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { expect, hero, portfolio, sectionTitles, test } from "./fixtures";
 
 /**
@@ -38,15 +39,21 @@ function decodeEntities(html: string): string {
  * text that survives script removal is text a browser could paint without
  * running the app.
  */
-function visibleText(html: string): string {
-  return decodeEntities(
-    html
-      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
-      .replace(/<[^>]+>/g, " "),
-  )
-    .replace(/\s+/g, " ")
-    .trim();
+async function parseServerHtml(page: Page, html: string) {
+  return page.evaluate((source) => {
+    // DOMParser creates an inert document: application scripts never execute.
+    const document = new DOMParser().parseFromString(source, "text/html");
+    for (const element of document.querySelectorAll("script, style, template")) element.remove();
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const parts: string[] = [];
+    while (walker.nextNode()) parts.push(walker.currentNode.textContent ?? "");
+    return {
+      text: parts.join(" ").replace(/\s+/g, " ").trim(),
+      links: Array.from(document.querySelectorAll("a[href]"), (anchor) =>
+        anchor.getAttribute("href"),
+      ),
+    };
+  }, html);
 }
 
 /** Strip the inline markdown that `Block` strings allow, matching `siteMeta`. */
@@ -103,38 +110,27 @@ test.describe("server response", () => {
     expect(html).toMatch(/<meta name="description"/);
   });
 
-  test("links are real anchors in the markup, not hydration-only handlers", async ({ request }) => {
+  test("links are real anchors in the markup, not hydration-only handlers", async ({
+    request,
+    page,
+  }) => {
     const html = await fetchHomeHtml(request);
-    const markupOnly = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ");
+    const { links } = await parseServerHtml(page, html);
 
     // Socials and the calendar are plain `<a href>` elements. If these ever
     // stop appearing in server markup, the site has become unlinkable to
     // anything that does not execute JavaScript.
     for (const social of portfolio.socials) {
-      expect(markupOnly, `missing anchor for ${social.label}`).toContain(social.href);
+      expect(links, `missing anchor for ${social.label}`).toContain(social.href);
     }
-    expect(markupOnly).toContain(portfolio.meta.calendarUrl);
+    expect(links).toContain(portfolio.meta.calendarUrl);
   });
 });
 
-/**
- * The server-rendered content baseline.
- *
- * A correction worth recording, because it reframes what the server-first
- * refactor is actually for: this content is *already* complete in the markup,
- * even though `app/page.tsx` is a Client Component. `"use client"` does not opt
- * a route out of server rendering — Next.js prerenders Client Components too. It
- * only means the same code is *also* shipped to the browser and hydrated there.
- *
- * So moving sections to the server will not make the HTML more complete. These
- * assertions are already green and must stay green; they exist as a regression
- * guard, so that a refactor aimed at shrinking JavaScript cannot quietly cost us
- * server-rendered content. The JavaScript saving is measured separately by
- * `scripts/bundle-report.ts`, and that is where the real win shows up.
- */
+/** Guard server-rendered prose independently of client hydration payloads. */
 test.describe("server-rendered content", () => {
-  test("every section heading is present in the markup", async ({ request }) => {
-    const text = visibleText(await fetchHomeHtml(request));
+  test("every section heading is present in the markup", async ({ request, page }) => {
+    const { text } = await parseServerHtml(page, await fetchHomeHtml(request));
 
     expect(sectionTitles.length).toBeGreaterThan(0);
     for (const title of sectionTitles) {
@@ -142,8 +138,8 @@ test.describe("server-rendered content", () => {
     }
   });
 
-  test("every hero paragraph is present in the markup", async ({ request }) => {
-    const text = visibleText(await fetchHomeHtml(request));
+  test("every hero paragraph is present in the markup", async ({ request, page }) => {
+    const { text } = await parseServerHtml(page, await fetchHomeHtml(request));
 
     expect(hero).toBeDefined();
     if (!hero) return;
@@ -154,8 +150,11 @@ test.describe("server-rendered content", () => {
     }
   });
 
-  test("previews each essay's opening paragraph but not the rest of it", async ({ request }) => {
-    const text = visibleText(await fetchHomeHtml(request));
+  test("previews each essay's opening paragraph but not the rest of it", async ({
+    request,
+    page,
+  }) => {
+    const { text } = await parseServerHtml(page, await fetchHomeHtml(request));
 
     // `ThoughtsSection` deliberately previews the first paragraph of each post,
     // clamped to `max-h-12` with a fade. That is design, not a leak — so the
@@ -173,3 +172,18 @@ test.describe("server-rendered content", () => {
     }
   });
 });
+
+// These strings exercise browser parsing, not a production HTML sanitizer.
+for (const ending of ["</script >", '</ScRiPt data-test="value">']) {
+  test(`server HTML parsing excludes payloads with ${ending}`, async ({ page }) => {
+    const { text, links } = await parseServerHtml(
+      page,
+      `<body><script>const payload = '<a href="/payload-only">Payload prose</a>';${ending}
+      <style>.example { content: "Style prose"; }</style>
+      <!-- Comment prose --><template>Template prose</template>
+      <p>Actual &amp; rendered &#x1F30A; text</p><a href="/real?x=1&amp;y=2">Real link</a></body>`,
+    );
+    expect(text).toBe("Actual & rendered 🌊 text Real link");
+    expect(links).toEqual(["/real?x=1&y=2"]);
+  });
+}
