@@ -15,12 +15,12 @@
       "changelog-sections": [
         {
           "type": "feat",
-          "section": "✨ Features",
+          "section": "🚀 Features",
           "hidden": false
         },
         {
           "type": "fix",
-          "section": "🛠 Fixes",
+          "section": "🐛 Bug Fixes",
           "hidden": false
         },
         {
@@ -30,7 +30,7 @@
         },
         {
           "type": "refactor",
-          "section": "🏗 Architecture",
+          "section": "🛠 Refactors",
           "hidden": false
         },
         {
@@ -40,12 +40,12 @@
         },
         {
           "type": "docs",
-          "section": "📖 Documentation",
+          "section": "📚 Documentation",
           "hidden": false
         },
         {
           "type": "test",
-          "section": "🧪 Verification",
+          "section": "🧪 Tests",
           "hidden": false
         },
         {

@@ -4,30 +4,75 @@ import { pathToFileURL } from "node:url";
 
 const marker = "<!-- release-overview -->";
 const end = "<!-- /release-overview -->";
+const credits = "<!-- release-credits -->";
+const creditsEnd = "<!-- /release-credits -->";
+const legacyDetails = "<details>\n<summary>Full changelog and commit links</summary>";
 
-export function formatNotes(body, version, summary, isPr = false) {
-  const clean = body.replace(new RegExp(`${marker}[\\s\\S]*?${end}\\s*`), "").trim();
-  // Keep release-please's version details untouched: it parses them to publish.
-  if (isPr && !clean.includes(`<summary>${version}</summary>`)) {
-    throw new Error("Release PR version details not found; refusing to rewrite");
+function sourceNotes(body) {
+  let clean = body
+    .replaceAll("\r\n", "\n")
+    .replace(new RegExp(`${marker}[\\s\\S]*?${end}\\s*`), "")
+    .replace(new RegExp(`${credits}[\\s\\S]*?${creditsEnd}\\s*`), "")
+    .trim();
+  // Migrate only the exact wrapper emitted by the previous formatter.
+  if (clean.startsWith(legacyDetails) && clean.endsWith("</details>")) {
+    clean = clean.slice(legacyDetails.length, -"</details>".length).trim();
   }
-  const bullets = clean
-    .split("\n")
-    .filter((line) => /^[-*] /.test(line))
-    .slice(0, 3);
-  const overview =
-    summary?.trim() ||
-    `## Highlights\n\n${bullets.join("\n") || "Maintenance release. Expand the details for the complete change list."}`;
-  return `${marker}\n${overview}\n${end}\n\n${isPr ? clean : `<details>\n<summary>Full changelog and commit links</summary>\n\n${clean}\n\n</details>`}\n`;
+  return clean;
+}
+
+export function releaseComparison(body, repo) {
+  const match = sourceNotes(body).match(/^## \[[^\]]+\]\((https:\/\/github\.com\/[^\s)]+)\)/m);
+  if (!match) return undefined;
+  const url = new URL(match[1]);
+  const prefix = `/${repo}/compare/`;
+  if (url.origin !== "https://github.com" || !url.pathname.startsWith(prefix))
+    throw new Error("Release comparison must belong to this repository");
+  const [base, head, extra] = url.pathname.slice(prefix.length).split("...");
+  if (!base || !head || extra || url.search || url.hash)
+    throw new Error("Unsupported release comparison");
+  return { url: url.href, base };
+}
+
+export function collectContributors(pages) {
+  return [
+    ...new Set(
+      pages
+        .flatMap((page) => page.commits ?? [])
+        .filter((commit) => commit.author?.type === "User")
+        .map((commit) => commit.author.login)
+        .filter((login) => /^[a-z\d](?:[a-z\d-]{0,38})$/i.test(login)),
+    ),
+  ].sort((a, b) => a.localeCompare(b));
+}
+
+export function formatNotes(body, version, summary, isPr = false, metadata = {}) {
+  const clean = sourceNotes(body);
+  // Keep Release Please's generated PR body intact: it parses this to publish.
+  if (isPr && !clean.includes(`<summary>${version}</summary>`))
+    throw new Error("Release PR version details not found; refusing to rewrite");
+  const links = metadata.comparison
+    ? `**Full comparison:** [View all changes](${metadata.comparison})`
+    : "";
+  const contributors = metadata.contributors?.length
+    ? `### 🤝 Contributors\n\n${metadata.contributors.map((login) => `- [@${login}](https://github.com/${login})`).join("\n")}`
+    : "";
+  const overview = summary?.trim();
+  if (isPr) {
+    const intro = [overview, links, contributors].filter(Boolean).join("\n\n");
+    return `${intro ? `${marker}\n${intro}\n${end}\n\n` : ""}${clean}\n`;
+  }
+  const footer = [contributors, links].filter(Boolean).join("\n\n");
+  return `${overview ? `${marker}\n${overview}\n${end}\n\n` : ""}${clean}${footer ? `\n\n${credits}\n${footer}\n${creditsEnd}` : ""}\n`;
 }
 
 function gh(...args) {
   return execFileSync("gh", args, { encoding: "utf8" });
 }
 
-export function main([kind, id]) {
-  if (!["--pr", "--release"].includes(kind) || !id)
-    throw new Error("Use --pr NUMBER or --release TAG");
+export function main([kind, id, option]) {
+  if (!["--pr", "--release"].includes(kind) || !id || (option && option !== "--preview"))
+    throw new Error("Use --pr NUMBER or --release TAG, optionally followed by --preview");
   // biome-ignore lint/suspicious/noUndeclaredEnvVars: standalone Actions script; never cached by Turbo
   const repo = process.env.GITHUB_REPOSITORY || "katbose/katbose-portfolio";
   const isPr = kind === "--pr";
@@ -42,9 +87,29 @@ export function main([kind, id]) {
     throw new Error("Not the release-please branch");
   const path = `.github/release-summaries/${version}.md`;
   const summary = existsSync(path) ? readFileSync(path, "utf8") : undefined;
-  // Already formatted releases are left intact on a repeated workflow run.
-  if (!isPr && record.body.includes(marker)) return;
-  const body = formatNotes(record.body, version, summary, isPr);
+  const comparison = releaseComparison(record.body, repo);
+  let contributors = [];
+  if (comparison) {
+    // A release PR's future tag does not exist yet; use its current head SHA.
+    const target = isPr ? record.head.sha : id;
+    const range = `${encodeURIComponent(comparison.base)}...${encodeURIComponent(target)}`;
+    const pages = JSON.parse(
+      gh("api", `repos/${repo}/compare/${range}?per_page=100`, "--paginate", "--slurp"),
+    );
+    contributors = collectContributors(pages);
+  }
+  const body = formatNotes(record.body, version, summary, isPr, {
+    comparison:
+      comparison && isPr
+        ? `https://github.com/${repo}/compare/${encodeURIComponent(comparison.base)}...${record.head.sha}`
+        : comparison?.url,
+    contributors,
+  });
+  if (option === "--preview") {
+    console.log(body);
+    return;
+  }
+  if (body === record.body) return;
   const update = isPr ? endpoint : `repos/${repo}/releases/${record.id}`;
   execFileSync("gh", ["api", "--method", "PATCH", update, "--input", "-"], {
     input: JSON.stringify({ body }),
