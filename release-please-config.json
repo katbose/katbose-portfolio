@@ -3,14 +3,13 @@
     ".": {
       "release-type": "node",
       "initial-version": "0.1.0",
-      "package-name": "katbose-portfolio",
+      "package-name": "",
       "changelog-path": "apps/docs/changelog.mdx",
       "include-component-in-tag": false,
       "include-v-in-tag": true,
       "include-v-in-release-name": true,
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": false,
-      "pull-request-title-pattern": "chore(release): v${version}",
       "draft": false,
       "prerelease": false,
       "changelog-sections": [
@@ -64,5 +63,6 @@
   },
   "bootstrap-sha": "5079ebf98cf58841e4c711cb322ff482c1c8cd9d",
   "separate-pull-requests": false,
+  "group-pull-request-title-pattern": "chore(release): v${version}",
   "pull-request-header": "Prepared automatically from Conventional Commits. Merging this tags the whole repository."
 }

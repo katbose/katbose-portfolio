@@ -3,34 +3,12 @@ name: Release
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
-# MERGE THE RELEASE PULL REQUEST WITH SQUASH, NEVER A MERGE COMMIT.
-#
-# To tag a release, release-please has to match the merged release pull request
-# to a commit on main and read a version out of it. Squashing keeps the pull
-# request title, `chore: release main`, as the commit subject, which is a valid
-# Conventional Commit. A merge commit instead produces `Merge pull request #N
-# from ...`, which cannot be parsed:
-#
-#   commit could not be parsed: <sha> Merge pull request #1 from ...
-#   error message: unexpected token ' ' at 1:6, valid tokens [(, !, :]
-#   There are untagged, merged release PRs outstanding - aborting
-#
-# The run then reports success while creating no tag and no release, and leaves
-# the pull request labelled `autorelease: pending`. That label is not cosmetic:
-# an outstanding untagged release PR aborts every later release too, so a single
-# bad merge wedges the pipeline until someone intervenes by hand.
-#
-# This is exactly how v0.1.0 went wrong. Recovery meant creating tag v0.1.0 and
-# the GitHub release manually against the merge commit, with notes lifted out of
-# apps/docs/changelog.mdx, then relabelling the pull request `autorelease:
-# tagged` to unwedge later runs.
-#
-# Scope, so this is not mis-read: unparseable subjects on ordinary pull requests
-# are skipped harmlessly when the changelog is assembled. It is only the release
-# pull request's own merge commit that has to parse. Squashing everything is
-# still the simpler rule to hold, and it keeps one tidy Conventional Commit per
-# pull request for the changelog.
+# Squash release PRs with their generated chore(release): vX.Y.Z title.
+# Publication also requires the PR branch/body to match the configured release
+# identity. A merged PR left with autorelease: pending blocks later releases;
+# fail explicitly below if Release Please silently skips publication.
 
 # Never cut two releases at once: a second push while a release PR is being
 # reconciled would race on the same manifest and tag.
@@ -70,6 +48,14 @@ jobs:
       # touches package.json and the changelog, and CI has already passed on the
       # commits being released. Swap in a PAT as `token:` if CI on the release PR
       # is ever wanted.
+      - name: Checkout release presentation scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Verify release configuration and presentation
+        run: node --test scripts/format-release-notes.test.mjs
+
       - name: Run release-please
         id: release
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7
@@ -77,10 +63,16 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-      - name: Checkout release presentation scripts
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          persist-credentials: false
+      - name: Detect stalled release publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          pending=$(gh pr list --state merged --base main --label 'autorelease: pending' --json number --jq '.[].number')
+          if [ -n "$pending" ]; then
+            echo "::error::Merged release PRs remain unpublished: $pending. Inspect Release Please warnings."
+            exit 1
+          fi
 
       - name: Add release overview
         env:
@@ -89,7 +81,6 @@ jobs:
           RELEASE_CREATED: ${{ steps.release.outputs.release_created }}
           RELEASE_TAG: ${{ steps.release.outputs.tag_name }}
         run: |
-          node --test scripts/format-release-notes.test.mjs
           if [ -n "$RELEASE_PR" ]; then
             number=$(printf '%s' "$RELEASE_PR" | jq -r '.number // empty')
             if [ -n "$number" ]; then node scripts/format-release-notes.mjs --pr "$number"; fi

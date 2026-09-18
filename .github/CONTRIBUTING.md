@@ -220,6 +220,17 @@ that tags the repository as exactly `vX.Y.Z`, with no prefix or suffix, and
 writes [`apps/docs/changelog.mdx`](../apps/docs/changelog.mdx). Do not bump
 versions or edit the changelog by hand.
 
+Release Please's configured `package-name` is deliberately empty: this is one
+repository-wide release, with a componentless branch and plain `vX.Y.Z` tags.
+The root npm package name remains unchanged. Do not set a nonempty release
+package name while using the combined `release-please--branches--main` branch;
+Release Please would refuse to publish its merged PR. The top-level
+`group-pull-request-title-pattern` keeps combined PR titles in the
+`chore(release): vX.Y.Z` format; a package-level title pattern does not control
+the combined PR title. The workflow
+fails explicitly if a merged release PR remains pending, and supports manual
+reruns after a configuration repair.
+
 ### Release presentation
 
 Release Please groups commits into features, fixes, performance, architecture,
