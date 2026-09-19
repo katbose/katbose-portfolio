@@ -1,13 +1,18 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { collectContributors, formatNotes, releaseComparison } from "./format-release-notes.mjs";
+import {
+  collectContributors,
+  formatNotes,
+  payloadLayout,
+  releaseComparison,
+} from "./format-release-notes.mjs";
 
 test("release PR retains parseable version details and is idempotent", () => {
   const original =
     "Header\n<details><summary>0.2.0</summary>\n\n### Features\n* Feature ([abc](https://example.com))\n</details>";
   const once = formatNotes(original, "0.2.0", true);
-  assert.ok(once.endsWith(`${original}\n`));
+  assert.ok(once.includes(`<!-- release-source\n${original}\n-->`));
   assert.equal(formatNotes(once, "0.2.0", true), once);
   assert.throws(() => formatNotes(original, "0.3.0", true));
 });
@@ -19,11 +24,11 @@ test("published changes and breaking instructions stay visible without duplicate
     contributors: ["katbose"],
   };
   const result = formatNotes(original, "0.2.1", false, metadata);
-  assert.ok(result.startsWith(original));
+  assert.ok(result.startsWith(payloadLayout(original)));
   assert.ok(!result.includes("<details>"));
   assert.equal(result.match(/Fix \(/g).length, 1);
-  assert.ok(result.includes("### 🤝 Contributors\n\n- [@katbose](https://github.com/katbose)"));
-  assert.ok(result.includes("**Full comparison:**"));
+  assert.ok(result.includes("### 🤝 Contributors\n\n* [@katbose](https://github.com/katbose)"));
+  assert.ok(!result.includes("**Full comparison:**"));
   assert.equal(formatNotes(result, "0.2.1", false, metadata), result);
 });
 
@@ -46,7 +51,7 @@ test("PR contributor updates preserve the generated version body exactly", () =>
     "Header\n<details><summary>0.2.2</summary>\n\n### Fixes\n\n* Fix (#6)\n</details>\nFooter";
   const once = formatNotes(original, "0.2.2", true, { contributors: ["alice"] });
   const updated = formatNotes(once, "0.2.2", true, { contributors: ["bob"] });
-  assert.ok(updated.endsWith(`${original}\n`));
+  assert.ok(updated.includes(`<!-- release-source\n${original}\n-->`));
   assert.ok(!updated.includes("alice"));
   assert.ok(updated.includes("@bob"));
 });
@@ -99,4 +104,28 @@ test("combined release branch has a componentless publication identity", () => {
   assert.equal(root["package-name"], "", "combined branch must not expect a package component");
   assert.equal(root["include-component-in-tag"], false);
   assert.equal(root["pull-request-title-pattern"], undefined);
+});
+
+test("PR visible content matches Payload order and hides publication metadata", () => {
+  const original =
+    "Prepared automatically\n---\n<details><summary>0.2.2</summary>\n\n## [0.2.2](https://github.com/owner/repo/compare/v0.2.1...v0.2.2) (2026-09-20)\n\n### 🛠 Fixes\n\n* **release:** repair ([abc](https://example.com))\n</details>\n---\nGenerated footer";
+  const result = formatNotes(original, "0.2.2", true, {
+    contributors: ["katbose"],
+    names: { katbose: "Kaustav Bose" },
+  });
+  const visible = result.replace(/<!--[\s\S]*?-->/g, "");
+  assert.ok(visible.startsWith("## [v0.2.2]"));
+  assert.ok(visible.includes("### 🐛 Bug Fixes"));
+  assert.ok(visible.includes("* release: repair"));
+  assert.ok(visible.includes("Kaustav Bose ([@katbose](https://github.com/katbose))"));
+  assert.ok(visible.indexOf("Contributors") > visible.indexOf("repair"));
+  assert.ok(!visible.includes("Prepared automatically"));
+  assert.ok(!visible.includes("<details>"));
+  assert.equal(
+    formatNotes(result, "0.2.2", true, {
+      contributors: ["katbose"],
+      names: { katbose: "Kaustav Bose" },
+    }),
+    result,
+  );
 });

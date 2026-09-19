@@ -50,12 +50,17 @@
         },
         {
           "type": "ci",
-          "section": "⚙️ Automation",
+          "section": "⚙️ CI",
           "hidden": false
         },
         {
           "type": "revert",
           "section": "↩️ Reverts",
+          "hidden": false
+        },
+        {
+          "type": "chore",
+          "section": "🏡 Chores",
           "hidden": false
         }
       ]

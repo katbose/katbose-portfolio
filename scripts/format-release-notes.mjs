@@ -8,6 +8,8 @@ const creditsEnd = "<!-- /release-credits -->";
 const legacyDetails = "<details>\n<summary>Full changelog and commit links</summary>";
 
 function sourceNotes(body) {
+  const saved = body.match(/<!-- release-source\n([\s\S]*?)\n-->/);
+  if (saved) body = saved[1];
   let clean = body
     .replaceAll("\r\n", "\n")
     .replace(new RegExp(`${marker}[\\s\\S]*?${end}\\s*`), "")
@@ -25,6 +27,8 @@ export function releaseComparison(body, repo) {
   if (!match) return undefined;
   const url = new URL(match[1]);
   const prefix = `/${repo}/compare/`;
+  if (url.origin === "https://github.com" && url.pathname.startsWith(`/${repo}/releases/tag/`))
+    return undefined;
   if (url.origin !== "https://github.com" || !url.pathname.startsWith(prefix))
     throw new Error("Release comparison must belong to this repository");
   const [base, head, extra] = url.pathname.slice(prefix.length).split("...");
@@ -45,23 +49,55 @@ export function collectContributors(pages) {
   ].sort((a, b) => a.localeCompare(b));
 }
 
+export function payloadLayout(body) {
+  const headings = {
+    Features: "🚀 Features",
+    "Bug Fixes": "🐛 Bug Fixes",
+    "✨ Features": "🚀 Features",
+    "🛠 Fixes": "🐛 Bug Fixes",
+    "🏗 Architecture": "🛠 Refactors",
+    "📖 Documentation": "📚 Documentation",
+    "🧪 Verification": "🧪 Tests",
+    "⚙️ Automation": "⚙️ CI",
+  };
+  return body
+    .split("\n")
+    .map((line) => {
+      if (line.startsWith("## [") && !line.startsWith("## [v"))
+        line = line.replace("## [", "## [v");
+      if (line.startsWith("### ")) line = `### ${headings[line.slice(4)] ?? line.slice(4)}`;
+      if (/^[-*] /.test(line)) line = line.replace(/^([-*] )\*\*([^*]+):\*\* /, "$1$2: ");
+      return line;
+    })
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 export function formatNotes(body, version, isPr = false, metadata = {}) {
   const clean = sourceNotes(body);
-  // Keep Release Please's generated PR body intact: it parses this to publish.
-  if (isPr && !clean.includes(`<summary>${version}</summary>`))
-    throw new Error("Release PR version details not found; refusing to rewrite");
-  const links = metadata.comparison
-    ? `**Full comparison:** [View all changes](${metadata.comparison})`
-    : "";
-  const contributors = metadata.contributors?.length
-    ? `### 🤝 Contributors\n\n${metadata.contributors.map((login) => `- [@${login}](https://github.com/${login})`).join("\n")}`
-    : "";
+  let notes = clean;
   if (isPr) {
-    const intro = [links, contributors].filter(Boolean).join("\n\n");
-    return `${intro ? `${marker}\n${intro}\n${end}\n\n` : ""}${clean}\n`;
+    const opening = `<details><summary>${version}</summary>`;
+    const start = clean.indexOf(opening);
+    const end = clean.lastIndexOf("</details>");
+    if (start < 0 || end < start)
+      throw new Error("Release PR version details not found; refusing to rewrite");
+    notes = clean.slice(start + opening.length, end).trim();
+    if (clean.includes("-->")) throw new Error("Release source contains a comment terminator");
   }
-  const footer = [contributors, links].filter(Boolean).join("\n\n");
-  return `${clean}${footer ? `\n\n${credits}\n${footer}\n${creditsEnd}` : ""}\n`;
+  const contributors = metadata.contributors?.length
+    ? "### 🤝 Contributors\n\n" +
+      metadata.contributors
+        .map((login) => {
+          const name = metadata.names?.[login];
+          return `* ${name ? `${name.replace(/[[\]<>*_]/g, "")} (` : ""}[@${login}](https://github.com/${login})${name ? ")" : ""}`;
+        })
+        .join("\n")
+    : "";
+  const footer = contributors ? `\n\n${credits}\n${contributors}\n${creditsEnd}` : "";
+  // Release Please parses the original source; GitHub renders only the notes above it.
+  const source = isPr ? `\n\n<!-- release-source\n${clean}\n-->` : "";
+  return `${payloadLayout(notes)}${footer}${source}\n`;
 }
 
 function gh(...args) {
@@ -83,6 +119,19 @@ export function main([kind, id, option]) {
     throw new Error("Unsupported release version");
   if (isPr && record.head?.ref !== "release-please--branches--main")
     throw new Error("Not the release-please branch");
+  if (!isPr && !/^## \[/.test(sourceNotes(record.body))) {
+    const releases = JSON.parse(gh("api", `repos/${repo}/releases?per_page=100`));
+    const previous = releases
+      .filter(
+        (release) =>
+          !release.draft && !release.prerelease && release.published_at < record.published_at,
+      )
+      .sort((a, b) => b.published_at.localeCompare(a.published_at))[0];
+    const link = previous
+      ? `https://github.com/${repo}/compare/${previous.tag_name}...${id}`
+      : record.html_url;
+    record.body = `## [${version}](${link}) (${record.published_at.slice(0, 10)})\n\n${sourceNotes(record.body)}`;
+  }
   const comparison = releaseComparison(record.body, repo);
   let contributors = [];
   if (comparison) {
@@ -93,8 +142,22 @@ export function main([kind, id, option]) {
       gh("api", `repos/${repo}/compare/${range}?per_page=100`, "--paginate", "--slurp"),
     );
     contributors = collectContributors(pages);
+  } else if (!isPr) {
+    const pages = JSON.parse(
+      gh(
+        "api",
+        `repos/${repo}/commits?sha=${encodeURIComponent(id)}&per_page=100`,
+        "--paginate",
+        "--slurp",
+      ),
+    );
+    contributors = collectContributors(pages.map((commits) => ({ commits })));
   }
+  const names = Object.fromEntries(
+    contributors.map((login) => [login, JSON.parse(gh("api", `users/${login}`)).name]),
+  );
   const body = formatNotes(record.body, version, isPr, {
+    names,
     comparison:
       comparison && isPr
         ? `https://github.com/${repo}/compare/${encodeURIComponent(comparison.base)}...${record.head.sha}`
