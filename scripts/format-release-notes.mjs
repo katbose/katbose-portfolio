@@ -1,5 +1,4 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 const marker = "<!-- release-overview -->";
@@ -46,7 +45,7 @@ export function collectContributors(pages) {
   ].sort((a, b) => a.localeCompare(b));
 }
 
-export function formatNotes(body, version, summary, isPr = false, metadata = {}) {
+export function formatNotes(body, version, isPr = false, metadata = {}) {
   const clean = sourceNotes(body);
   // Keep Release Please's generated PR body intact: it parses this to publish.
   if (isPr && !clean.includes(`<summary>${version}</summary>`))
@@ -57,13 +56,12 @@ export function formatNotes(body, version, summary, isPr = false, metadata = {})
   const contributors = metadata.contributors?.length
     ? `### 🤝 Contributors\n\n${metadata.contributors.map((login) => `- [@${login}](https://github.com/${login})`).join("\n")}`
     : "";
-  const overview = summary?.trim();
   if (isPr) {
-    const intro = [overview, links, contributors].filter(Boolean).join("\n\n");
+    const intro = [links, contributors].filter(Boolean).join("\n\n");
     return `${intro ? `${marker}\n${intro}\n${end}\n\n` : ""}${clean}\n`;
   }
   const footer = [contributors, links].filter(Boolean).join("\n\n");
-  return `${overview ? `${marker}\n${overview}\n${end}\n\n` : ""}${clean}${footer ? `\n\n${credits}\n${footer}\n${creditsEnd}` : ""}\n`;
+  return `${clean}${footer ? `\n\n${credits}\n${footer}\n${creditsEnd}` : ""}\n`;
 }
 
 function gh(...args) {
@@ -85,8 +83,6 @@ export function main([kind, id, option]) {
     throw new Error("Unsupported release version");
   if (isPr && record.head?.ref !== "release-please--branches--main")
     throw new Error("Not the release-please branch");
-  const path = `.github/release-summaries/${version}.md`;
-  const summary = existsSync(path) ? readFileSync(path, "utf8") : undefined;
   const comparison = releaseComparison(record.body, repo);
   let contributors = [];
   if (comparison) {
@@ -98,7 +94,7 @@ export function main([kind, id, option]) {
     );
     contributors = collectContributors(pages);
   }
-  const body = formatNotes(record.body, version, summary, isPr, {
+  const body = formatNotes(record.body, version, isPr, {
     comparison:
       comparison && isPr
         ? `https://github.com/${repo}/compare/${encodeURIComponent(comparison.base)}...${record.head.sha}`

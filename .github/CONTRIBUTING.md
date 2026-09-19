@@ -245,11 +245,10 @@ range; bot accounts are excluded and paginated commit results are included.
 Release PRs use their head SHA for contributor lookup because the future tag
 does not exist yet. Their original version details remain intact for publication.
 
-For a release with a larger story, add a short version-specific overview at
-`.github/release-summaries/X.Y.Z.md`: three or four outcomes, why they matter,
-and useful links. Avoid promises about future work or unsupported performance
-claims. Without an editorial summary, the categorized changelog stands on its own.
-The formatter never creates tags, publishes releases or merges PRs.
+Release notes are generated entirely from Conventional Commits and GitHub
+metadata. No per-version summary files are needed. Write commit subjects around
+the outcome and include useful technical context in commit bodies. The formatter
+never creates tags, publishes releases or merges PRs.
 
 Preview a release before updating its presentation:
 
