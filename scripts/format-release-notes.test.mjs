@@ -113,7 +113,11 @@ test("PR visible content matches Payload order and hides publication metadata", 
     contributors: ["katbose"],
     names: { katbose: "Kaustav Bose" },
   });
-  const visible = result.replace(/<!--[\s\S]*?-->/g, "");
+  // Inspect the presentation section without attempting to sanitize HTML.
+  const sourceBoundary = result.indexOf("\n\n<!-- release-source\n");
+  assert.ok(sourceBoundary > 0, "publication metadata must have an explicit boundary");
+  const visible = result.slice(0, sourceBoundary);
+  assert.ok(result.slice(sourceBoundary).includes(original));
   assert.ok(visible.startsWith("## [v0.2.2]"));
   assert.ok(visible.includes("### 🐛 Bug Fixes"));
   assert.ok(visible.includes("* release: repair"));
