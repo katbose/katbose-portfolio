@@ -54,7 +54,7 @@ jobs:
           persist-credentials: false
 
       - name: Verify release configuration and presentation
-        run: node --test scripts/format-release-notes.test.mjs
+        run: node --test scripts/format-release-notes.test.mjs scripts/check-release-publication.test.mjs
 
       - name: Run release-please
         id: release
@@ -63,18 +63,7 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-      - name: Detect stalled release publication
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          pending=$(gh pr list --state merged --base main --label 'autorelease: pending' --json number --jq '.[].number')
-          if [ -n "$pending" ]; then
-            echo "::error::Merged release PRs remain unpublished: $pending. Inspect Release Please warnings."
-            exit 1
-          fi
-
-      - name: Add release overview
+      - name: Format release notes
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_PR: ${{ steps.release.outputs.pr }}
@@ -88,3 +77,10 @@ jobs:
           if [ "$RELEASE_CREATED" = "true" ]; then
             node scripts/format-release-notes.mjs --release "$RELEASE_TAG"
           fi
+
+      # Verify after formatting, using current PR records instead of search labels.
+      - name: Detect stalled release publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: node scripts/check-release-publication.mjs

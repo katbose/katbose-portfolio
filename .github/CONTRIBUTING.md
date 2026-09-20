@@ -228,7 +228,8 @@ Release Please would refuse to publish its merged PR. The top-level
 `group-pull-request-title-pattern` keeps combined PR titles in the
 `chore(release): vX.Y.Z` format; a package-level title pattern does not control
 the combined PR title. The workflow
-fails explicitly if a merged release PR remains pending, and supports manual
+confirms pending labels against current PR records after formatting, avoiding
+stale search results. It fails if a merged release PR is still pending and supports manual
 reruns after a configuration repair.
 
 ### Release presentation
