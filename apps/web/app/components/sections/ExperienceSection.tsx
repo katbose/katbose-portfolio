@@ -1,4 +1,4 @@
-import { MapPin } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { Collapsible } from "../Collapsible";
 import { ExpandableExperienceItem } from "../ExpandableExperienceItem";
 import { RichText } from "../RichText";
@@ -22,10 +22,14 @@ export interface ExperienceData {
   featured: ExperienceEntry;
   previousLabel: string;
   previous: ExperienceEntry[];
+  /** Label for the link to the full experience archive. Defaults to "View Experiences". */
+  viewAllLabel?: string;
+  /** Where that link points. Defaults to /experiences. */
+  viewAllHref?: string;
 }
 
 export function ExperienceSection({ title, data }: { title: string; data: ExperienceData }) {
-  const { featured, previousLabel, previous } = data;
+  const { featured, previousLabel, previous, viewAllLabel, viewAllHref } = data;
 
   return (
     <SectionShell title={title} className="mt-6">
@@ -84,6 +88,18 @@ export function ExperienceSection({ title, data }: { title: string; data: Experi
         >
           <RichText blocks={featured.body} />
         </Collapsible>
+
+        {/* Sits on its own line under the Collapsible's "View More" toggle. It is
+            a separate affordance, not a replacement: "View More" expands this
+            card in place, this one leaves for the full archive. Styled like the
+            other outbound "keep reading" links (e.g. "Read the full case
+            study") rather than like the toggle. */}
+        <a
+          href={viewAllHref ?? "/experiences"}
+          className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-black dark:text-white underline underline-offset-4 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+        >
+          {viewAllLabel ?? "View Experiences"} <ArrowRight className="h-3 w-3" />
+        </a>
       </div>
 
       {/* Previously — compact titles, expand on click.

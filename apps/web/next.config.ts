@@ -14,6 +14,9 @@ import type { NextConfig } from "next";
  * local Mintlify port during development.
  */
 const nextConfig: NextConfig = {
+  redirects() {
+    return [{ source: "/thoughts", destination: "/explore", permanent: true }];
+  },
   images: {
     remotePatterns: [
       {

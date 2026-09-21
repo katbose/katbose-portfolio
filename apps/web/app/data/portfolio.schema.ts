@@ -190,6 +190,8 @@ const PostSchema = z.strictObject({
   kicker: NonEmpty,
   title: NonEmpty,
   description: NonEmpty,
+  coverImage: ImageSrc.optional(),
+  coverAlt: NonEmpty.optional(),
   /** `YYYY-MM-DD`. Ordering and display both depend on this parsing cleanly. */
   date: z.iso.date(),
   blocks: z.array(PostBlockSchema).min(1),
@@ -243,6 +245,11 @@ const SectionSchema = z.discriminatedUnion("type", [
       featured: ExperienceEntrySchema,
       previousLabel: NonEmpty,
       previous: z.array(ExperienceEntrySchema),
+      viewAllLabel: NonEmpty.optional(),
+      viewAllHref: z
+        .string()
+        .regex(/^\/[^/]*$/)
+        .optional(),
     }),
   ),
 
@@ -296,16 +303,14 @@ const SectionSchema = z.discriminatedUnion("type", [
   ),
 
   titled(
-    "youtube",
+    "blogs",
     z.strictObject({
-      image: ImageSrc,
-      logo: ImageSrc.optional(),
-      name: NonEmpty,
-      url: HttpsUrl,
-      tagline: NonEmpty,
-      community: z.strictObject({ url: HttpsUrl, count: NonEmpty, text: NonEmpty }),
-      videos: z.array(z.strictObject({ title: NonEmpty, url: HttpsUrl })).min(1),
-      footerLink: LinkRef.optional(),
+      count: z.number().int().positive().max(5).optional(),
+      viewAllLabel: NonEmpty.optional(),
+      viewAllHref: z
+        .string()
+        .regex(/^\/[^/]*$/)
+        .optional(),
     }),
   ),
 

@@ -1,17 +1,9 @@
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
-import type { Metadata } from "next";
-
-import { ThemeToggle } from "../components/ThemeToggle";
 import { readingTime } from "../data/postHelpers";
 import { getSortedPosts } from "../data/posts";
-import { OWNER_NAME } from "../data/siteMeta";
+import { ThemeToggle } from "./ThemeToggle";
 
-export const metadata: Metadata = {
-  title: "Thoughts",
-  description: `Essays and notes by ${OWNER_NAME}.`,
-};
-
-export default function ThoughtsPage() {
+export function PostArchive({ label }: { label: string }) {
   const posts = getSortedPosts();
 
   return (
@@ -30,7 +22,7 @@ export default function ThoughtsPage() {
         </a>
 
         <span className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-          Thoughts
+          {label}
         </span>
         <h1 className="mb-12 text-3xl font-bold tracking-tight sm:text-4xl">Essays &amp; notes</h1>
 

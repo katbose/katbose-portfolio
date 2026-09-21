@@ -95,8 +95,8 @@ Each type maps to a component in `apps/web/app/components/sections/`, and each o
 | `expandableCard` | A single titled card with a read-more body |
 | `project` | Description, a stats grid with count-up numbers, and a link |
 | `podcast` | Podcast appearances |
-| `thoughts` | Essay listing, also rendered at `/thoughts` |
-| `youtube` | Channel header with a list of videos |
+| `thoughts` | Essay listing, also rendered at `/explore` |
+| `blogs` | Newest posts as cards plus a view-all tile |
 | `education` | Schools and courses |
 | `github` | Contributions graph for a username |
 | `publications` | Papers with an expandable abstract |
@@ -134,7 +134,7 @@ The server creates a deterministic Markdown template. Opening agent mode fills o
 `apps/web/proxy.ts` performs the negotiation. Its matcher excludes `_next/`, `api/`, and anything with a file extension, so static assets and internal routes are never intercepted. A path that is not a real post falls through to the ordinary HTML response instead of 404-ing.
 
 <Warning>
-  `generateMarkdown` has two behaviours that look like bugs and are not. It has no handler for the `github` section, so that section contributes nothing to the Markdown output. And the `youtube` section emits `## YouTuber @<handle>` rather than its configured title. Both are pinned by characterization tests — change them deliberately, or not at all.
+  `generateMarkdown` has one behaviour that looks like a bug and is not. It has no handler for the `github` section, so that section contributes nothing to the Markdown output. It is pinned by characterization tests — change it deliberately, or not at all.
 </Warning>
 
 ## Tooling split

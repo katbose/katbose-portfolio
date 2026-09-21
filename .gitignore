@@ -86,3 +86,8 @@ lefthook-local.json
 lefthook-local.toml
 .lefthook-local.yml
 .lefthook-local.yaml
+
+# opencode workspace. Skills, plugins, and local agent settings installed here
+# are machine-local workflow, not project source — the same reason .ai-docs/
+# stays untracked. Root opencode.json (the generated MCP mirror) stays tracked.
+.opencode/

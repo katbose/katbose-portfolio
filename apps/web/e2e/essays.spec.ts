@@ -61,7 +61,7 @@ test.describe("markdown negotiation via the proxy", () => {
   });
 
   test("?format=markdown on a non-post path passes through to the page", async ({ request }) => {
-    const response = await request.get("/thoughts?format=markdown");
+    const response = await request.get("/explore?format=markdown");
     expect(response.status()).toBe(200);
     expect(response.headers()["content-type"]).toContain("text/html");
   });
@@ -87,8 +87,8 @@ test.describe("site plumbing", () => {
     }
   });
 
-  test("the thoughts listing links to every post", async ({ page }) => {
-    await page.goto("/thoughts");
+  test("the explore listing links to every post", async ({ page }) => {
+    await page.goto("/explore");
     for (const post of sortedPosts) {
       await expect(page.locator(`a[href="/${post.slug}"]`).first()).toBeAttached();
     }

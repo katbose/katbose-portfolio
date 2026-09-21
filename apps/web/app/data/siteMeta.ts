@@ -35,6 +35,9 @@ const hero = portfolio.sections.find((section) => section.type === "hero");
 /** The site owner's name, taken from the hero section. */
 export const OWNER_NAME = hero?.data.name ?? "";
 
+/** Reuse the portfolio portrait wherever an author avatar is shown. */
+export const OWNER_IMAGE = hero?.data.image ?? "/me.png";
+
 /** Strip the inline markdown (`**bold**`, `[text](url)`) that `Block` strings allow. */
 function stripInlineMarkdown(text: string): string {
   return text

@@ -193,29 +193,28 @@ File: `apps/web/app/components/sections/ProjectSection.tsx`
 ```
 `stats`, `link`, `subtitle`, and `footerLink` are all optional.
 
-### `youtube`
-File: `apps/web/app/components/sections/YouTubeSection.tsx`
+### `blogs`
+File: `apps/web/app/components/sections/BlogsSection.tsx`
 ```json
 {
-  "type": "youtube",
-  "title": "My YouTube Channel",
+  "type": "blogs",
+  "title": "My Blogs",
   "data": {
-    "image": "/youtube-profile.png",
-    "name": "Channel Name",
-    "url": "https://youtube.com/@handle",
-    "tagline": "short description",
-    "community": {
-      "url": "https://discord.gg/...",
-      "count": "300+ members",
-      "text": "in the Discord"
-    },
-    "videos": [
-      { "title": "Video title", "url": "https://youtube.com/watch?v=..." }
-    ],
-    "footerLink": { "label": "See all videos", "url": "https://..." }
+    "count": 5,
+    "viewAllLabel": "View Blogs",
+    "viewAllHref": "/blogs"
   }
 }
 ```
+Every field is optional (`count` defaults to 5, with a maximum of 5, `viewAllLabel` to
+`"View Blogs"`, `viewAllHref` to `/blogs`). Like `thoughts`, this
+section holds **no content of its own** — it renders the newest entries from
+the top-level `posts` array as thumbnail-and-title cards, plus a trailing avatar tile
+linking to `viewAllHref`. Unfilled post slots show "Coming soon", keeping the avatar
+in the sixth position. The avatar comes from the hero. Add a post by appending to
+`posts`, not here. Each post can have `coverImage` (e.g. `/blogs/my-post.jpg`) and
+optional `coverAlt`; missing covers use `/blog-cover-placeholder.svg`. Place local
+covers in `apps/web/public/blogs/`. `/blogs` and `/explore` share `PostArchive.tsx`.
 
 ### `podcast`
 File: `apps/web/app/components/sections/PodcastSection.tsx`
@@ -243,15 +242,15 @@ File: `apps/web/app/components/sections/ThoughtsSection.tsx`
 ```json
 {
   "type": "thoughts",
-  "title": "Thinking",
+  "title": "Things I Explore",
   "data": {
     "count": 3,
     "viewAllLabel": "View more",
-    "viewAllHref": "/thoughts"
+    "viewAllHref": "/explore"
   }
 }
 ```
-Every field is optional (`count` defaults to 3, `viewAllHref` to `/thoughts`).
+Every field is optional (`count` defaults to 3, `viewAllHref` to `/explore`).
 This section holds **no content of its own** — it reads the newest entries from
 the top-level `posts` array. Add a post by appending to `posts`, not here.
 
@@ -537,12 +536,10 @@ node, otherwise biome reports `suppressions/unused`.
 
 ### Known quirks in `generateMarkdown.ts`, pinned by tests
 
-Two behaviours look like bugs and are not. Both are covered by characterization
-tests, so "fixing" them fails the suite:
+One behaviour looks like a bug and is not. It is covered by characterization
+tests, so "fixing" it fails the suite:
 
 - There is no handler for the `github` section, so it contributes nothing to the
   Markdown output.
-- The `youtube` section emits `## YouTuber @<handle>` rather than its configured
-  `title`.
 
-Change them deliberately, updating the tests in the same commit, or not at all.
+Change it deliberately, updating the tests in the same commit, or not at all.

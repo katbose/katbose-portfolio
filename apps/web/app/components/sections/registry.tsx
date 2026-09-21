@@ -1,5 +1,6 @@
 import type { Post } from "../../data/posts";
 import type { PortfolioMeta, Social } from "../types";
+import { type BlogsData, BlogsSection } from "./BlogsSection";
 import { type ContactData, ContactSection } from "./ContactSection";
 import { type EducationData, EducationSection } from "./EducationSection";
 import { type ExpandableCardData, ExpandableCardSection } from "./ExpandableCardSection";
@@ -12,7 +13,6 @@ import { type PublicationsData, PublicationsSection } from "./PublicationsSectio
 import { type RecommendationsData, RecommendationsSection } from "./RecommendationsSection";
 import { type TechStackData, TechStackSection } from "./TechStackSection";
 import { type ThoughtsData, ThoughtsSection } from "./ThoughtsSection";
-import { type YouTubeData, YouTubeSection } from "./YouTubeSection";
 
 /**
  * Discriminated union of every section. Each variant pairs a `type` tag with
@@ -26,7 +26,7 @@ export type Section =
   | { type: "techStack"; title: string; data: TechStackData }
   | { type: "expandableCard"; title: string; data: ExpandableCardData }
   | { type: "project"; title: string; data: ProjectData }
-  | { type: "youtube"; title: string; data: YouTubeData }
+  | { type: "blogs"; title: string; data: BlogsData }
   | { type: "education"; title: string; data: EducationData }
   | { type: "github"; title: string; data: GithubData }
   | { type: "publications"; title: string; data: PublicationsData }
@@ -68,8 +68,8 @@ export function SectionRenderer({ section, ctx }: { section: Section; ctx: Secti
       return <ExpandableCardSection title={section.title} data={section.data} />;
     case "project":
       return <ProjectSection title={section.title} data={section.data} />;
-    case "youtube":
-      return <YouTubeSection title={section.title} data={section.data} />;
+    case "blogs":
+      return <BlogsSection title={section.title} data={section.data} />;
     case "education":
       return <EducationSection title={section.title} data={section.data} />;
     case "github":

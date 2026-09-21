@@ -40,14 +40,14 @@ const NEXT_DIR = join(import.meta.dir, "..", ".next");
  */
 const BUDGETS_KB: Record<string, number> = {
   "/": 580,
-  "/thoughts": 650,
+  "/explore": 650,
   "/[slug]": 650,
 };
 
 /** Prerendered documents worth tracking, mapped to their route names. */
 const ROUTES: Record<string, string> = {
   "/": "index.html",
-  "/thoughts": "thoughts.html",
+  "/explore": "explore.html",
   "/[slug]": "consumer-design.html",
 };
 
@@ -133,11 +133,11 @@ for (const { route, chunks, bytes, budgetKb } of reports) {
  * because both routes share the same framework baseline and layout.
  */
 const home = reports.find((r) => r.route === "/");
-const thoughts = reports.find((r) => r.route === "/thoughts");
+const thoughts = reports.find((r) => r.route === "/explore");
 if (home && thoughts) {
   const premium = kb(home.bytes - thoughts.bytes);
   console.log("  ────────────────────────────────────────────────");
-  console.log(`  / carries ${premium.toFixed(1)} KB more than /thoughts`);
+  console.log(`  / carries ${premium.toFixed(1)} KB more than /explore`);
 }
 console.log("");
 

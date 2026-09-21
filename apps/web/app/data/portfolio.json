@@ -30,6 +30,7 @@
   "posts": [
     {
       "slug": "consumer-design",
+      "coverImage": "/blog-cover-placeholder.svg",
       "kicker": "Essay",
       "title": "Thoughtful Design for Consumer Apps",
       "description": "Consumer products are judged before they are used. Good design is not decoration, it is the removal of effort.",
@@ -104,6 +105,7 @@
     },
     {
       "slug": "learning-to-code-has-changed",
+      "coverImage": "/blog-cover-placeholder.svg",
       "kicker": "Essay",
       "title": "Learning to Code Has Changed",
       "description": "Most programming advice online predates AI. Here's how I'd start learning to code today, and why understanding the fundamentals still matters.",
@@ -273,6 +275,7 @@
     },
     {
       "slug": "thinking-before-building",
+      "coverImage": "/blog-cover-placeholder.svg",
       "kicker": "Essay",
       "title": "Thinking Before Building",
       "description": "A startup hackathon taught me that clarity beats speed \u2014 execution without direction just moves you faster in the wrong direction.",
@@ -330,6 +333,7 @@
     },
     {
       "slug": "starter-advice",
+      "coverImage": "/blog-cover-placeholder.svg",
       "kicker": "Essay",
       "title": "The Advice I Wish Someone Gave Me in My First Year of College",
       "description": "A builder's path into software engineering: what I would do if I started college again today.",
@@ -538,7 +542,9 @@
           ]
         },
         "previousLabel": "Previously",
-        "previous": []
+        "previous": [],
+        "viewAllLabel": "View Experiences",
+        "viewAllHref": "/experiences"
       }
     },
     {
@@ -766,53 +772,20 @@
     },
     {
       "type": "thoughts",
-      "title": "Thinking",
+      "title": "Things I Explore",
       "data": {
         "count": 3,
         "viewAllLabel": "View more",
-        "viewAllHref": "/thoughts"
+        "viewAllHref": "/explore"
       }
     },
     {
-      "type": "youtube",
-      "title": "My YouTube Channel",
+      "type": "blogs",
+      "title": "My Blogs",
       "data": {
-        "image": "/youtube-profile.png",
-        "logo": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Youtube_logo.png",
-        "name": "Aditya's YouTube Channel",
-        "url": "https://www.youtube.com/@theracecondition",
-        "tagline": "where i break down complex systems and engineering ideas",
-        "community": {
-          "url": "https://discord.gg/ry4YCJaShK",
-          "count": "300+ members",
-          "text": "driven into the Discord community"
-        },
-        "videos": [
-          {
-            "title": "System Design: Building Dropbox",
-            "url": "https://www.youtube.com/watch?v=6Bkvdyb3pvs"
-          },
-          {
-            "title": "System Design: Building Spotify",
-            "url": "https://www.youtube.com/watch?v=m84tBP_4DWE"
-          },
-          {
-            "title": "Understanding REST APIs for System Design",
-            "url": "https://www.youtube.com/watch?v=-btg5UuI6dw"
-          },
-          {
-            "title": "Top 5 Programming Languages for 2026",
-            "url": "https://www.youtube.com/watch?v=lJXq8o6o0jY"
-          },
-          {
-            "title": "Reviewing my 47 Pages GSoC Proposal",
-            "url": "https://www.youtube.com/watch?v=6HOlwQxgqDs"
-          }
-        ],
-        "footerLink": {
-          "label": "and much more on the channel",
-          "url": "https://www.youtube.com/@theracecondition/videos"
-        }
+        "count": 5,
+        "viewAllLabel": "View Blogs",
+        "viewAllHref": "/blogs"
       }
     },
     {
@@ -856,7 +829,7 @@
     },
     {
       "type": "recommendations",
-      "title": "Recommendations by Clients",
+      "title": "Recommendations",
       "data": {
         "items": [
           {

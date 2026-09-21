@@ -99,8 +99,8 @@ Thirteen types are wired up, in this file order:
 | 4 | `expandableCard` | A heading over collapsible rich text |
 | 5 | `project` | A project with a stat grid and a footer link |
 | 6 | `podcast` | Episode list linking out to YouTube |
-| 7 | `thoughts` | The `count` most recent posts, linking to `/thoughts` |
-| 8 | `youtube` | Channel card, video grid, community callout |
+| 7 | `thoughts` | The `count` most recent posts, linking to `/explore` |
+| 8 | `blogs` | Five thumbnail-and-title slots plus the author's avatar linking to `/blogs` |
 | 9 | `education` | Institutions with dates |
 | 10 | `github` | Contribution calendar (`react-github-calendar`) |
 | 11 | `publications` | Papers with authors and venues |
@@ -114,6 +114,13 @@ Each maps to a component in `app/components/sections/`. `hero` reads
 
 Posts live in `posts[]`, not in `sections`. Each has `slug`, `kicker`, `title`,
 `description`, `date` (`YYYY-MM-DD`), and `blocks[]`.
+
+For homepage blog thumbnails, put your images in `public/blogs/` and set each
+post's `coverImage` to its public path (for example, `/blogs/consumer-design.jpg`).
+Use a 16:9 image and optionally add `coverAlt` to describe meaningful visual content.
+Posts without a cover use `/blog-cover-placeholder.svg`. The grid reserves five
+post slots, showing "Coming soon" until they are filled, followed by your hero
+portrait and "View Blogs" linking to `/blogs`.
 
 `blocks` is a small tagged-union rich-text format, deliberately narrower than
 Markdown so it can render to both HTML and Markdown without ambiguity. Block
@@ -132,7 +139,9 @@ those rules exist once rather than in each consumer.
 | Route | Serves |
 |---|---|
 | `/` | Homepage from `sections[]` |
-| `/thoughts` | Essay index |
+| `/explore` | Things I Explore index |
+| `/thoughts` | Permanent redirect to `/explore` |
+| `/blogs` | All blog posts, using the same design as `/explore` |
 | `/<slug>` | One essay, HTML |
 | `/<slug>/markdown` | The same essay, `text/markdown` |
 | `/<slug>?format=markdown` | Rewritten to `/<slug>/markdown` by `proxy.ts` |

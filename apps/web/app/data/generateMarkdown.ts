@@ -123,22 +123,18 @@ export function generateMarkdown(
     parts.push(`## ${recommendations.title}\n\n${items}`);
   }
 
-  // YouTube
-  const youtube = find(sections, "youtube");
-  if (youtube) {
-    const y = youtube.data;
-    const handle = y.url.split("/@")[1] ?? "";
-    const videos = y.videos.map((v) => `- [${v.title}](${v.url})`).join("\n");
-    const lines = [
-      `## YouTuber @${handle}`,
-      "",
-      `I run [${y.name}](${y.url}) — ${y.tagline}. ${y.community.count} ${y.community.text}: ${y.community.url}`,
-      "",
-      "Selected videos:",
-      videos,
-    ];
-    if (y.footerLink) lines.push("", `${y.footerLink.label}: ${y.footerLink.url}`);
-    parts.push(lines.join("\n"));
+  // Blogs (essays / notes grid)
+  //
+  // Reads `data.posts` like the thoughts branch, so the Markdown view and the
+  // grid cards stay in sync from the same source.
+  const blogs = find(sections, "blogs");
+  if (blogs) {
+    const count = blogs.data.count ?? 5;
+    const items = sortPosts(posts)
+      .slice(0, count)
+      .map((p) => `- [${p.title}](${postUrl(p)}) — ${p.description}`)
+      .join("\n");
+    parts.push(`## ${blogs.title}\n\n${items}`);
   }
 
   // Thoughts (essays / notes)

@@ -297,29 +297,22 @@ describe("generateMarkdown - sections that intentionally differ from their title
     expect(withGithub).not.toContain("someone");
   });
 
-  test("the youtube section uses a handle-derived heading instead of its title", () => {
+  test("the blogs section lists the newest posts under its title", () => {
     const md = generateMarkdown(
       build([
         {
-          type: "youtube",
-          title: "My YouTube Channel",
-          data: {
-            image: "/yt.png",
-            name: "Fixture Channel",
-            url: "https://youtube.example/@fixturehandle",
-            tagline: "a tagline",
-            community: { url: "https://chat.example", count: "10+", text: "in the chat" },
-            videos: [{ title: "Video One", url: "https://youtube.example/watch?v=1" }],
-          },
+          type: "blogs",
+          title: "My Blogs",
+          data: { count: 5, viewAllLabel: "View Blogs", viewAllHref: "/blogs" },
         },
       ]),
       "00:00:00",
     );
-    expect(md).toContain("## YouTuber @fixturehandle");
-    expect(md).not.toContain("## My YouTube Channel");
-    expect(md).toContain("[Fixture Channel](https://youtube.example/@fixturehandle)");
-    expect(md).toContain("- [Video One](https://youtube.example/watch?v=1)");
-    expect(md).toContain("10+ in the chat: https://chat.example");
+    expect(md).toContain("## My Blogs");
+    expect(md).not.toContain("YouTuber @");
+    for (const post of getSortedPosts().slice(0, 5)) {
+      expect(md).toContain(`[${post.title}](${postUrl(post)})`);
+    }
   });
 });
 

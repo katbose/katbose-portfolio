@@ -29,6 +29,10 @@ export interface Post {
   title: string;
   /** Meta description for SEO / link previews. */
   description: string;
+  /** Optional thumbnail for the homepage blog grid, e.g. /blogs/my-post.jpg. */
+  coverImage?: string;
+  /** Describe meaningful cover content; omit for decorative covers. */
+  coverAlt?: string;
   /** ISO date (YYYY-MM-DD) — used for ordering and display. */
   date: string;
   /** The post body. */
