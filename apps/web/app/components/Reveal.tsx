@@ -12,10 +12,19 @@ export function Reveal({
   children,
   delay = 0,
   className = "",
+  id,
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
+  /**
+   * Anchor id for the site menu's `/#<id>` links. `scroll-mt-24` (applied by the
+   * caller) keeps the target clear of the fixed menu; the id lives on the same
+   * element the IntersectionObserver watches, which the browser forces layout on
+   * when scrolling to a hash, so a `content-visibility:auto` section still lands
+   * correctly.
+   */
+  id?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -70,7 +79,7 @@ export function Reveal({
     };
   }, [delay]);
   return (
-    <div ref={ref} className={`w-full ${className}`}>
+    <div id={id} ref={ref} className={`w-full ${id ? "scroll-mt-24" : ""} ${className}`}>
       {children}
     </div>
   );

@@ -2,27 +2,64 @@ import { collectErrors, expect, sortedPosts, test } from "./fixtures";
 
 const firstPost = sortedPosts[0];
 
+/**
+ * Posts live under a collection: /blogs/<slug> and /explore/<slug>. Both serve
+ * the same pool, so these run against each prefix. "explore" is the canonical
+ * collection — see app/data/postRoutes.ts.
+ */
+const COLLECTIONS = ["blogs", "explore"] as const;
+const CANONICAL_COLLECTION = "explore";
+
 test.describe("essay routes", () => {
-  test("every post has a reachable page showing its title and kicker", async ({ page }) => {
+  test("every post has a reachable page under both collections", async ({ page }) => {
     expect(sortedPosts.length).toBeGreaterThan(0);
-    for (const post of sortedPosts) {
-      const response = await page.goto(`/${post.slug}`);
-      expect(response?.status(), `GET /${post.slug}`).toBe(200);
-      await expect(page.locator("h1").first()).toHaveText(post.title);
-      await expect(page.getByText(post.kicker, { exact: true }).first()).toBeAttached();
+    for (const collection of COLLECTIONS) {
+      for (const post of sortedPosts) {
+        const path = `/${collection}/${post.slug}`;
+        const response = await page.goto(path);
+        expect(response?.status(), `GET ${path}`).toBe(200);
+        await expect(page.locator("h1").first()).toHaveText(post.title);
+        await expect(page.getByText(post.kicker, { exact: true }).first()).toBeAttached();
+      }
     }
   });
 
-  test("a post page shows reading time and a back link to the portfolio", async ({ page }) => {
+  test("a post page shows reading time and a breadcrumb trail home", async ({ page }) => {
+    expect(firstPost).toBeDefined();
+    if (!firstPost) return;
+    await page.goto(`/explore/${firstPost.slug}`);
+    await expect(page.getByText(/\d+ min read/).first()).toBeAttached();
+
+    // The old top-of-page "Back to portfolio" link is replaced by breadcrumbs.
+    const trail = page.getByRole("navigation", { name: /breadcrumb/i });
+    await expect(trail).toBeAttached();
+    await expect(trail.getByRole("link", { name: "Explore" })).toBeAttached();
+    // The post itself is the current page, so it is not a link.
+    await expect(trail.getByText(firstPost.title, { exact: true })).toBeAttached();
+
+    await trail.getByRole("link", { name: "Home" }).click();
+    await expect(page).toHaveURL(/\/$/);
+  });
+
+  test("a post page declares the canonical collection", async ({ page }) => {
+    expect(firstPost).toBeDefined();
+    if (!firstPost) return;
+    // Reached via /blogs, the canonical still points at the /explore copy, so the
+    // duplicate URLs do not compete.
+    await page.goto(`/blogs/${firstPost.slug}`);
+    const canonical = page.locator('link[rel="canonical"]');
+    await expect(canonical).toHaveAttribute(
+      "href",
+      new RegExp(`/${CANONICAL_COLLECTION}/${firstPost.slug}$`),
+    );
+  });
+
+  test("a legacy /<slug> URL permanently redirects to the canonical post", async ({ page }) => {
     expect(firstPost).toBeDefined();
     if (!firstPost) return;
     await page.goto(`/${firstPost.slug}`);
-    await expect(page.getByText(/\d+ min read/).first()).toBeAttached();
-
-    const back = page.getByRole("link", { name: /back to portfolio/i });
-    await expect(back).toBeAttached();
-    await back.click();
-    await expect(page).toHaveURL(/\/$/);
+    await expect(page).toHaveURL(new RegExp(`/${CANONICAL_COLLECTION}/${firstPost.slug}$`));
+    await expect(page.locator("h1").first()).toHaveText(firstPost.title);
   });
 
   test("an unknown slug returns 404", async ({ page }) => {
@@ -30,33 +67,52 @@ test.describe("essay routes", () => {
     expect(response?.status()).toBe(404);
   });
 
+  test("an unknown slug under a collection returns 404", async ({ page }) => {
+    const response = await page.goto("/explore/definitely-not-a-real-slug-xyz");
+    expect(response?.status()).toBe(404);
+  });
+
   test("a post page produces no uncaught exceptions", async ({ page }) => {
     expect(firstPost).toBeDefined();
     if (!firstPost) return;
     const errors = collectErrors(page);
-    await page.goto(`/${firstPost.slug}`, { waitUntil: "load" });
+    await page.goto(`/explore/${firstPost.slug}`, { waitUntil: "load" });
     await page.waitForTimeout(1000);
     expect(errors).toEqual([]);
   });
 });
 
 test.describe("markdown negotiation via the proxy", () => {
-  test("?format=markdown serves raw markdown for every real post", async ({ request }) => {
-    for (const post of sortedPosts) {
-      const response = await request.get(`/${post.slug}?format=markdown`);
-      expect(response.status(), `GET /${post.slug}?format=markdown`).toBe(200);
+  test("?format=markdown serves raw markdown under both collections", async ({ request }) => {
+    for (const collection of COLLECTIONS) {
+      for (const post of sortedPosts) {
+        const path = `/${collection}/${post.slug}?format=markdown`;
+        const response = await request.get(path);
+        expect(response.status(), `GET ${path}`).toBe(200);
 
-      const body = await response.text();
-      expect(body.startsWith(`# ${post.title}`), `markdown for /${post.slug}`).toBe(true);
-      expect(response.headers()["content-type"]).toContain("markdown");
+        const body = await response.text();
+        expect(body.startsWith(`# ${post.title}`), `markdown for ${path}`).toBe(true);
+        expect(response.headers()["content-type"]).toContain("markdown");
+      }
     }
+  });
+
+  test("?format=markdown still works on the legacy /<slug> URL", async ({ request }) => {
+    expect(firstPost).toBeDefined();
+    if (!firstPost) return;
+    // Rewritten, not redirected, so already-shared links keep returning markdown
+    // on the URL that was shared.
+    const response = await request.get(`/${firstPost.slug}?format=markdown`);
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toContain("markdown");
+    expect((await response.text()).startsWith(`# ${firstPost.title}`)).toBe(true);
   });
 
   test("the /markdown route handler serves the same content directly", async ({ request }) => {
     expect(firstPost).toBeDefined();
     if (!firstPost) return;
-    const viaProxy = await (await request.get(`/${firstPost.slug}?format=markdown`)).text();
-    const viaRoute = await (await request.get(`/${firstPost.slug}/markdown`)).text();
+    const viaProxy = await (await request.get(`/explore/${firstPost.slug}?format=markdown`)).text();
+    const viaRoute = await (await request.get(`/explore/${firstPost.slug}/markdown`)).text();
     expect(viaProxy).toBe(viaRoute);
   });
 
@@ -83,14 +139,17 @@ test.describe("site plumbing", () => {
     expect(sitemap.status()).toBe(200);
     const xml = await sitemap.text();
     for (const post of sortedPosts) {
-      expect(xml).toContain(`/${post.slug}`);
+      // Only the canonical URL is submitted, not both collections.
+      expect(xml).toContain(`/${CANONICAL_COLLECTION}/${post.slug}`);
     }
   });
 
-  test("the explore listing links to every post", async ({ page }) => {
-    await page.goto("/explore");
-    for (const post of sortedPosts) {
-      await expect(page.locator(`a[href="/${post.slug}"]`).first()).toBeAttached();
+  test("each listing links to every post under its own prefix", async ({ page }) => {
+    for (const collection of COLLECTIONS) {
+      await page.goto(`/${collection}`);
+      for (const post of sortedPosts) {
+        await expect(page.locator(`a[href="/${collection}/${post.slug}"]`).first()).toBeAttached();
+      }
     }
   });
 });

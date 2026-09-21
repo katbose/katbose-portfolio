@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { canonicalPostPath } from "./data/postRoutes";
 import { posts } from "./data/posts";
 import { SITE_URL } from "./data/siteMeta";
 
@@ -24,9 +25,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
-    // Every post is picked up automatically from app/data/posts.ts
+    // Every post is picked up automatically from app/data/posts.ts. Only the
+    // canonical collection is listed: the same post also answers under the other
+    // prefix, and submitting both would be submitting duplicates.
     ...posts.map((post) => ({
-      url: `${baseUrl}/${post.slug}`,
+      url: `${baseUrl}${canonicalPostPath(post.slug)}`,
       lastModified: new Date(post.date),
       changeFrequency: "monthly" as const,
       priority: 0.8,

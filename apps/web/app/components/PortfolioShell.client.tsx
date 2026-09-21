@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, Check, Copy, Menu, QrCode, User } from "lucide-react";
+import { Bot, Check, Copy, QrCode, User } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
   lazy,
@@ -13,6 +13,7 @@ import {
 } from "react";
 import { formatLocalTime, stampMarkdown } from "../data/localTime";
 import { enterNavbar, enterPanel, reducedMotion } from "./animations";
+import { SiteMenu } from "./SiteMenu.client";
 import { ThemeToggle } from "./ThemeToggle";
 import { WaterOverlay } from "./WaterEffects.client";
 
@@ -24,7 +25,6 @@ interface PortfolioShellProps {
   markdownTemplate: string;
   timezone: string;
   siteUrl: string;
-  docsUrl: string;
 }
 
 export function PortfolioShell({
@@ -33,7 +33,6 @@ export function PortfolioShell({
   markdownTemplate,
   timezone,
   siteUrl,
-  docsUrl,
 }: PortfolioShellProps) {
   const [markdownContent, setMarkdownContent] = useState(markdownTemplate);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -135,17 +134,7 @@ export function PortfolioShell({
     <div className="relative flex min-h-screen flex-col items-center bg-white dark:bg-black px-3 pt-16 text-black dark:text-white selection:bg-black dark:selection:bg-white selection:text-white dark:selection:text-black pb-32 sm:px-4 sm:pt-24 sm:pb-40 overflow-x-hidden transition-colors duration-300">
       {/* Menu sits top left on mobile and bottom right on desktop. */}
       <div className="fixed top-6 left-4 z-40 flex sm:top-auto sm:bottom-6 sm:left-auto sm:right-6">
-        {/* The documentation link uses an accessible label while its text is
-            hidden on mobile. docsUrl selects the local docs server in dev. */}
-        <a
-          href={docsUrl}
-          aria-label="Menu — documentation for this site"
-          title="Documentation: architecture, local development, and changelog"
-          className="inline-flex h-9 items-center gap-1.5 rounded-full border border-gray-200 dark:border-zinc-700 bg-white/70 dark:bg-zinc-900/80 px-2.5 text-xs font-medium text-gray-500 shadow-sm backdrop-blur-md transition-colors hover:text-black dark:text-gray-400 dark:hover:text-white sm:px-3"
-        >
-          <Menu className="h-4 w-4" />
-          <span className="hidden sm:inline">Menu</span>
-        </a>
+        <SiteMenu />
       </div>
       <div className="fixed top-6 right-6 z-50">
         <ThemeToggle />
