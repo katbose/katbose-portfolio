@@ -78,9 +78,10 @@ jobs:
 
       - name: MCP config mirrors are in sync
         # .kiro/settings/mcp.json is the source of truth for MCP servers;
-        # .mcp.json, opencode.json, .vscode/mcp.json, and .codex/config.toml are
-        # generated mirrors for Claude Code, OpenCode, VS Code, and Codex. Fails
-        # if any mirror wasn't regenerated after editing the source.
+        # .mcp.json, opencode.json, .vscode/mcp.json, .codex/config.toml, and
+        # .zed/settings.json are generated mirrors for Claude Code, OpenCode,
+        # VS Code, Codex, and Zed. Fails if any mirror wasn't regenerated after
+        # editing the source.
         run: bun run mcp:check
 
       - name: Typecheck

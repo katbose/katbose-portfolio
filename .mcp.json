@@ -68,6 +68,42 @@
         "list_commits"
       ],
       "type": "http"
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "shadcn@4.21.0",
+        "mcp"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "get_project_registries",
+        "list_items_in_registries",
+        "search_items_in_registries",
+        "view_items_in_registries",
+        "get_item_examples_from_registries"
+      ],
+      "type": "stdio"
+    },
+    "posthog": {
+      "url": "https://mcp.posthog.com/mcp",
+      "disabled": false,
+      "autoApprove": [
+        "exec"
+      ],
+      "type": "http"
+    },
+    "sentry": {
+      "url": "https://mcp.sentry.dev/mcp",
+      "disabled": false,
+      "autoApprove": [
+        "find_organizations",
+        "find_projects",
+        "search_sentry_tools",
+        "execute_sentry_tool"
+      ],
+      "type": "http"
     }
   }
 }

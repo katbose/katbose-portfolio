@@ -34,3 +34,17 @@ args = [
 [mcp_servers.github]
 url = "https://api.githubcopilot.com/mcp/"
 bearer_token_env_var = "GITHUB_PAT_KATBOSE"
+
+[mcp_servers.shadcn]
+command = "npx"
+args = [
+    "-y",
+    "shadcn@4.21.0",
+    "mcp",
+]
+
+[mcp_servers.posthog]
+url = "https://mcp.posthog.com/mcp"
+
+[mcp_servers.sentry]
+url = "https://mcp.sentry.dev/mcp"
