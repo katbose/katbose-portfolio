@@ -44,8 +44,20 @@ const claudeShape = (s) => ({
 // server fails with a 401 that points nowhere near the config.
 const toOpencodeEnvRef = (value) =>
   typeof value === "string" ? value.replace(ENV_PLACEHOLDER, "{env:$1}") : value;
+// OpenCode also stores user-managed settings such as plugins. Only the MCP
+// section, schema URL, and MCP timeout belong to this generator.
+const opencodePath = `${ROOT}/opencode.json`;
+const opencodeConfig = existsSync(opencodePath)
+  ? JSON.parse(readFileSync(opencodePath, "utf8"))
+  : {};
+const opencodeSettings = Object.fromEntries(
+  Object.entries(opencodeConfig).filter(
+    ([key]) => !["$schema", "mcp", "experimental"].includes(key),
+  ),
+);
 const opencodeShape = (s) => ({
   $schema: "https://opencode.ai/config.json",
+  ...opencodeSettings,
   mcp: Object.fromEntries(
     Object.entries(s).map(([n, c]) => [
       n,
@@ -65,7 +77,7 @@ const opencodeShape = (s) => ({
           },
     ]),
   ),
-  experimental: { mcp_timeout: LOCAL_SERVER_TIMEOUT_MS },
+  experimental: { ...opencodeConfig.experimental, mcp_timeout: LOCAL_SERVER_TIMEOUT_MS },
 });
 
 // VS Code Copilot uses `servers` (plural), an explicit transport `type`, and

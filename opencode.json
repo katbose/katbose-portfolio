@@ -1,6 +1,9 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["@dietrichgebert/ponytail", "superpowers@git+https://github.com/obra/superpowers.git"],
+  "plugin": [
+    "@dietrichgebert/ponytail",
+    "superpowers@git+https://github.com/obra/superpowers.git"
+  ],
   "mcp": {
     "mintlify-admin": {
       "type": "remote",
