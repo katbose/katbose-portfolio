@@ -25,7 +25,8 @@
       // `mcp:check` fail right after `bun run check` passes.
       "!.mcp.json",
       "!opencode.json",
-      "!.vscode/mcp.json"
+      "!.vscode/mcp.json",
+      "!.zed/settings.json"
     ]
   },
   "css": {

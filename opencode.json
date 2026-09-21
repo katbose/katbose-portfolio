@@ -55,6 +55,27 @@
         "Authorization": "Bearer {env:GITHUB_PAT_KATBOSE}"
       },
       "enabled": true
+    },
+    "shadcn": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "shadcn@4.21.0",
+        "mcp"
+      ],
+      "timeout": 60000,
+      "enabled": true
+    },
+    "posthog": {
+      "type": "remote",
+      "url": "https://mcp.posthog.com/mcp",
+      "enabled": true
+    },
+    "sentry": {
+      "type": "remote",
+      "url": "https://mcp.sentry.dev/mcp",
+      "enabled": true
     }
   },
   "experimental": {

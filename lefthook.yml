@@ -48,8 +48,9 @@ pre-commit:
       fail_text: TypeScript errors. Fix them before committing.
 
     # .kiro/settings/mcp.json is the source of truth for MCP servers; .mcp.json,
-    # opencode.json, .vscode/mcp.json, and .codex/config.toml are generated
-    # mirrors for Claude Code, OpenCode, VS Code, and Codex. Catches a hand-edit
+    # opencode.json, .vscode/mcp.json, .codex/config.toml, and .zed/settings.json
+    # are generated mirrors for Claude Code, OpenCode, VS Code, Codex, and Zed.
+    # Catches a hand-edit
     # to one mirror (or to the source without re-running the sync) before it
     # ships as a silent drift between clients.
     - name: mcp-sync
