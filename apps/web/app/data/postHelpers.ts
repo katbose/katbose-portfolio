@@ -1,3 +1,4 @@
+import { canonicalPostPath } from "./postRoutes";
 import type { Post } from "./posts";
 import { OWNER_NAME, SITE_URL } from "./siteMeta";
 
@@ -8,9 +9,15 @@ import { OWNER_NAME, SITE_URL } from "./siteMeta";
 
 const SITE = SITE_URL;
 
-/** Canonical page URL for a post, e.g. https://site.com/starter-advice */
+/**
+ * Canonical page URL for a post, e.g. https://site.com/explore/starter-advice
+ *
+ * A post is reachable under both collections, so this deliberately returns the
+ * canonical one — it feeds the "Ask ChatGPT" deep link and the markdown URL,
+ * both of which get shared and should settle on a single address.
+ */
 export function postUrl(post: Post): string {
-  return `${SITE}/${post.slug}`;
+  return `${SITE}${canonicalPostPath(post.slug)}`;
 }
 
 /** Raw-markdown URL for a post (served via ?format=markdown). */

@@ -120,6 +120,7 @@ export const ICON_NAMES = [
   "youtube",
   "calendar",
   "mail",
+  "send",
   "x",
   "medium",
   "discord",
@@ -378,8 +379,17 @@ const SectionSchema = z.discriminatedUnion("type", [
         .array(
           z.strictObject({
             label: NonEmpty,
-            /** `mailto:` and `https:` are both legitimate here. */
-            href: z.union([HttpsUrl, z.string().regex(/^mailto:.+@.+\..+$/)]),
+            /**
+             * A CTA points at one of three things: an internal route
+             * (root-relative, e.g. `/contact`), an external site (`https:`), or
+             * an email (`mailto:`). The component opens only the `https:` form
+             * in a new tab.
+             */
+            href: z.union([
+              z.string().regex(/^\/[^/]/, "must be a root-relative path like /contact"),
+              HttpsUrl,
+              z.string().regex(/^mailto:.+@.+\..+$/),
+            ]),
             icon: IconName,
             primary: z.boolean().optional(),
           }),

@@ -1,7 +1,11 @@
+<!-- Cover placeholder for posts with no `coverImage`.
+     No background fill and no outer frame on purpose: the card that hosts this
+     already draws a border, and the cover sits flush against it, so an inset
+     frame here reads as a doubled border. Just a centred, muted image glyph. -->
 <svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" fill="none">
-  <rect width="640" height="360" fill="#202023"/>
-  <rect x="32" y="32" width="576" height="296" rx="16" stroke="#38383e"/>
-  <rect x="254" y="120" width="132" height="104" rx="12" stroke="#777780" stroke-width="3"/>
-  <circle cx="289" cy="150" r="11" fill="#92929b"/>
-  <path d="m265 208 37-38 26 26 21-24 26 36" stroke="#92929b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <g stroke="#a1a1aa" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="235" y="116" width="170" height="128" rx="14" />
+    <path d="M248 232l52-52 32 32 24-24 36 44" />
+  </g>
+  <circle cx="275" cy="152" r="13" fill="#a1a1aa" />
 </svg>

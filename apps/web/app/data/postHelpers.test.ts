@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { chatGptUrl, postMarkdownUrl, postToMarkdown, postUrl, readingTime } from "./postHelpers";
+import { CANONICAL_COLLECTION, canonicalPostPath } from "./postRoutes";
 import { posts } from "./posts";
 import { OWNER_NAME, SITE_URL } from "./siteMeta";
 
@@ -13,9 +14,9 @@ import { OWNER_NAME, SITE_URL } from "./siteMeta";
 const FIRST = posts[0];
 
 describe("postUrl / postMarkdownUrl", () => {
-  test("builds the canonical url from SITE_URL and the slug", () => {
+  test("builds the canonical url from SITE_URL and the canonical collection path", () => {
     for (const post of posts) {
-      expect(postUrl(post)).toBe(`${SITE_URL}/${post.slug}`);
+      expect(postUrl(post)).toBe(`${SITE_URL}${canonicalPostPath(post.slug)}`);
     }
   });
 
@@ -23,7 +24,8 @@ describe("postUrl / postMarkdownUrl", () => {
     for (const post of posts) {
       const url = new URL(postUrl(post));
       expect(url.protocol).toBe("https:");
-      expect(url.pathname).toBe(`/${post.slug}`);
+      expect(url.pathname).toBe(`/${CANONICAL_COLLECTION}/${post.slug}`);
+      expect(url.pathname).not.toContain("//");
     }
   });
 

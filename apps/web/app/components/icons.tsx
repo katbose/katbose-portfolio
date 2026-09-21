@@ -1,4 +1,4 @@
-import { Calendar, Mail } from "lucide-react";
+import { Calendar, Mail, Send } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 import {
   FaGithub,
@@ -30,6 +30,7 @@ export const ICONS: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
   youtube: FaYoutube,
   calendar: Calendar,
   mail: Mail,
+  send: Send,
   x: FaXTwitter,
   medium: FaMedium,
   discord: DiscordIcon,

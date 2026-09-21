@@ -1,5 +1,6 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { readingTime } from "../../data/postHelpers";
+import { postPath } from "../../data/postRoutes";
 import { getSortedPosts, type Post } from "../../data/posts";
 import { Inline } from "../RichText";
 import { SectionShell } from "../SectionShell";
@@ -35,7 +36,7 @@ export function ThoughtsSection({ title, data }: { title: string; data: Thoughts
         {previews.map((post) => (
           <a
             key={post.slug}
-            href={`/${post.slug}`}
+            href={postPath("explore", post.slug)}
             className="group relative block overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 p-4 transition-all hover:-translate-y-0.5 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm"
           >
             {/* Meta row */}

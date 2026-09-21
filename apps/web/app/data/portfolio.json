@@ -861,16 +861,10 @@
         "subheading": "open to opportunities, collaborations, and good conversations. book a slot on my calendar or drop me a line.",
         "ctas": [
           {
-            "label": "Email me",
-            "href": "mailto:im@katbose.dev",
-            "icon": "mail",
+            "label": "Contact me",
+            "href": "/contact",
+            "icon": "send",
             "primary": true
-          },
-          {
-            "label": "GitHub",
-            "href": "https://github.com/katbose",
-            "icon": "github",
-            "primary": false
           }
         ],
         "socialsLabel": "Find me on",

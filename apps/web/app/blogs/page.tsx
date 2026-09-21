@@ -8,5 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default function BlogsPage() {
-  return <PostArchive label="Blogs" />;
+  return (
+    <PostArchive collection="blogs" label="My Blogs" heading="Long-form writing" variant="media" />
+  );
 }

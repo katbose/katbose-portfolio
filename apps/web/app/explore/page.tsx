@@ -8,5 +8,12 @@ export const metadata: Metadata = {
 };
 
 export default function ExplorePage() {
-  return <PostArchive label="Things I Explore" />;
+  return (
+    <PostArchive
+      collection="explore"
+      label="Things I Explore"
+      heading="Essays & notes"
+      variant="list"
+    />
+  );
 }

@@ -6,7 +6,7 @@ import { SectionRenderer } from "./components/sections/registry";
 import { generateMarkdown } from "./data/generateMarkdown";
 import { MARKDOWN_TIME_TOKEN } from "./data/localTime";
 import { portfolio } from "./data/portfolio";
-import { DOCS_URL } from "./data/siteMeta";
+import { sectionAnchorId } from "./data/siteMenu";
 
 export default function Home() {
   const timezone =
@@ -15,7 +15,6 @@ export default function Home() {
   return (
     <PortfolioShell
       siteUrl={portfolio.meta.siteUrl}
-      docsUrl={DOCS_URL}
       timezone={timezone}
       markdownTemplate={generateMarkdown(portfolio, MARKDOWN_TIME_TOKEN)}
       navigationLinks={
@@ -65,6 +64,7 @@ export default function Home() {
       {portfolio.sections.map((section, i) => (
         <Reveal
           key={i}
+          id={section.type === "hero" ? undefined : sectionAnchorId(section.type)}
           delay={section.type === "hero" ? 0 : 0.05}
           className={
             section.type === "hero"
