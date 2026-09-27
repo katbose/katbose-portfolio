@@ -703,54 +703,18 @@
     },
     {
       "type": "project",
-      "title": "Coolest Experiment with Consumer Tech",
+      "title": "My Projects",
       "data": {
-        "name": "Double Dart",
-        "link": "https://www.doubledart.fun/",
-        "subtitle": "Anonymous crush matching for NIT Hamirpur, Class of 2026",
-        "image": "/doubledart-logo.svg",
-        "cardImage": "/doubledart-illustration.png",
+        "name": "theroyalglow.in",
+        "link": "https://theroyalglow.in",
+        "subtitle": "Full-stack digital platform Salon & SPA",
         "body": [
-          "a 3-day social experiment i shipped with a batchmate: graduating students anonymously dart the people they noticed over four years. a crush stays sealed forever unless it is mutual, and only then are both names revealed.",
-          "built lean on Supabase and Vercel with college-email Google sign-in. no ops team, no data hoarding, the database was destroyed after the event and only anonymized stats remain."
-        ],
-        "stats": [
-          {
-            "value": "201",
-            "label": "sign-ups in 3 days"
-          },
-          {
-            "value": "238",
-            "label": "crushes sent"
-          },
-          {
-            "value": "11",
-            "label": "mutual pairs matched"
-          },
-          {
-            "value": "766",
-            "label": "unique visitors"
-          },
-          {
-            "value": "80.7K",
-            "label": "Supabase requests"
-          },
-          {
-            "value": "3.2K",
-            "label": "page views"
-          },
-          {
-            "value": "85%",
-            "label": "mobile traffic"
-          },
-          {
-            "value": "9.2%",
-            "label": "crushes reciprocated"
-          }
+          "a solo-built project born from a real salon and spa business in Bengaluru. i'm building an end-to-end platform that connects customer bookings, staff operations, CRM, memberships, billing, and marketing automation in one ecosystem, with the ambition of making it accessible to other salon and spa businesses.",
+          "built with Next.js, TypeScript, Bun, Neon PostgreSQL, and Better Auth, using a modular monorepo architecture. a real-world business serving as a testing ground for an open-source solution designed to help traditional service businesses go digital."
         ],
         "footerLink": {
-          "label": "Read the full case study",
-          "url": "https://www.doubledart.fun/case-study"
+          "label": "View all projects",
+          "url": "/projects"
         }
       }
     },
@@ -794,10 +758,9 @@
       "data": {
         "items": [
           {
-            "title": "National Institute of Technology Hamirpur",
-            "role": "Electrical Engineering",
-            "logo": "https://nith.ac.in/uploads/topics/nit-logo15954991401255.jpg",
-            "body": ["2022 - Surviving"]
+            "title": "BCET, Visvesvaraya Technological University",
+            "role": "Bachelor of Engineering in Computer Science",
+            "body": ["Aug. 2018 – Jul. 2022"]
           }
         ]
       }

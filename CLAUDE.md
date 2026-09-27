@@ -500,6 +500,16 @@ commitlint.
 
 Hooks install themselves — the `lefthook` package's postinstall runs
 `lefthook install`, and skips when `CI` is set. There is no `prepare` script.
+
+The root **does** have a `postinstall`: `scripts/prune-legacy-bundler.mjs`, which
+removes the bundler Next used before Turbopack from the installed `next` package.
+Nothing here uses it — `next dev` and `next build` both run Turbopack — but Next
+vendors it anyway to keep its opt-out flag working, which is ~6 MB of dead code
+per install. The script's header documents why it stubs one file instead of
+deleting it and what cannot be removed; read it before changing it. CI asserts
+the result with `bun run bundler:check`, and `KEEP_LEGACY_BUNDLER=1 bun install
+--force` restores a stock install. Do not add Next's bundler opt-out flag to a
+build script: it will throw the stub's error.
 `pre-commit` is skipped mid-merge and mid-rebase, because those commits are often
 not something the committer can fix in place.
 

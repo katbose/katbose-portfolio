@@ -95,8 +95,8 @@ export function ProjectSection({ title, data }: { title: string; data: ProjectDa
         {data.footerLink && (
           <a
             href={data.footerLink.url}
-            target="_blank"
-            rel="noopener noreferrer"
+            target={data.footerLink.url.startsWith("/") ? undefined : "_blank"}
+            rel={data.footerLink.url.startsWith("/") ? undefined : "noopener noreferrer"}
             className="mt-8 inline-flex items-center gap-1 text-xs font-medium text-black dark:text-white underline underline-offset-4 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             {data.footerLink.label} <ArrowRight className="h-3 w-3" />

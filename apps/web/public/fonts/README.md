@@ -7,5 +7,5 @@ Copyright and redistribution terms: [OFL.txt](OFL.txt).
 
 The filenames retain the source content hashes. The CSS preserves the generated
 Unicode ranges and fallback metrics; layout.tsx explicitly preloads both URLs.
-This avoids the missing font preloads observed in the Windows Webpack build.
+This avoids the missing font preloads observed in an earlier production build.
 Update the CSS and preload URLs together when replacing these assets.

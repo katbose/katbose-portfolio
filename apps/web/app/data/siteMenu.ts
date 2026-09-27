@@ -22,7 +22,7 @@ export interface SiteMenuLink {
 export const SITE_MENU: { primary: SiteMenuLink[]; more: SiteMenuLink[] } = {
   primary: [
     { label: "Experience", href: "/#experience" },
-    { label: "Projects", href: "/#projects" },
+    { label: "Projects", href: "/projects" },
     { label: "Blogs", href: "/blogs" },
     { label: "Resume", href: "/resume" },
     { label: "Contact", href: "/contact" },
@@ -39,13 +39,11 @@ export const SITE_MENU: { primary: SiteMenuLink[]; more: SiteMenuLink[] } = {
  * The `id` a section renders with, so a `/#<type>` menu link lands on it.
  *
  * Derived from the section's `type` (the discriminant in `portfolio.json`), so
- * a link and its target cannot drift: `type: "project"` becomes `id="project"`,
- * matched by the `/#project`... wait — the menu says `/#projects`. The mapping
- * below reconciles the few cases where the menu label's slug differs from the
- * section type.
+ * legacy homepage anchor links keep working even when the menu points to a
+ * dedicated archive such as `/projects`.
  */
 const SECTION_ANCHOR_OVERRIDES: Record<string, string> = {
-  // Menu link is "/#projects"; the section type is singular "project".
+  // Preserve existing /#projects links; the section type is singular "project".
   project: "projects",
 };
 

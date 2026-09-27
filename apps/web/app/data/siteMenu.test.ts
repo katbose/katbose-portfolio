@@ -74,9 +74,7 @@ describe("section anchor links", () => {
     }
   });
 
-  test("the project section resolves to the id the menu links to", () => {
-    // The one place label and type disagree: the section type is singular
-    // "project", the menu link is "/#projects".
+  test("the project section preserves its legacy homepage anchor", () => {
     expect(sectionAnchorId("project")).toBe("projects");
   });
 

@@ -105,7 +105,7 @@ Set-Location katbose-portfolio
 # Install every workspace and the repository hooks
 bun install
 
-# Start all workspaces that expose a dev script
+# Start every workspace that exposes a dev script, through Turborepo
 bun run dev
 ```
 

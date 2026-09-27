@@ -14,7 +14,8 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "bun --filter '*' dev",
+    "dev": "turbo run dev",
+    "dev:bun": "bun --filter '*' dev",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
@@ -26,14 +27,16 @@
     "check": "biome check --write",
     "ci:biome": "biome ci",
     "mcp:sync": "node scripts/sync-mcp.mjs",
-    "mcp:check": "node scripts/sync-mcp.mjs --check"
+    "mcp:check": "node scripts/sync-mcp.mjs --check",
+    "postinstall": "bun scripts/prune-legacy-bundler.mjs --quiet",
+    "bundler:check": "bun scripts/prune-legacy-bundler.mjs --check"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.13",
     "@commitlint/cli": "21.2.2",
     "@commitlint/config-conventional": "21.2.2",
     "lefthook": "2.1.12",
-    "turbo": "2.10.12",
+    "turbo": "2.11.4",
     "typescript": "7.0.2"
   },
   "overrides": {

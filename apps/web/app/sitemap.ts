@@ -25,6 +25,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    {
+      url: `${baseUrl}/projects`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     // Every post is picked up automatically from app/data/posts.ts. Only the
     // canonical collection is listed: the same post also answers under the other
     // prefix, and submitting both would be submitting duplicates.

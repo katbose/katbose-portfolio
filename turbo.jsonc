@@ -38,18 +38,23 @@
 
     "validate": {
       "description": "Content/config validation for a workspace (e.g. Mintlify docs)."
-    }
+    },
 
-    // There is deliberately no "dev" task here.
-    //
-    // A dev server is persistent and must never be cached, which leaves
-    // Turborepo doing nothing for it but running two scripts side by side —
-    // something Bun's own workspace filter does natively. So the root `dev`
-    // script is `bun --filter '*' dev`, and this file only declares tasks
-    // Turborepo actually earns its keep on: the cacheable ones.
-    //
-    // A useful side effect: `bun run dev` needs no Turborepo binary, so it still
-    // works on machines where Windows Smart App Control blocks the unsigned
-    // turbo.exe. See CONTRIBUTING.md.
+    "dev": {
+      "description": "Dev servers: web on :7000, docs on :7003.",
+      // A dev server never exits. `persistent` tells Turborepo that, so it
+      // keeps the task running instead of waiting for it, and refuses to let
+      // any other task declare a dependency on it.
+      "persistent": true,
+      // Watch output is never a reusable artifact, and replaying a cached dev
+      // server would be actively wrong. No `outputs` either, for the same
+      // reason.
+      "cache": false
+      // Deliberately NOT "interactive": true. It would let the TUI forward
+      // keystrokes to a focused server, but Turborepo then refuses to start the
+      // task at all unless the TUI is active — so `bun run dev` would die with
+      // "Cannot run interactive task without Terminal UI" any time output is
+      // piped or the shell is not a TTY. Neither dev server needs stdin.
+    }
   }
 }

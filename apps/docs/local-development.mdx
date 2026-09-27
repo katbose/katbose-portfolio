@@ -69,7 +69,7 @@ bun audit          # dependency vulnerability audit
 
 ## Testing
 
-The web production build uses `next build --webpack`; development uses Turbopack. Fonts are committed with their license and need no build-time download. To check the built route budgets, run `bun --filter @katbose/web bundle:report --check`.
+The web app uses Turbopack for both `next dev` and `next build`, and the root `postinstall` prunes the bundler Next shipped before it from the installed `next` package. Run `KEEP_LEGACY_BUNDLER=1 bun install --force` if you ever need a stock install back. Fonts are committed with their license and need no build-time download. To check the built route budgets, run `bun --filter @katbose/web bundle:report --check`.
 
 Two runners with no overlap between them.
 

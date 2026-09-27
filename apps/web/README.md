@@ -141,7 +141,8 @@ those rules exist once rather than in each consumer.
 | `/` | Homepage from `sections[]` |
 | `/explore` | Things I Explore index |
 | `/thoughts` | Permanent redirect to `/explore` |
-| `/blogs` | All blog posts, using the same design as `/explore` |
+| `/blogs` | Blog archive with image-and-text rows |
+| `/projects` | All `project` sections, using the blog archive layout |
 | `/<slug>` | One essay, HTML |
 | `/<slug>/markdown` | The same essay, `text/markdown` |
 | `/<slug>?format=markdown` | Rewritten to `/<slug>/markdown` by `proxy.ts` |
@@ -200,7 +201,7 @@ of dropping the declaration entirely.
 
 ```bash
 bun --filter @katbose/web dev         # next dev  -p 7000
-bun --filter @katbose/web build       # next build --webpack (measured production bundle)
+bun --filter @katbose/web build       # next build (Turbopack)
 bun --filter @katbose/web start       # next start -p 7000
 bun --filter @katbose/web typecheck   # tsc --noEmit
 bun --filter @katbose/web test        # bun test  (unit)

@@ -68,10 +68,8 @@ const HttpsUrl = z.url({ protocol: /^https$/ });
  * at those call sites. Only sources passed to `next/image` need to appear in
  * `next.config.ts` `remotePatterns`, and that is enforced by Next itself.
  */
-const ImageSrc = z.union([
-  z.string().regex(/^\/[^/].*$/, "must be a root-relative path like /me.png"),
-  HttpsUrl,
-]);
+const LocalImageSrc = z.string().regex(/^\/[^/].*$/, "must be a root-relative path like /me.png");
+const ImageSrc = z.union([LocalImageSrc, HttpsUrl]);
 
 /**
  * A unit of rich text, mirroring `Block` in `components/types.ts`: either a
@@ -295,11 +293,16 @@ const SectionSchema = z.discriminatedUnion("type", [
       name: NonEmpty,
       link: HttpsUrl.optional(),
       subtitle: NonEmpty.optional(),
-      image: ImageSrc.optional(),
-      cardImage: ImageSrc.optional(),
+      // The archive sends both fields through Next's image optimizer. Keep
+      // them local so a schema-valid host cannot fail at render time merely
+      // because it is absent from next.config.ts remotePatterns.
+      image: LocalImageSrc.optional(),
+      cardImage: LocalImageSrc.optional(),
       body: z.array(Block).min(1),
       stats: z.array(z.strictObject({ value: NonEmpty, label: NonEmpty })).optional(),
-      footerLink: LinkRef.optional(),
+      footerLink: LinkRef.extend({
+        url: z.union([HttpsUrl, z.string().regex(/^\/[^/]*$/)]),
+      }).optional(),
     }),
   ),
 

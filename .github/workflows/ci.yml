@@ -76,6 +76,14 @@ jobs:
       - name: Dependency security audit
         run: bun audit
 
+      - name: Legacy bundler is absent from the install
+        # The root postinstall prunes Next's legacy bundler, which no build here
+        # uses. This asserts it actually ran and still found what it expected: a
+        # Next release that moves those files would otherwise silently start
+        # shipping it again. A Next release that drops it passes too — a missing
+        # bundle counts as pruned.
+        run: bun run bundler:check
+
       - name: MCP config mirrors are in sync
         # .kiro/settings/mcp.json is the source of truth for MCP servers;
         # .mcp.json, opencode.json, .vscode/mcp.json, .codex/config.toml, and

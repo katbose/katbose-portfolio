@@ -63,7 +63,7 @@ export function generateMarkdown(
     parts.push(`## ${card.title}\n\n### ${card.data.heading}\n\n${blocks(card.data.body)}`);
   }
 
-  // Coolest Experiment (project)
+  // Projects
   const project = find(sections, "project");
   if (project) {
     const p = project.data;

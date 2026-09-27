@@ -22,8 +22,8 @@ Node is only needed for the docs site; the web app builds and runs under Bun.
 ```bash
 git clone https://github.com/katbose/katbose-portfolio.git
 cd katbose-portfolio
-bun install     # every workspace, plus the git hooks
-bun run dev     # starts every workspace that declares a dev task
+bun install     # every workspace, the git hooks, and the bundler prune
+bun run dev     # turbo run dev — every workspace that declares a dev script
 ```
 
 Ports are fixed per workspace so nothing collides when several run at once:
@@ -117,13 +117,16 @@ reinstalling Windows) the workaround is to skip Turborepo and call the workspace
 scripts directly:
 
 ```bash
+bun run dev:bun                       # both dev servers, no turbo binary
 bun --filter @katbose/web build
 bun --filter @katbose/web typecheck
 bun --filter @katbose/web test
 ```
 
-You lose Turborepo's caching locally, nothing else. CI runs on Linux and is
-unaffected.
+Every root script goes through Turborepo now, `dev` included, which is why
+`dev:bun` exists: it runs the same two dev servers through Bun's own workspace
+filter. You lose Turborepo's caching locally, nothing else. CI runs on Linux and
+is unaffected.
 
 ## Commits
 

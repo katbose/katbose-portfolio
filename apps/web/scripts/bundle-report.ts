@@ -37,9 +37,14 @@ const NEXT_DIR = join(import.meta.dir, "..", ".next");
  * These are deliberately set a little above the measured baseline rather than at
  * some aspirational number: a budget that is already red teaches everyone to
  * ignore it. Ratchet them down as the server-first refactor lands.
+ *
+ * `/` moved from 580 to 585 when production builds moved to Turbopack. Its
+ * runtime chunk is ~9.5 KB against the ~3.5 KB one it replaced, which took the
+ * same homepage from 578.8 KB to 582.9 KB; the application chunks themselves
+ * came out slightly smaller.
  */
 const BUDGETS_KB: Record<string, number> = {
-  "/": 580,
+  "/": 585,
   "/explore": 650,
   "/[slug]": 650,
 };
@@ -73,7 +78,8 @@ function measure(htmlPath: string): { chunks: number; bytes: number } {
   let bytes = 0;
   for (const ref of refs) {
     // "/_next/..." -> "<.next>/..."
-    // Webpack URL-encodes route segments such as [slug] in HTML references.
+    // Turbopack emits hashed chunk names, so decoding is normally a no-op. It
+    // stays so a URL-encoded route segment such as [slug] still resolves.
     const file = join(NEXT_DIR, decodeURIComponent(ref.replace("/_next/", "")));
     // Missing chunks mean a stale/incomplete build, never a zero-byte saving.
     if (!existsSync(file)) throw new Error(`Referenced client chunk is missing: ${file}`);

@@ -77,13 +77,25 @@ when upgrading Next; it follows next.config.ts image settings.
 DM Sans is vendored in `public/fonts/` with its SIL Open Font License. The same
 Latin and Latin Extended subsets, Unicode ranges and fallback metrics are retained.
 The root layout explicitly preloads both fonts through React; a server-response
-test verifies those hints and the WOFF2 assets. This fixes missing preloads in the
-Windows Webpack build and removes the build-time Google Fonts dependency. Swap
-display preserves the intended font after loading; optional display was rejected
-after an inconsistent mobile capture.
+test verifies those hints and the WOFF2 assets. This fixed missing preloads in an
+earlier production build and removes the build-time Google Fonts dependency.
+Swap display preserves the intended font after loading; optional display was
+rejected after an inconsistent mobile capture.
 
-Production builds explicitly use Next's supported Webpack backend, which
-produces the smaller measured bundle. Development continues to use Turbopack.
+Every build runs on Turbopack, Next's default bundler, in development and in
+production alike. No script opts out. Its runtime chunk accounts for the 5 KB
+the homepage budget gained when the build moved over; the application chunks
+came out slightly smaller.
+
+Next still vendors the bundler it used before Turbopack, so the root
+`postinstall` prunes it from the installed `next` package. See
+[`scripts/prune-legacy-bundler.mjs`](scripts/prune-legacy-bundler.mjs) for the
+mechanism and its limits: roughly 6 MB is reclaimed per install, the 2.5 MB
+payload becomes a stub that throws rather than a deleted file because Next
+resolves its module aliases at startup even under Turbopack, and ~4.8 MB of
+Next's own loaders stay because the Turbopack build imports them. CI asserts the
+result with `bun run bundler:check`, and
+`KEEP_LEGACY_BUNDLER=1 bun install --force` restores a stock install.
 
 ## Verification and budgets
 
@@ -109,12 +121,12 @@ The expanded-stack baselines were reviewed and replaced on September 16 because
 the earlier captures contained blank, unrevealed sections. Full-page captures
 now verify section opacity and final counters after overlapping scroll steps.
 
-CI enforces the bundle report after building: 580 KB for `/` and 650 KB for the
+CI enforces the bundle report after building: 585 KB for `/` and 650 KB for the
 other tracked routes. The report sums raw JavaScript referenced in generated
 HTML, including conservative preload/legacy references; it is not compressed
 transfer size and excludes later dynamic downloads and RSC/HTML payloads.
 Missing referenced chunks fail rather than count as zero bytes.
 
-The current raw-JavaScript measurements are 578.7 KB for `/`, 556.2 KB for
-`/thoughts`, and 558.0 KB for `/[slug]`. These values describe a local production
-build; they do not establish production Core Web Vitals.
+The current raw-JavaScript measurements are 582.9 KB for `/`, 562.3 KB for
+`/explore`, and 556.8 KB for `/[slug]`. These values describe a local Turbopack
+production build; they do not establish production Core Web Vitals.

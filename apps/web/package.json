@@ -6,7 +6,7 @@
     "dev": "next dev -p 7000",
     "validate:content": "bun run scripts/validate-content.ts",
     "prebuild": "bun run validate:content",
-    "build": "next build --webpack",
+    "build": "next build",
     "bundle:report": "bun run scripts/bundle-report.ts",
     "start": "next start -p 7000",
     "typecheck": "tsc --noEmit",

@@ -3,9 +3,8 @@ name: Renovate
 on:
   workflow_dispatch:
   schedule:
-    # Weekly; offset from the other scheduled maintenance workflows so their
-    # runs don't land in the same few minutes.
-    - cron: "17 5 * * 1"
+    # Monday, Wednesday, and Friday at 12:00 PM IST (06:30 UTC).
+    - cron: "30 6 * * 1,3,5"
 
 # A second run should never start while one is mid-extract; scheduled runs
 # are infrequent enough that waiting is fine rather than cancelling.
