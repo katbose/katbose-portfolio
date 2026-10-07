@@ -32,16 +32,16 @@
     "bundler:check": "bun scripts/prune-legacy-bundler.mjs --check"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.13",
-    "@commitlint/cli": "21.2.2",
-    "@commitlint/config-conventional": "21.2.2",
-    "lefthook": "2.1.12",
-    "turbo": "2.11.4",
+    "@biomejs/biome": "2.5.14",
+    "@commitlint/cli": "21.2.3",
+    "@commitlint/config-conventional": "21.2.3",
+    "lefthook": "2.1.15",
+    "turbo": "2.11.5",
     "typescript": "7.0.2"
   },
   "overrides": {
     "react": "19.3.0",
-    "sharp": "0.35.4",
+    "sharp": "0.35.5",
     "qs": "6.16.0",
     "adm-zip": "0.6.1",
     "js-yaml@4.3.1": "4.3.2",
