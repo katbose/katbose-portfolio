@@ -73,6 +73,14 @@ jobs:
         # reader to find the file and line in the log.
         run: bun run ci:biome -- --reporter=github
 
+      - name: Dependency security fixes and compatibility
+        # Exercise the frontmatter migration and braces depth guard through
+        # their actual consumers before trusting the dependency substitutions.
+        run: |
+          bun run check:frontmatter
+          bun run check:braces
+          bun run check:overrides
+
       - name: Dependency security audit
         run: bun audit
 

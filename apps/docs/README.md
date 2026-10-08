@@ -57,11 +57,13 @@ Both are fixed by collapsing each package onto a single version, in the root
   "qs": "6.16.0",
   "adm-zip": "0.6.1",
   "js-yaml@4.3.1": "4.3.2",
+  "js-yaml@3.15.2": "4.3.2",
   "puppeteer@24.3.1": "25.11.0",
   "@modelcontextprotocol/sdk@1.30.0": "1.31.0",
   "axios@1.18.0": "1.20.0",
   "katex@0.16.47": "0.18.2",
-  "postcss-selector-parser@6.1.4": "7.1.6"
+  "postcss-selector-parser@6.1.4": "7.1.6",
+  "braces@3.0.3": "npm:@dieub/braces-depth-guard@3.0.3-pn.3"
 }
 ```
 
@@ -80,13 +82,19 @@ links, accessibility, formatting and development were verified for that move.
 docs toolchain; they are listed here because `bun audit` flags them and the
 packages that pull them in pin exact versions, so nothing else can move them.
 
-`js-yaml` uses the **version-scoped** form on purpose. Every `@mintlify/*`
-package pins `js-yaml` at exactly `4.3.1`, but `front-matter` needs `^3.13.1`,
-and js-yaml v4 removed `safeLoad`. A plain `"js-yaml": "4.3.2"` rule would drag
-`front-matter` across a major and break it. The `@4.3.1` selector matches only
-dependents whose declared range covers 4.3.1, so `front-matter` keeps its 3.x
-copy. Verified after installing: one `js-yaml@4.3.2` hoisted, one `3.15.2` nested
-under `front-matter`, and commitlint still loads its config.
+`js-yaml` uses **version-scoped** overrides. Mintlify's 4.3.1 pin moves to
+4.3.2. The legacy 3.15.2 dependency under `front-matter` also moves to 4.3.2,
+with a committed Bun patch replacing `safeLoad` with v4's safe-by-default
+`load` API. This removes the argparse 1 / sprintf-js dependency chain. Legacy
+JavaScript YAML tags remain disabled, including with `allowUnsafe: true`.
+Quote string identifiers with leading zeroes because v4 recognizes more
+unquoted values as numbers. Current docs preserve their metadata and body.
+
+The exact `braces` alias selects a reviewed depth-guard backport with the
+same API used by Micromatch and Chokidar. It caps brace/parenthesis nesting
+and AST traversal, while preserving ordinary matching and watcher behavior.
+See [`SECURITY.md`](../../.github/SECURITY.md) for its provenance and review.
+No advisory is excluded from the audit.
 
 Nested and version-scoped overrides need Bun >= 1.4, and Bun writes them as
 lockfile version 3. `packageManager` already pins Bun 1.4.2.
@@ -95,7 +103,7 @@ The version-scoped Puppeteer override replaces Mintlify's 24.3.1 pin with
 25.11.0 and its matching browser downloader 3.2.2. This removes `extract-zip`
 and both reported path-traversal/arbitrary-write advisories. The clean audit
 recorded on September 16, 2026 was a historical result. Mintlify is now pinned
-at 4.2.952; current unresolved findings are listed in
+at 4.2.952; the current remediations are recorded in
 [`SECURITY.md`](../../.github/SECURITY.md).
 
 The SDK and Axios overrides select patched releases within their current
@@ -109,7 +117,13 @@ the SDK's in-memory client/server transport and Axios loopback HTTP through
 the packages that consume these overrides. This checks compatibility;
 `bun audit` still enforces advisory status.
 
-This crosses a major version deliberately. The
+`bun run check:frontmatter` exercises the patched parser through Mintlify's
+wrapper, including real docs, delimiter/line-ending fixtures and unsafe-tag
+rejection. `bun run check:braces` exercises the depth guard and its file-matcher
+and watcher consumers. CI runs all three compatibility checks before the raw
+audit, so a clean advisory lookup cannot conceal a broken replacement.
+
+The Puppeteer replacement crosses a major version deliberately. The
 [Puppeteer 25 migration notes](https://pptr.dev/CHANGELOG#2500-2026-05-12)
 require Node 22 and remove several deprecated APIs. Mintlify's installed ESM
 adapter uses supported `launch`, page navigation, viewport, headers and content

@@ -28,7 +28,9 @@
     "ci:biome": "biome ci",
     "mcp:sync": "node scripts/sync-mcp.mjs",
     "mcp:check": "node scripts/sync-mcp.mjs --check",
-    "check:overrides": "node scripts/check-dependency-overrides.mjs"
+    "check:overrides": "node scripts/check-dependency-overrides.mjs",
+    "check:frontmatter": "node scripts/check-docs-frontmatter.mjs",
+    "check:braces": "node scripts/check-braces-backport.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
@@ -44,10 +46,15 @@
     "qs": "6.16.0",
     "adm-zip": "0.6.1",
     "js-yaml@4.3.1": "4.3.2",
+    "js-yaml@3.15.2": "4.3.2",
     "puppeteer@24.3.1": "25.11.0",
     "@modelcontextprotocol/sdk@1.30.0": "1.31.0",
     "axios@1.18.0": "1.20.0",
     "katex@0.16.47": "0.18.2",
-    "postcss-selector-parser@6.1.4": "7.1.6"
+    "postcss-selector-parser@6.1.4": "7.1.6",
+    "braces@3.0.3": "npm:@dieub/braces-depth-guard@3.0.3-pn.3"
+  },
+  "patchedDependencies": {
+    "front-matter@4.0.2": "patches/front-matter@4.0.2.patch"
   }
 }

@@ -99,20 +99,33 @@ Five other advisories reported against this tree were resolved by pinning
 `apps/docs/README.md` explains each pin and why the `js-yaml` rule uses Bun's
 version-scoped form.
 
-## Unresolved dependency findings
+## Documentation dependency remediation
 
-On October 8, 2026, compatible lockfile updates and scoped overrides reduced
-the current audit from 26 findings to two:
+On October 8, 2026, compatible lockfile updates, scoped overrides and the
+following dependency replacements resolved all 26 audit findings. The raw
+`bun audit` command remains enforced without advisory exclusions.
 
-| Package | Dependency path | Advisory | Upstream fix |
-|---|---|---|---|
-| `braces@3.0.3` | Tailwind 3 / micromatch and Mintlify / chokidar | [Stack exhaustion from deeply nested patterns](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) | No patched release published |
-| `sprintf-js@1.0.3` | Mintlify / front-matter / js-yaml 3 / argparse 1 | [Denial of service from unbounded precision](https://github.com/advisories/GHSA-hp3w-g68c-fv3c) | No patched release published |
+`sprintf-js` was removed by moving the legacy frontmatter dependency from
+js-yaml 3 to 4.3.2. The committed Bun patch for `front-matter@4.0.2` uses
+`load`, the safe API in js-yaml 4, instead of the removed `safeLoad` API.
+Legacy JavaScript YAML tags remain disabled, including with `allowUnsafe`.
+This eliminates the argparse 1 / sprintf-js dependency path underlying
+[GHSA-hp3w-g68c-fv3c](https://github.com/advisories/GHSA-hp3w-g68c-fv3c).
 
-These are unresolved CI blockers. They are not accepted exceptions, and
-`bun audit` continues to fail on them. Upgrading Next.js fixes the earlier
-installation failure, which had prevented CI from reaching the audit step.
-Resolving the remaining findings requires patched upstream packages or a
-reviewed replacement of the affected dependency paths.
+`braces@3.0.3` is replaced with the exact reviewed backport
+`@dieub/braces-depth-guard@3.0.3-pn.3`. Its runtime changes bound brace and
+parenthesis nesting and AST traversal to 100 levels and reject cyclic parent
+chains. These changes address
+[GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm).
+The backport's registry signatures and provenance attestation were verified;
+its runtime matches source commit
+`305a2e4bfe324bb53c336c1b03387ee1251c926f`, and its 799-test suite passes.
+The lockfile pins the npm archive's integrity hash.
+
+CI exercises both remediations through actual Mintlify, file-matching and
+watcher consumers, including malicious input regression tests. A renamed
+package or a clean audit alone does not establish remediation. Revisit the
+backport and frontmatter patch when maintained upstream releases remove the
+need for them; retain the regression tests when changing these pins.
 
 If you find another reachable issue, please report it.
