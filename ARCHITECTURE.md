@@ -2,7 +2,7 @@
 
 ## Runtime and content
 
-The web workspace uses Next.js 16.3.5, React 19.3.0, TypeScript 7.0.2 and Bun
+The web workspace uses Next.js 16.4.0, React 19.3.0, TypeScript 7.0.2 and Bun
 1.4.2. Direct dependencies are pinned to exact versions. Native browser animations
 replace Motion; docs tooling
 uses a reviewed Puppeteer override to remove the vulnerable ZIP extractor.
@@ -69,10 +69,11 @@ history updates the theme through a popstate listener.
 `OptimizedImage` renders responsive image markup on the server. `WaterImage`
 shares its optimized URL between the image and shader, with a noscript fallback.
 Original assets remain in `public/`; Next.js resizes and compresses them.
-`imageProps.server.ts` isolates imports from Next's internal image helpers,
-because its public barrel retains unused client Image code in this version.
-Five parity tests compare the adapter with the public API. Review this adapter
-when upgrading Next; it follows next.config.ts image settings.
+`imageProps.server.ts` re-exports the supported `getImageProps` API from
+`next/image`. Five behavioral tests cover responsive sizing, optimized URLs,
+remote thumbnails, SVGs and explicitly unoptimized images. Next injects
+`next.config.ts` image settings during compilation; production builds and
+browser tests exercise that configuration.
 
 DM Sans is vendored in `public/fonts/` with its SIL Open Font License. The same
 Latin and Latin Extended subsets, Unicode ranges and fallback metrics are retained.
@@ -82,20 +83,14 @@ earlier production build and removes the build-time Google Fonts dependency.
 Swap display preserves the intended font after loading; optional display was
 rejected after an inconsistent mobile capture.
 
-Every build runs on Turbopack, Next's default bundler, in development and in
-production alike. No script opts out. Its runtime chunk accounts for the 5 KB
-the homepage budget gained when the build moved over; the application chunks
-came out slightly smaller.
+Development and production builds explicitly select Turbopack with
+`next dev --turbopack` and `next build --turbopack`. Its runtime chunk accounts
+for the 5 KB the homepage budget gained when the build moved over; the
+application chunks came out slightly smaller.
 
-Next still vendors the bundler it used before Turbopack, so the root
-`postinstall` prunes it from the installed `next` package. See
-[`scripts/prune-legacy-bundler.mjs`](scripts/prune-legacy-bundler.mjs) for the
-mechanism and its limits: roughly 6 MB is reclaimed per install, the 2.5 MB
-payload becomes a stub that throws rather than a deleted file because Next
-resolves its module aliases at startup even under Turbopack, and ~4.8 MB of
-Next's own loaders stay because the Turbopack build imports them. CI asserts the
-result with `bun run bundler:check`, and
-`KEEP_LEGACY_BUNDLER=1 bun install --force` restores a stock install.
+The installed Next.js package stays stock, including its bundled dependencies.
+Installation does not modify Next's internal files or depend on their private
+layout. Turbopack is selected through the supported CLI flag.
 
 ## Verification and budgets
 
@@ -127,6 +122,6 @@ HTML, including conservative preload/legacy references; it is not compressed
 transfer size and excludes later dynamic downloads and RSC/HTML payloads.
 Missing referenced chunks fail rather than count as zero bytes.
 
-The current raw-JavaScript measurements are 582.9 KB for `/`, 562.3 KB for
-`/explore`, and 556.8 KB for `/[slug]`. These values describe a local Turbopack
-production build; they do not establish production Core Web Vitals.
+The current raw-JavaScript measurements are 584.8 KB for `/`, 564.6 KB for
+`/explore`, and 559.3 KB for `/[slug]`. These values describe a local Next.js
+16.4.0 Turbopack production build; they do not establish production Core Web Vitals.

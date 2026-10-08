@@ -99,4 +99,20 @@ Five other advisories reported against this tree were resolved by pinning
 `apps/docs/README.md` explains each pin and why the `js-yaml` rule uses Bun's
 version-scoped form.
 
-If you find something reachable that is not on this list, please report it.
+## Unresolved dependency findings
+
+On October 8, 2026, compatible lockfile updates and scoped overrides reduced
+the current audit from 26 findings to two:
+
+| Package | Dependency path | Advisory | Upstream fix |
+|---|---|---|---|
+| `braces@3.0.3` | Tailwind 3 / micromatch and Mintlify / chokidar | [Stack exhaustion from deeply nested patterns](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) | No patched release published |
+| `sprintf-js@1.0.3` | Mintlify / front-matter / js-yaml 3 / argparse 1 | [Denial of service from unbounded precision](https://github.com/advisories/GHSA-hp3w-g68c-fv3c) | No patched release published |
+
+These are unresolved CI blockers. They are not accepted exceptions, and
+`bun audit` continues to fail on them. Upgrading Next.js fixes the earlier
+installation failure, which had prevented CI from reaching the audit step.
+Resolving the remaining findings requires patched upstream packages or a
+reviewed replacement of the affected dependency paths.
+
+If you find another reachable issue, please report it.

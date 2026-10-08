@@ -79,7 +79,7 @@ Client components own only interactive state: the shell handles agent mode and Q
 - DM Sans is vendored with its license under `apps/web/public/fonts/`. The layout explicitly preloads both subsets; builds do not download fonts from Google.
 - Vercel Analytics loads only when `VERCEL=1`. That environment value participates in the Turborepo build cache key.
 
-Static images use Next's responsive optimization with server-rendered `img` markup. A small adapter isolates Next's internal image helpers because the public barrel retains unused client Image code in the pinned version. Five parity tests compare it with the public API; review the adapter when upgrading Next. Illustration textures share the optimized image URL and retain a no-JavaScript image fallback.
+Static images use Next's responsive optimization with server-rendered `img` markup. The server image helper re-exports the supported `getImageProps` API from `next/image`. Five behavioral tests cover responsive sizing, optimized URLs, remote thumbnails, SVGs and explicitly unoptimized images; production builds and browser tests exercise the image settings Next injects during compilation. Illustration textures share the optimized image URL and retain a no-JavaScript image fallback.
 
 Development and production builds both use Turbopack, Next's default bundler. The bundle report sums raw JavaScript referenced by generated HTML, including preload and legacy references. It excludes deferred downloads and HTML/RSC payloads. CI enforces 585 KB for the homepage and 650 KB for the essay routes. This is a bundle guardrail, not compressed transfer size or a Core Web Vitals measurement.
 

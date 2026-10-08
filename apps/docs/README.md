@@ -25,14 +25,14 @@ bun --filter @katbose/docs a11y           # colour contrast + media alt text
 | `local-development.mdx` | Install, run, test, validate |
 | `changelog.mdx` | **Owned by release automation.** See below |
 
-## The two overrides in the root package.json exist for this workspace
+## Dependency overrides for this workspace
 
 Mintlify's packages pin their dependencies to exact versions, and two of those
 pins collide with the web app's:
 
 | Package | Pins | Web app has |
 |---|---|---|
-| `@mintlify/prebuild` | `sharp` **0.33.5** exactly | `sharp` 0.35.4, via `next` |
+| `@mintlify/prebuild` | `sharp` **0.33.5** exactly | `sharp` 0.35.5, via `next` |
 | `@mintlify/previewing` | `react` **19.2.3** exactly | `react` 19.3.0 |
 
 Bun hoists one version and nests the other, producing two failures that look
@@ -42,7 +42,7 @@ unrelated but share a cause:
   DLLs by name once per process, so whichever loads second is handed the wrong
   library and dies with `ERR_DLOPEN_FAILED: The specified procedure could not be
   found`. The trigger is `sharp-ico`, a `favicons` dependency that declares
-  `sharp: *` and so resolves to whatever is hoisted — Next's 0.35.4.
+  `sharp: *` and so resolves to whatever is hoisted — Next's 0.35.5.
 - **react** — `react-reconciler` hoists to the root and binds to react 19.3.0
   while `ink` renders with the nested 19.2.3. Two React instances means two
   dispatchers, so every hook call throws inside `mint dev`.
@@ -53,11 +53,15 @@ Both are fixed by collapsing each package onto a single version, in the root
 ```json
 "overrides": {
   "react": "19.3.0",
-  "sharp": "0.35.4",
+  "sharp": "0.35.5",
   "qs": "6.16.0",
   "adm-zip": "0.6.1",
   "js-yaml@4.3.1": "4.3.2",
-  "puppeteer@24.3.1": "25.11.0"
+  "puppeteer@24.3.1": "25.11.0",
+  "@modelcontextprotocol/sdk@1.30.0": "1.31.0",
+  "axios@1.18.0": "1.20.0",
+  "katex@0.16.47": "0.18.2",
+  "postcss-selector-parser@6.1.4": "7.1.6"
 }
 ```
 
@@ -68,10 +72,9 @@ dual-dispatcher bug nor a duplicate-DLL bug. Collapsing to one copy does: after
 these rules there is exactly one `react`, one `sharp`, and one `libvips-42.dll`
 in the tree, so neither collision can occur at all.
 
-`sharp` is pinned up to 0.35.4 rather than down to Mintlify's 0.33.5, because
-0.33.5 carries four libvips CVEs and two libheif advisories that 0.35.4 fixes.
-Verified that `mint validate`, `broken-links`, `a11y`, `format` and `dev` all
-work on 0.35.4.
+`sharp` is pinned to 0.35.5. The earlier move to 0.35.4 addressed four libvips
+CVEs and two libheif advisories in Mintlify's 0.33.5 pin; validation, broken
+links, accessibility, formatting and development were verified for that move.
 
 `qs`, `adm-zip` and `js-yaml` are purely security bumps for advisories in the
 docs toolchain; they are listed here because `bun audit` flags them and the
@@ -90,9 +93,21 @@ lockfile version 3. `packageManager` already pins Bun 1.4.2.
 
 The version-scoped Puppeteer override replaces Mintlify's 24.3.1 pin with
 25.11.0 and its matching browser downloader 3.2.2. This removes `extract-zip`
-and both reported path-traversal/arbitrary-write advisories. `bun audit` on
-September 16, 2026 reports **no vulnerabilities** across 956 audited packages.
-Mintlify itself remains pinned at 4.2.891.
+and both reported path-traversal/arbitrary-write advisories. The clean audit
+recorded on September 16, 2026 was a historical result. Mintlify is now pinned
+at 4.2.952; current unresolved findings are listed in
+[`SECURITY.md`](../../.github/SECURITY.md).
+
+The SDK and Axios overrides select patched releases within their current
+major versions. KaTeX and the selector parser cross dependency ranges, so
+their math-rendering and Tailwind 3 integration must be checked on upgrades.
+Each rule targets only the vulnerable version, preserving other installed
+versions and dependency paths.
+
+Run `bun run check:overrides` to exercise math rendering, Tailwind 3 CSS,
+the SDK's in-memory client/server transport and Axios loopback HTTP through
+the packages that consume these overrides. This checks compatibility;
+`bun audit` still enforces advisory status.
 
 This crosses a major version deliberately. The
 [Puppeteer 25 migration notes](https://pptr.dev/CHANGELOG#2500-2026-05-12)

@@ -223,7 +223,7 @@ see [architecture](../../ARCHITECTURE.md).
 | `siteMeta.test.ts` | Metadata derived from `meta{}` |
 | `portfolio.schema.test.ts` | Content validation and invalid-data rejection |
 | `localTime.test.ts` | Timezone formatting and Markdown timestamp insertion |
-| `imageProps.test.ts` | Internal image adapter parity with Next's public API |
+| `imageProps.test.ts` | Five behavioral tests for the public `getImageProps` API: responsive sizing, optimized URLs, remote thumbnails, SVGs and unoptimized images |
 
 **End-to-end** — Playwright against a production build:
 

@@ -22,7 +22,7 @@ Node is only needed for the docs site; the web app builds and runs under Bun.
 ```bash
 git clone https://github.com/katbose/katbose-portfolio.git
 cd katbose-portfolio
-bun install     # every workspace, the git hooks, and the bundler prune
+bun install     # every workspace and the git hooks
 bun run dev     # turbo run dev — every workspace that declares a dev script
 ```
 
@@ -209,8 +209,8 @@ root, which is why `packages/typescript-config/base.json` sets `types`
 explicitly. That field is replaced rather than merged when a config extends it,
 so a workspace needing other ambient types has to restate the full list.
 
-Run `bun audit` after adding anything. Two advisories are currently accepted and
-explained in [`SECURITY.md`](SECURITY.md); anything beyond those needs a look.
+Run `bun audit` after adding anything. CI enforces the result; unresolved
+findings are documented in [`SECURITY.md`](SECURITY.md) and require remediation.
 
 ## Versioning
 
