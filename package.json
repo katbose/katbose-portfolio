@@ -28,23 +28,33 @@
     "ci:biome": "biome ci",
     "mcp:sync": "node scripts/sync-mcp.mjs",
     "mcp:check": "node scripts/sync-mcp.mjs --check",
-    "postinstall": "bun scripts/prune-legacy-bundler.mjs --quiet",
-    "bundler:check": "bun scripts/prune-legacy-bundler.mjs --check"
+    "check:overrides": "node scripts/check-dependency-overrides.mjs",
+    "check:frontmatter": "node scripts/check-docs-frontmatter.mjs",
+    "check:braces": "node scripts/check-braces-backport.mjs"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.13",
-    "@commitlint/cli": "21.2.2",
-    "@commitlint/config-conventional": "21.2.2",
-    "lefthook": "2.1.12",
-    "turbo": "2.11.4",
+    "@biomejs/biome": "2.5.14",
+    "@commitlint/cli": "21.2.3",
+    "@commitlint/config-conventional": "21.2.3",
+    "lefthook": "2.1.15",
+    "turbo": "2.11.5",
     "typescript": "7.0.2"
   },
   "overrides": {
     "react": "19.3.0",
-    "sharp": "0.35.4",
+    "sharp": "0.35.5",
     "qs": "6.16.0",
     "adm-zip": "0.6.1",
     "js-yaml@4.3.1": "4.3.2",
-    "puppeteer@24.3.1": "25.11.0"
+    "js-yaml@3.15.2": "4.3.2",
+    "puppeteer@24.3.1": "25.11.0",
+    "@modelcontextprotocol/sdk@1.30.0": "1.31.0",
+    "axios@1.18.0": "1.20.0",
+    "katex@0.16.47": "0.18.2",
+    "postcss-selector-parser@6.1.4": "7.1.6",
+    "braces@3.0.3": "npm:@dieub/braces-depth-guard@3.0.3-pn.3"
+  },
+  "patchedDependencies": {
+    "front-matter@4.0.2": "patches/front-matter@4.0.2.patch"
   }
 }

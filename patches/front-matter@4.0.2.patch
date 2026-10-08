@@ -1,0 +1,14 @@
+diff --git a/index.js b/index.js
+index d518f1df0974b361911ab5ed90857295ab834f0a..4df0cee865836bfbc138cd8a6214f892de696e2d 100644
+--- a/index.js
++++ b/index.js
+@@ -59,7 +59,8 @@ function parse (string, allowUnsafe) {
+     }
+   }
+ 
+-  var loader = allowUnsafe ? parser.load : parser.safeLoad
++  // js-yaml v4's load is safe by default; legacy JavaScript tags stay disabled.
++  var loader = parser.load
+   var yaml = match[match.length - 1].replace(/^\s+|\s+$/g, '')
+   var attributes = loader(yaml) || {}
+   var body = string.replace(match[0], '')

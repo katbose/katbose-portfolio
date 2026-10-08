@@ -73,16 +73,16 @@ jobs:
         # reader to find the file and line in the log.
         run: bun run ci:biome -- --reporter=github
 
+      - name: Dependency security fixes and compatibility
+        # Exercise the frontmatter migration and braces depth guard through
+        # their actual consumers before trusting the dependency substitutions.
+        run: |
+          bun run check:frontmatter
+          bun run check:braces
+          bun run check:overrides
+
       - name: Dependency security audit
         run: bun audit
-
-      - name: Legacy bundler is absent from the install
-        # The root postinstall prunes Next's legacy bundler, which no build here
-        # uses. This asserts it actually ran and still found what it expected: a
-        # Next release that moves those files would otherwise silently start
-        # shipping it again. A Next release that drops it passes too — a missing
-        # bundle counts as pruned.
-        run: bun run bundler:check
 
       - name: MCP config mirrors are in sync
         # .kiro/settings/mcp.json is the source of truth for MCP servers;
@@ -102,7 +102,7 @@ jobs:
         run: bun test --coverage --coverage-reporter=text --coverage-reporter=lcov
 
       - name: Upload unit coverage
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./apps/web/coverage/lcov.info
           disable_search: true

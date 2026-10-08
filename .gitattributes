@@ -16,3 +16,7 @@
 
 # Lockfile: generated, collapse it in diffs and reviews.
 bun.lock linguist-generated=true
+
+# Unified patches require a leading space on blank context lines.
+# Preserve those markers when checking whitespace in committed Bun patches.
+patches/*.patch -whitespace

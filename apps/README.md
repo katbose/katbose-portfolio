@@ -377,7 +377,7 @@ changelogs readable.
 From the repository root:
 
 ```bash
-bun install              # every workspace, the git hooks, and the bundler prune
+bun install              # every workspace and the git hooks
 
 bun run dev              # turbo run dev — web on :7000, docs on :7003
 bun run dev:bun          # same servers without turbo (Smart App Control escape)
